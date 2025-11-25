@@ -1,0 +1,22 @@
+[
+  {
+    "title": "SkillWrape",
+    "subtitle": "Full-Stack Learning Platform",
+    "desc": "A comprehensive LMS where students, teachers, and admins manage dashboards, built with modern authentication and state management.",
+    "tech": ["Next.js 14", "TypeScript", "MongoDB", "Clerk Auth"],
+    "live": "#",
+    "github": "https://github.com/alvinmonir411",
+    "color": "from-blue-600 to-cyan-500",
+    "icon": "layout"
+  },
+  {
+    "title": "E-Commerce Dashboard",
+    "subtitle": "Performance Monitoring Tool",
+    "desc": "A headless e-commerce analytics dashboard featuring real-time data visualization and complex filtering systems for administrators.",
+    "tech": ["React", "Redux Toolkit", "D3.js", "Tailwind CSS"],
+    "live": "#",
+    "github": "https://github.com/alvinmonir411",
+    "color": "from-purple-600 to-pink-500",
+    "icon": "message-square"
+  }
+]
