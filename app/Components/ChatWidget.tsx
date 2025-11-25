@@ -7,7 +7,7 @@ import { RootState } from "../lib/store";
 
 const ChatWidget = () => {
   const callGemini = async (prompt: string, systemInstruction: string = "") => {
-    const apiKey = process.env.APIKEY;
+    const apiKey = process.env.NEXT_PUBLIC_API_SERECT;
     try {
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`,
