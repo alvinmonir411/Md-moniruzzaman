@@ -3,9 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./Provider";
 
-import NavBar from "./Components/Navber";
+import ConditionalNavbar from "./Components/ConditionalNavbar";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import Footer from "./Components/Footer";
+import ConditionalFooter from "./Components/ConditionalFooter";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -23,8 +23,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  modal,
 }: Readonly<{
   children: React.ReactNode;
+  modal: React.ReactNode;
 }>) {
   return (
     <html lang="en">
@@ -33,9 +35,10 @@ export default function RootLayout({
       >
         <Providers>
           <SpeedInsights />
-          <NavBar />
+          <ConditionalNavbar />
           {children}
-          <Footer />
+          {modal}
+          <ConditionalFooter />
         </Providers>
       </body>
     </html>

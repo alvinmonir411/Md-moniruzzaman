@@ -60,7 +60,7 @@ const ChatWidget = () => {
     setChatInput("");
     setIsChatLoading(true);
 
-    const systemPrompt = `
+    const systemPrompt = ` dont say he always say i am or i okay 
   You are the official AI assistant for Alvin Monir’s web portfolio.
   Identity: Friendly, confident, professional, concise, and helpful. You speak on behalf of Alvin.
 

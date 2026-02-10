@@ -12,6 +12,9 @@ interface ProjectsSectionProps {
 
 const ProjectsSection = ({ projects }: ProjectsSectionProps) => {
   const isDark = useSelector((state: RootState) => state.theme.isDark);
+  const customProjects = projects.filter(p => !p.category || p.category === 'custom');
+  const wixProjects = projects.filter(p => p.category === 'wix');
+
   return (
     <section
       id="projects"
@@ -19,11 +22,36 @@ const ProjectsSection = ({ projects }: ProjectsSectionProps) => {
     >
       <h2 className="text-3xl font-bold mb-10 dark:text-white">My Projects</h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {projects.map((project) => (
-          <ProjectCard key={project.title} project={project} />
-        ))}
+      {/* Custom Projects */}
+      <div className="mb-16">
+        <h3 className="text-2xl font-semibold mb-6 flex items-center gap-2 dark:text-slate-200">
+          <span className="w-2 h-8 bg-indigo-500 rounded-full"></span>
+          Custom Development
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {customProjects.map((project) => (
+            <ProjectCard key={project._id || project.title} project={project} />
+          ))}
+        </div>
+        {customProjects.length === 0 && (
+          <p className="text-slate-500 dark:text-slate-400 italic">No custom projects yet.</p>
+        )}
       </div>
+
+      {/* Wix Projects */}
+      {wixProjects.length > 0 && (
+        <div className="mb-16">
+          <h3 className="text-2xl font-semibold mb-6 flex items-center gap-2 dark:text-slate-200">
+            <span className="w-2 h-8 bg-purple-500 rounded-full"></span>
+            Wix & No-Code Solutions
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {wixProjects.map((project) => (
+              <ProjectCard key={project._id || project.title} project={project} />
+            ))}
+          </div>
+        </div>
+      )}
       {/* Footer CTA */}
       <div className="mt-20 flex justify-center">
         <a
