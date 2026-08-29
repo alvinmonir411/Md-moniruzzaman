@@ -1,145 +1,139 @@
 import { NextRequest } from "next/server";
-import clientPromise from "@/app/lib/mongodb";
-import { ObjectId } from "mongodb";
+import sql from "@/app/lib/db";
 
 export async function GET() {
-    try {
-        const client = await clientPromise;
-        const db = client.db("juwelary");
-        const collection = db.collection("Messages");
+  try {
+    const messages = await sql`
+      SELECT 
+        id as _id,
+        name,
+        email,
+        subject,
+        message,
+        is_read as "isRead",
+        created_at as "createdAt"
+      FROM messages
+      ORDER BY id DESC;
+    `;
 
-        const messages = await collection
-            .find({})
-            .sort({ createdAt: -1 })
-            .toArray();
+    const serializableMessages = messages.map((msg: any) => ({
+      ...msg,
+      _id: String(msg._id),
+      createdAt: msg.createdAt ? new Date(msg.createdAt).toISOString() : new Date().toISOString(),
+    }));
 
-        const serializableMessages = messages.map((msg) => ({
-            ...msg,
-            _id: msg._id.toString(),
-            createdAt: msg.createdAt.toISOString(),
-        }));
-
-        return new Response(JSON.stringify(serializableMessages), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-        });
-    } catch (error) {
-        console.error("Failed to fetch messages:", error);
-        return new Response(
-            JSON.stringify({ error: "Failed to fetch messages" }),
-            {
-                status: 500,
-                headers: { "Content-Type": "application/json" },
-            }
-        );
-    }
+    return new Response(JSON.stringify(serializableMessages), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Failed to fetch messages from Neon DB:", error);
+    return new Response(
+      JSON.stringify({ error: "Failed to fetch messages" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
 }
 
 export async function POST(request: NextRequest) {
-    try {
-        const body = await request.json();
-        const client = await clientPromise;
-        const db = client.db("juwelary");
-        const collection = db.collection("Messages");
+  try {
+    const body = await request.json();
 
-        const newMessage = {
-            name: body.name,
-            email: body.email,
-            subject: body.subject,
-            message: body.message,
-            isRead: false,
-            createdAt: new Date(),
-        };
+    const result = await sql`
+      INSERT INTO messages (name, email, subject, message, is_read)
+      VALUES (${body.name || ""}, ${body.email || ""}, ${body.subject || ""}, ${body.message || ""}, false)
+      RETURNING id, name, created_at;
+    `;
 
-        const result = await collection.insertOne(newMessage);
-
-        return new Response(
-            JSON.stringify({
-                success: true,
-                _id: result.insertedId.toString(),
-            }),
-            {
-                status: 201,
-                headers: { "Content-Type": "application/json" },
-            }
-        );
-    } catch (error) {
-        console.error("Failed to create message:", error);
-        return new Response(JSON.stringify({ error: "Failed to create message" }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-        });
-    }
+    return new Response(
+      JSON.stringify({
+        success: true,
+        _id: String(result[0].id),
+      }),
+      {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  } catch (error) {
+    console.error("Failed to create message in Neon DB:", error);
+    return new Response(JSON.stringify({ error: "Failed to create message" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 }
 
 export async function PUT(request: NextRequest) {
-    try {
-        const body = await request.json();
-        const client = await clientPromise;
-        const db = client.db("juwelary");
-        const collection = db.collection("Messages");
+  try {
+    const body = await request.json();
+    const id = Number(body._id);
 
-        const { _id, ...updateData } = body;
+    const result = await sql`
+      UPDATE messages
+      SET 
+        is_read = COALESCE(${body.isRead}, is_read)
+      WHERE id = ${id}
+      RETURNING id;
+    `;
 
-        const result = await collection.updateOne(
-            { _id: new ObjectId(_id) },
-            { $set: updateData }
-        );
-
-        if (result.matchedCount === 0) {
-            return new Response(JSON.stringify({ error: "Message not found" }), {
-                status: 404,
-                headers: { "Content-Type": "application/json" },
-            });
-        }
-
-        return new Response(JSON.stringify({ success: true }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-        });
-    } catch (error) {
-        console.error("Failed to update message:", error);
-        return new Response(JSON.stringify({ error: "Failed to update message" }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-        });
+    if (result.length === 0) {
+      return new Response(JSON.stringify({ error: "Message not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
     }
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Failed to update message in Neon DB:", error);
+    return new Response(JSON.stringify({ error: "Failed to update message" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 }
 
 export async function DELETE(request: NextRequest) {
-    try {
-        const { searchParams } = new URL(request.url);
-        const id = searchParams.get("id");
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
 
-        if (!id) {
-            return new Response(JSON.stringify({ error: "Message ID required" }), {
-                status: 400,
-                headers: { "Content-Type": "application/json" },
-            });
-        }
-
-        const client = await clientPromise;
-        const db = client.db("juwelary");
-        const collection = db.collection("Messages");
-
-        const result = await collection.deleteOne({ _id: new ObjectId(id) });
-
-        if (result.deletedCount === 0) {
-            return new Response(JSON.stringify({ error: "Message not found" }), {
-                status: 404,
-                headers: { "Content-Type": "application/json" },
-            });
-        }
-
-        return new Response(JSON.stringify({ success: true }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-        });
-    } catch (error) {
-        console.error("Failed to delete message:", error);
-        return new Response(JSON.stringify({ error: "Failed to delete message" }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-        });
+    if (!id) {
+      return new Response(JSON.stringify({ error: "Message ID required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
+
+    const result = await sql`
+      DELETE FROM messages
+      WHERE id = ${Number(id)}
+      RETURNING id;
+    `;
+
+    if (result.length === 0) {
+      return new Response(JSON.stringify({ error: "Message not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Failed to delete message from Neon DB:", error);
+    return new Response(JSON.stringify({ error: "Failed to delete message" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 }

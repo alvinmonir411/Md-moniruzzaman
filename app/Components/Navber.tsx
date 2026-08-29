@@ -4,15 +4,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { Code2, Moon, Sun, Menu, X, Sparkles } from "lucide-react";
 import { NavLink } from "../types";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../lib/store";
 import { toggleTheme } from "../lib/features/theme/themeSlice";
 import AdminModal from "./AdminModal";
-
-interface NavBarProps {
-  isDark: boolean;
-  setIsDark: (value: boolean) => void;
-}
 
 interface Particle {
   id: number;
@@ -27,6 +23,8 @@ interface Particle {
 const ADMIN_SECRET_KEY = process.env.NEXT_PUBLIC_ADMIN_SECRET || "13663";
 
 const NavBar = () => {
+  const pathname = usePathname();
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isLogoAnimating, setIsLogoAnimating] = useState(false);
@@ -68,11 +66,17 @@ const NavBar = () => {
     return () => clearInterval(interval);
   }, [particles]);
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-      setIsMenuOpen(false);
+  const handleNavigation = (id: string) => {
+    setIsMenuOpen(false);
+
+    if (pathname === "/") {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // From subpages like /projects, redirect to home with hash
+      router.push(`/#${id}`);
     }
   };
 
@@ -100,22 +104,24 @@ const NavBar = () => {
   const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
 
-    // Trigger premium animation
+    // Trigger animation
     setIsLogoAnimating(true);
 
-    // Create particle explosion at logo position
     if (logoRef.current) {
       const rect = logoRef.current.getBoundingClientRect();
       createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
     }
 
-    // Reset animation after delay
     setTimeout(() => setIsLogoAnimating(false), 600);
 
-    // Open modal after animation starts
-    setTimeout(() => {
-      setIsModalOpen(true);
-    }, 300);
+    // If already on homepage, open secret admin modal; otherwise go home
+    if (pathname !== "/") {
+      router.push("/");
+    } else {
+      setTimeout(() => {
+        setIsModalOpen(true);
+      }, 300);
+    }
   };
 
   const handleModalSubmit = (key: string): boolean => {
@@ -128,22 +134,25 @@ const NavBar = () => {
     }
     return false;
   };
+
   const navLinks: NavLink[] = [
     { name: "About", id: "about" },
     { name: "Skills", id: "skills" },
     { name: "Projects", id: "projects" },
+    { name: "GitHub", id: "github" },
     { name: "Experience", id: "experience" },
     { name: "Contact", id: "contact" },
   ];
 
   return (
     <nav
-      className={`fixed w-full z-50 transition-all duration-300 ${scrolled
-        ? isDark
-          ? "bg-slate-900/80 border-b border-slate-800"
-          : "bg-white/80 border-b border-gray-200"
-        : "bg-transparent"
-        } backdrop-blur-lg`}
+      className={`fixed w-full z-50 transition-all duration-300 ${
+        scrolled
+          ? isDark
+            ? "bg-slate-900/80 border-b border-slate-800"
+            : "bg-white/80 border-b border-gray-200"
+          : "bg-transparent"
+      } backdrop-blur-lg`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
@@ -166,36 +175,36 @@ const NavBar = () => {
             ))}
 
             <Link
-              href={"/addSkils"}
+              href="/"
               onClick={handleLogoClick}
-              className={`flex-shrink-0 font-bold text-2xl tracking-tighter flex items-center gap-2 group relative ${isLogoAnimating ? "animate-logo-click" : ""
-                }`}
+              className={`flex-shrink-0 font-bold text-2xl tracking-tighter flex items-center gap-2 group relative ${
+                isLogoAnimating ? "animate-logo-click" : ""
+              }`}
             >
               {/* Animated Glow Effect */}
               <div
-                className={`absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-xl opacity-0 group-hover:opacity-30 blur-xl transition-all duration-500 ${isLogoAnimating ? "opacity-60 scale-150" : ""
-                  }`}
+                className={`absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-xl opacity-0 group-hover:opacity-30 blur-xl transition-all duration-500 ${
+                  isLogoAnimating ? "opacity-60 scale-150" : ""
+                }`}
               />
 
               {/* Logo Icon Container */}
               <div
-                className={`relative bg-gradient-to-br from-indigo-600 to-purple-600 p-1.5 rounded-lg shadow-lg transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 ${isLogoAnimating
-                  ? "scale-125 rotate-[360deg] shadow-2xl shadow-indigo-500/50"
-                  : ""
-                  }`}
+                className={`relative bg-gradient-to-br from-indigo-600 to-purple-600 p-1.5 rounded-lg shadow-lg transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 ${
+                  isLogoAnimating ? "scale-125 rotate-[360deg] shadow-2xl shadow-indigo-500/50" : ""
+                }`}
               >
                 <Code2 className="w-6 h-6 text-white relative z-10" />
-
-                {/* Inner Glow */}
                 <div className="absolute inset-0 bg-white/20 rounded-lg blur-sm" />
               </div>
 
               {/* Text Logo */}
               <span
-                className={`relative ${isDark ? "text-white" : "text-slate-900"
-                  } transform transition-all duration-300 group-hover:scale-105`}
+                className={`relative ${
+                  isDark ? "text-white" : "text-slate-900"
+                } transform transition-all duration-300 group-hover:scale-105`}
               >
-                AM
+                MZ
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 animate-gradient">
                   .
                 </span>
@@ -203,8 +212,9 @@ const NavBar = () => {
 
               {/* Sparkle Effect on Hover */}
               <Sparkles
-                className={`absolute -top-1 -right-1 w-4 h-4 text-yellow-400 opacity-0 group-hover:opacity-100 transition-all duration-300 ${isLogoAnimating ? "opacity-100 scale-150" : ""
-                  }`}
+                className={`absolute -top-1 -right-1 w-4 h-4 text-yellow-400 opacity-0 group-hover:opacity-100 transition-all duration-300 ${
+                  isLogoAnimating ? "opacity-100 scale-150" : ""
+                }`}
               />
             </Link>
           </div>
@@ -215,26 +225,26 @@ const NavBar = () => {
               {navLinks.map((link) => (
                 <button
                   key={link.name}
-                  onClick={() => scrollToSection(link.id)}
-                  className={`relative group px-3 py-2 text-sm font-medium transition-colors ${isDark
-                    ? "text-slate-300 hover:text-white"
-                    : "text-slate-600 hover:text-indigo-600"
-                    }`}
+                  onClick={() => handleNavigation(link.id)}
+                  className={`relative group px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
+                    isDark ? "text-slate-300 hover:text-white" : "text-slate-600 hover:text-indigo-600"
+                  }`}
                 >
                   {link.name}
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span>
                 </button>
               ))}
-              <div
-                className={`h-6 w-px ${isDark ? "bg-slate-700" : "bg-slate-300"
-                  }`}
-              ></div>
+
+              <div className={`h-6 w-px ${isDark ? "bg-slate-700" : "bg-slate-300"}`} />
+
               <button
                 onClick={() => handleToggle()}
-                className={`p-2.5 rounded-full transition-all duration-300 ${isDark
-                  ? "bg-slate-800 hover:bg-indigo-600 text-yellow-400"
-                  : "bg-gray-100 hover:bg-indigo-100 text-indigo-600 shadow-sm"
-                  }`}
+                className={`p-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                  isDark
+                    ? "bg-slate-800 hover:bg-indigo-600 text-yellow-400"
+                    : "bg-gray-100 hover:bg-indigo-100 text-indigo-600 shadow-sm"
+                }`}
+                aria-label="Toggle Theme"
               >
                 {isDark ? <Sun size={18} /> : <Moon size={18} />}
               </button>
@@ -245,17 +255,18 @@ const NavBar = () => {
           <div className="md:hidden flex items-center gap-4">
             <button
               onClick={() => handleToggle()}
-              className={`p-2 rounded-full transition-colors ${isDark
-                ? "bg-slate-800 text-yellow-400"
-                : "bg-gray-100 text-indigo-600"
-                }`}
+              className={`p-2 rounded-full transition-colors ${
+                isDark ? "bg-slate-800 text-yellow-400" : "bg-gray-100 text-indigo-600"
+              }`}
+              aria-label="Toggle Theme"
             >
               {isDark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className={`inline-flex items-center justify-center p-2 rounded-md hover:text-indigo-500 focus:outline-none ${isDark ? "text-white" : "text-slate-900"
-                }`}
+              className={`inline-flex items-center justify-center p-2 rounded-md hover:text-indigo-500 focus:outline-none ${
+                isDark ? "text-white" : "text-slate-900"
+              }`}
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -266,23 +277,20 @@ const NavBar = () => {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div
-          className={`md:hidden absolute w-full ${isDark
-            ? "bg-slate-900 border-b border-slate-800"
-            : "bg-white border-b border-gray-200"
-            }`}
+          className={`md:hidden absolute w-full ${
+            isDark ? "bg-slate-900 border-b border-slate-800" : "bg-white border-b border-gray-200"
+          }`}
         >
           <div className="px-4 pt-4 pb-6 space-y-2">
             {navLinks.map((link) => (
               <button
                 key={link.name}
-                onClick={() => {
-                  scrollToSection(link.id);
-                  setIsMenuOpen(false);
-                }}
-                className={`block w-full text-left px-4 py-3 rounded-xl text-base font-medium transition-all ${isDark
-                  ? "text-slate-300 hover:text-indigo-500 hover:bg-indigo-500/10"
-                  : "text-slate-600 hover:text-indigo-500 hover:bg-indigo-50"
-                  }`}
+                onClick={() => handleNavigation(link.id)}
+                className={`block w-full text-left px-4 py-3 rounded-xl text-base font-medium transition-all ${
+                  isDark
+                    ? "text-slate-300 hover:text-indigo-500 hover:bg-indigo-500/10"
+                    : "text-slate-600 hover:text-indigo-500 hover:bg-indigo-50"
+                }`}
               >
                 {link.name}
               </button>

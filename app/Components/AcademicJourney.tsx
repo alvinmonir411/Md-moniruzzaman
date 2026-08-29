@@ -1,240 +1,231 @@
 "use client";
 
-import React from "react";
-import { GraduationCap, Briefcase, ArrowRight } from "lucide-react"; // Added ArrowRight for the 'View All' link
+import React, { useState, useEffect } from "react";
+import { GraduationCap, Briefcase, Calendar, MapPin, CheckCircle, Sparkles, Building2 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "../lib/store";
+import { calculateExperience, WIX_JOIN_DATE } from "../lib/experience";
 
-// --- CUSTOM COLOR DEFINITION ---
-// We will strictly use 'indigo' as requested.
-const PRIMARY_ACCENT_CLASS = "text-indigo-500";
-const PRIMARY_BG_CLASS = "bg-indigo-500/10";
-const PRIMARY_SHADOW_CLASS = "shadow-indigo-500/20";
-
-const academicData = [
+const ACADEMIC_DATA = [
   {
     title: "Bachelor of Social Science (BSS)",
     institution: "Govt. Begum Rokeya College, Rangpur",
-    timeline: "Expected 2026",
+    timeline: "2022 – Expected 2026",
+    tag: "Higher Education",
     icon: "🎓",
+    details: "Focusing on analytical problem solving, social dynamics, communication, and software research.",
   },
   {
     title: "Higher Secondary Certificate (HSC)",
     institution: "Cantonment Public School & College, Rangpur",
     timeline: "2020 – 2022",
+    tag: "Science Background",
     icon: "🏫",
+    details: "Excelled in core science disciplines, mathematical logic, and analytical problem-solving foundation.",
   },
   {
     title: "Secondary School Certificate (SSC)",
     institution: "R.K.M School & College, Rangpur",
     timeline: "2018 – 2020",
+    tag: "Graduated with Honors",
     icon: "📘",
+    details: "Built initial passion for computers, programming fundamentals, algorithms, and web technologies.",
   },
 ];
 
-const experienceData = [
-  {
-    role: "Wix Developer",
-    company: "SM Technology",
-    timeline: "Duration: 5 Months",
-    icon: "💼",
-    description:
-      "Designed and developed professional Wix websites, optimized SEO, and handled cross-device experiences for clients.",
-  },
-];
-
-// Enhanced InfoCard component
-const InfoCard = ({
-  title,
-  subtitle,
-  timeline,
-  icon,
-  isDark,
-  colSpan = "col-span-1",
-  description,
-}: {
-  title: string;
-  subtitle: string;
-  timeline: string;
-  icon: string;
-  isDark: boolean;
-  colSpan?: string;
-  description?: string;
-}) => (
-  <div
-    className={`${colSpan} p-8 rounded-3xl border transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl h-full flex flex-col justify-between
-      ${
-        isDark
-          ? `bg-slate-900 border-slate-700 shadow-xl ${PRIMARY_SHADOW_CLASS} hover:shadow-indigo-900/40`
-          : `bg-white border-gray-100 shadow-xl hover:shadow-indigo-100`
-      }`}
-  >
-    <div>
-      <div className="flex items-center gap-4 mb-4">
-        <div
-          className={`p-3 rounded-xl ${PRIMARY_BG_CLASS} ${PRIMARY_ACCENT_CLASS} text-2xl`}
-        >
-          {icon}
-        </div>
-        <h3
-          className={`text-2xl font-extrabold ${
-            isDark ? "text-white" : "text-slate-900"
-          }`}
-        >
-          {title}
-        </h3>
-      </div>
-
-      <p
-        className={`text-lg font-semibold mb-1 ${
-          isDark ? "text-slate-300" : "text-slate-700"
-        }`}
-      >
-        {subtitle}
-      </p>
-
-      {description && (
-        <p
-          className={`text-base mb-4 ${
-            isDark ? "text-slate-400" : "text-slate-600"
-          }`}
-        >
-          {description}
-        </p>
-      )}
-    </div>
-
-    <div className="pt-4 border-t border-dashed border-gray-200 dark:border-slate-800 mt-4">
-      <p
-        className={`text-sm font-medium ${
-          isDark ? "text-indigo-400" : "text-indigo-600"
-        }`}
-      >
-        {timeline}
-      </p>
-    </div>
-  </div>
-);
-
-export default function AcademicJourneySection() {
+const AcademicJourney: React.FC = () => {
   const isDark = useSelector((state: RootState) => state.theme.isDark);
+  const [wixExp, setWixExp] = useState(() => calculateExperience(WIX_JOIN_DATE));
 
-  const sectionSubtitleClasses = `text-3xl font-bold tracking-tight mb-6 ${
-    isDark ? "text-indigo-400" : "text-indigo-700"
-  }`;
+  useEffect(() => {
+    setWixExp(calculateExperience(WIX_JOIN_DATE));
+    const interval = setInterval(() => {
+      setWixExp(calculateExperience(WIX_JOIN_DATE));
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const experienceData = [
+    {
+      role: "Wix Developer",
+      company: "SM Technology",
+      timeline: `${wixExp.formatted}`,
+      location: "Rangpur / Remote",
+      tag: "Live Experience",
+      icon: "💼",
+      isLive: true,
+      highlights: [
+        `Active commercial experience: ${wixExp.fullFormatted} of production-grade Wix and web engineering.`,
+        "Engineered tailored corporate websites with high SEO scores and responsive cross-device layouts.",
+        "Collaborated with clients to translate business requirements into intuitive UI/UX workflows.",
+        "Optimized load speeds, customized Velo/JavaScript scripts, and handled deployment pipelines.",
+      ],
+    },
+    {
+      role: "Independent Full-Stack Developer",
+      company: "Freelance & Open Source",
+      timeline: "2023 – Present",
+      location: "Remote",
+      tag: "Active",
+      icon: "🚀",
+      isLive: false,
+      highlights: [
+        "Built 100+ full-stack MERN, Next.js & web applications with authentication, databases, and payment flows.",
+        "Maintained 100% client satisfaction and delivered modern, accessible codebases.",
+      ],
+    },
+  ];
 
   return (
-    <section
-      id="experience"
-      className={`py-32 relative z-10 ${isDark ? "" : "bg-gray-50/50"}`}
-    >
+    <section id="experience" className="py-24 relative z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-20 text-center">
           <div
-            className={`inline-block px-5 py-2 mb-4 rounded-full text-sm font-bold uppercase tracking-wider ${PRIMARY_BG_CLASS} ${PRIMARY_ACCENT_CLASS}`}
+            className={`inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full text-xs font-bold uppercase tracking-wider ${
+              isDark
+                ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                : "bg-purple-50 text-purple-700 border border-purple-100"
+            }`}
           >
-            Academic Journey & Experience
+            <Sparkles size={14} />
+            Career & Education
           </div>
-
           <h2
-            className={`text-5xl md:text-6xl font-extrabold mb-4 tracking-tighter ${
+            className={`text-4xl md:text-5xl font-black tracking-tight mb-4 ${
               isDark ? "text-white" : "text-slate-900"
             }`}
           >
-            My <span className={PRIMARY_ACCENT_CLASS}>Background</span> Story
+            Experience & <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400">Education</span>
           </h2>
-
           <p
-            className={`text-xl max-w-3xl mx-auto ${
+            className={`text-lg max-w-2xl mx-auto ${
               isDark ? "text-slate-400" : "text-slate-600"
             }`}
           >
-            A quick glance at where I studied and the professional experiences
-            that shaped my journey.
+            My professional milestones and academic foundation that shaped my journey as an engineer.
           </p>
         </div>
 
-        {/* --- Enhanced Bento Grid Layout --- */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* 1. Experience Section Title (Spans all 3 columns) */}
-          <div className="lg:col-span-3">
-            <h3 className={sectionSubtitleClasses}>
-              <Briefcase size={32} className="inline mr-3 align-text-bottom" />{" "}
-              Professional Experience
-            </h3>
+        {/* 2-Column Grid: Experience on Left, Education on Right */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Column 1: Experience */}
+          <div className="space-y-8">
+            <div className="flex items-center gap-3 pb-4 border-b border-slate-800/60">
+              <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                <Briefcase size={20} />
+              </div>
+              <div>
+                <h3 className={`text-2xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+                  Professional Experience
+                </h3>
+                <p className="text-xs text-indigo-400 font-mono">Real-world commercial impact</p>
+              </div>
+            </div>
+
+            <div className="space-y-6 relative before:absolute before:inset-0 before:left-4 before:w-0.5 before:bg-gradient-to-b before:from-indigo-500 before:via-purple-500 before:to-transparent pl-8">
+              {experienceData.map((exp, idx) => (
+                <div
+                  key={idx}
+                  className={`p-6 rounded-3xl border transition-all duration-300 relative group hover:-translate-y-1 ${
+                    isDark
+                      ? "bg-slate-900/80 border-slate-800 hover:border-indigo-500/40 shadow-xl hover:shadow-[0_0_25px_rgba(99,102,241,0.2)]"
+                      : "bg-white border-slate-200 hover:border-indigo-300 shadow-md hover:shadow-xl"
+                  }`}
+                >
+                  {/* Glowing Node on Timeline */}
+                  <div className="absolute -left-[41px] top-7 w-4 h-4 rounded-full bg-indigo-500 border-4 border-slate-950 shadow-[0_0_10px_#6366f1]" />
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 ${
+                        exp.isLive
+                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                          : "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
+                      }`}
+                    >
+                      {exp.isLive && <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />}
+                      {exp.tag}
+                    </span>
+                    <span className="flex items-center gap-1.5 text-xs text-indigo-300 font-mono font-semibold bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20">
+                      <Calendar size={13} className="text-indigo-400" /> {exp.timeline}
+                    </span>
+                  </div>
+
+                  <h4 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>
+                    {exp.role}
+                  </h4>
+                  <p className="text-sm font-semibold text-indigo-400 mb-4 flex items-center gap-1.5">
+                    <Building2 size={15} /> {exp.company} • {exp.location}
+                  </p>
+
+                  <ul className="space-y-2">
+                    {exp.highlights.map((point, pIdx) => (
+                      <li key={pIdx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-400">
+                        <CheckCircle size={14} className="text-emerald-400 flex-shrink-0 mt-0.5" />
+                        <span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* 2. Experience Card (Can be styled to take up 2 columns if needed, but 1 works for one entry) */}
-          {experienceData.map((item) => (
-            <InfoCard
-              key={item.role}
-              title={item.role}
-              subtitle={item.company}
-              timeline={item.timeline}
-              icon={item.icon}
-              description={item.description}
-              isDark={isDark}
-              colSpan="lg:col-span-2" // Make the main experience card wider for impact
-            />
-          ))}
+          {/* Column 2: Academic Journey */}
+          <div className="space-y-8">
+            <div className="flex items-center gap-3 pb-4 border-b border-slate-800/60">
+              <div className="w-10 h-10 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                <GraduationCap size={20} />
+              </div>
+              <div>
+                <h3 className={`text-2xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+                  Academic Milestones
+                </h3>
+                <p className="text-xs text-purple-400 font-mono">Formal education & background</p>
+              </div>
+            </div>
 
-          {/* Placeholder/Extra Info Card (If you only have one experience, this fills the gap) */}
-          <div
-            className={`p-8 rounded-3xl border transition-all duration-300 h-full flex flex-col justify-center items-center text-center
-              ${
-                isDark
-                  ? "bg-slate-900 border-slate-700/50"
-                  : "bg-white border-gray-100 shadow-sm"
-              }`}
-          >
-            <p className={`text-xl font-semibold mb-2 ${PRIMARY_ACCENT_CLASS}`}>
-              Seeking New Opportunities
-            </p>
-            <p
-              className={`text-sm ${
-                isDark ? "text-slate-400" : "text-slate-600"
-              }`}
-            >
-              Open to Full-Stack or Front-end Development roles.
-            </p>
-            <a
-              href="#contact"
-              className={`mt-3 inline-flex items-center text-sm font-medium ${PRIMARY_ACCENT_CLASS} hover:opacity-80`}
-            >
-              <ArrowRight size={16} className="mr-1" /> Contact Me
-            </a>
+            <div className="space-y-6 relative before:absolute before:inset-0 before:left-4 before:w-0.5 before:bg-gradient-to-b before:from-purple-500 before:via-pink-500 before:to-transparent pl-8">
+              {ACADEMIC_DATA.map((edu, idx) => (
+                <div
+                  key={idx}
+                  className={`p-6 rounded-3xl border transition-all duration-300 relative group hover:-translate-y-1 ${
+                    isDark
+                      ? "bg-slate-900/80 border-slate-800 hover:border-purple-500/40 shadow-xl hover:shadow-[0_0_25px_rgba(168,85,247,0.2)]"
+                      : "bg-white border-slate-200 hover:border-purple-300 shadow-md hover:shadow-xl"
+                  }`}
+                >
+                  {/* Glowing Node on Timeline */}
+                  <div className="absolute -left-[41px] top-7 w-4 h-4 rounded-full bg-purple-500 border-4 border-slate-950 shadow-[0_0_10px_#a855f7]" />
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <span className="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                      {edu.tag}
+                    </span>
+                    <span className="flex items-center gap-1 text-xs text-slate-400 font-mono">
+                      <Calendar size={13} /> {edu.timeline}
+                    </span>
+                  </div>
+
+                  <h4 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>
+                    {edu.title}
+                  </h4>
+                  <p className="text-sm font-semibold text-purple-400 mb-2 flex items-center gap-1.5">
+                    <MapPin size={15} /> {edu.institution}
+                  </p>
+
+                  <p className={`text-xs sm:text-sm leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                    {edu.details}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
-
-          {/* Horizontal Rule for separation */}
-          <div className="lg:col-span-3">
-            <hr className="my-10 border-t border-gray-200 dark:border-slate-800" />
-          </div>
-
-          {/* 3. Academic Section Title (Spans all 3 columns) */}
-          <div className="lg:col-span-3">
-            <h3 className={sectionSubtitleClasses}>
-              <GraduationCap
-                size={32}
-                className="inline mr-3 align-text-bottom"
-              />{" "}
-              Educational Background
-            </h3>
-          </div>
-
-          {/* 4. Academic Cards (Flows naturally in the grid) */}
-          {academicData.map((item) => (
-            <InfoCard
-              key={item.title}
-              title={item.title}
-              subtitle={item.institution}
-              timeline={item.timeline}
-              icon={item.icon}
-              isDark={isDark}
-            />
-          ))}
         </div>
       </div>
     </section>
   );
-}
+};
+
+export default AcademicJourney;

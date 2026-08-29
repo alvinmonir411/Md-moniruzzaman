@@ -7,6 +7,7 @@ import {
     MessageSquare,
     TrendingUp,
     Activity,
+    FileText,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
@@ -65,7 +66,7 @@ export default function AdminDashboard() {
         projects: 0,
         skills: 0,
         messages: 0,
-        views: 1247,
+        views: 0,
     });
     const [loading, setLoading] = useState(true);
 
@@ -75,23 +76,25 @@ export default function AdminDashboard() {
 
     const fetchStats = async () => {
         try {
-            const [projectsRes, skillsRes, messagesRes] = await Promise.all([
+            const [projectsRes, skillsRes, messagesRes, viewsRes] = await Promise.all([
                 fetch("/api/projects"),
                 fetch("/api/skills"),
                 fetch("/api/messages"),
+                fetch("/api/views"),
             ]);
 
-            const [projects, skills, messages] = await Promise.all([
+            const [projects, skills, messages, viewsData] = await Promise.all([
                 projectsRes.json(),
                 skillsRes.json(),
                 messagesRes.json(),
+                viewsRes.json(),
             ]);
 
             setStats({
-                projects: projects.length,
-                skills: skills.length,
-                messages: messages.length,
-                views: 1247,
+                projects: Array.isArray(projects) ? projects.length : 0,
+                skills: Array.isArray(skills) ? skills.length : 0,
+                messages: Array.isArray(messages) ? messages.length : 0,
+                views: typeof viewsData?.views === "number" ? viewsData.views : 1,
             });
         } catch (error) {
             console.error("Failed to fetch stats:", error);
@@ -118,6 +121,12 @@ export default function AdminDashboard() {
             icon: <MessageSquare size={20} />,
             href: "/admin/messages",
             color: "from-green-500 to-emerald-500",
+        },
+        {
+            title: "Upload CV",
+            icon: <FileText size={20} />,
+            href: "/admin/settings",
+            color: "from-amber-500 to-orange-500",
         },
     ];
 

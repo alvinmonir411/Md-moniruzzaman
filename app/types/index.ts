@@ -22,6 +22,9 @@ export interface Project {
   images?: string[]; // Array of image URLs for gallery
   ChallengesSolutions?: string;
   EstimateTime?: string;
+  is_featured?: boolean;
+  isFeatured?: boolean;
+  isPinned?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

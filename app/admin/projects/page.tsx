@@ -13,6 +13,8 @@ import {
     X,
     ChevronLeft,
     ChevronRight,
+    Pin,
+    Sparkles,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
@@ -31,6 +33,8 @@ interface Project {
     githubUrl?: string;
     category?: string;
     images?: string[];
+    is_featured?: boolean;
+    isFeatured?: boolean;
 }
 
 export default function ProjectsPage() {
@@ -38,6 +42,7 @@ export default function ProjectsPage() {
     const isDark = useSelector((state: RootState) => state.theme.isDark);
     const [projects, setProjects] = useState<Project[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const [filterCategory, setFilterCategory] = useState<"all" | "pinned" | "custom" | "wix">("all");
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -53,6 +58,7 @@ export default function ProjectsPage() {
         live: "",
         github: "",
         category: "custom",
+        is_featured: false,
         thumbnail: null as File | null,
         images: [] as File[],
         existingImages: [] as string[],
@@ -71,6 +77,31 @@ export default function ProjectsPage() {
             console.error("Failed to fetch projects:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleTogglePin = async (id: string, currentPinned: boolean) => {
+        const newPinned = !currentPinned;
+        // Optimistic UI update
+        setProjects(prev =>
+            prev.map(p =>
+                p._id === id ? { ...p, is_featured: newPinned, isFeatured: newPinned } : p
+            )
+        );
+
+        try {
+            const res = await fetch(`/api/projects/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ is_featured: newPinned }),
+            });
+
+            if (!res.ok) {
+                await fetchProjects();
+            }
+        } catch (error) {
+            console.error("Failed to update pin status:", error);
+            await fetchProjects();
         }
     };
 
@@ -113,6 +144,7 @@ export default function ProjectsPage() {
             live: project.liveUrl || "",
             github: project.githubUrl || "",
             category: project.category || "custom",
+            is_featured: Boolean(project.is_featured || project.isFeatured),
             thumbnail: null,
             images: [],
             existingImages: project.images || [],
@@ -135,6 +167,7 @@ export default function ProjectsPage() {
                 data.append("live", formData.live);
                 data.append("github", formData.github);
                 data.append("category", formData.category);
+                data.append("is_featured", String(formData.is_featured));
 
                 if (formData.thumbnail) {
                     data.append("thumbnail", formData.thumbnail);
@@ -167,6 +200,7 @@ export default function ProjectsPage() {
                 data.append("live", formData.live);
                 data.append("github", formData.github);
                 data.append("category", formData.category);
+                data.append("is_featured", String(formData.is_featured));
                 if (formData.thumbnail) {
                     data.append("thumbnail", formData.thumbnail);
                 }
@@ -201,6 +235,7 @@ export default function ProjectsPage() {
             live: "",
             github: "",
             category: "custom",
+            is_featured: false,
             thumbnail: null,
             images: [],
             existingImages: [],
@@ -224,13 +259,23 @@ export default function ProjectsPage() {
         }
     };
 
-    const filteredProjects = projects.filter(
-        (project) =>
-            (project.title &&
-                project.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (project.description &&
-                project.description.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    const filteredProjects = projects.filter((project) => {
+        if (filterCategory === "pinned" && !project.is_featured && !project.isFeatured) {
+            return false;
+        }
+        if (filterCategory === "custom" && project.category === "wix") {
+            return false;
+        }
+        if (filterCategory === "wix" && project.category !== "wix") {
+            return false;
+        }
+        if (!searchTerm.trim()) return true;
+        const term = searchTerm.toLowerCase();
+        return (
+            (project.title && project.title.toLowerCase().includes(term)) ||
+            (project.description && project.description.toLowerCase().includes(term))
+        );
+    });
 
     return (
         <div className="space-y-6">
@@ -244,11 +289,14 @@ export default function ProjectsPage() {
                         Projects
                     </h1>
                     <p className={isDark ? "text-slate-400" : "text-slate-600"}>
-                        Manage your portfolio projects
+                        Manage your portfolio projects & pinned homepage highlights
                     </p>
                 </div>
                 <button
-                    onClick={() => setIsAdding(true)}
+                    onClick={() => {
+                        resetForm();
+                        setIsAdding(true);
+                    }}
                     className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-medium hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
                 >
                     <Plus size={20} />
@@ -256,23 +304,53 @@ export default function ProjectsPage() {
                 </button>
             </div>
 
-            {/* Search */}
-            <div className="relative">
-                <Search
-                    className={`absolute left-4 top-1/2 -translate-y-1/2 ${isDark ? "text-slate-400" : "text-slate-500"
-                        }`}
-                    size={20}
-                />
-                <input
-                    type="text"
-                    placeholder="Search projects..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 transition-all ${isDark
-                        ? "bg-slate-900 border-slate-800 text-white placeholder-slate-500 focus:border-indigo-500"
-                        : "bg-white border-gray-200 text-slate-900 placeholder-slate-400 focus:border-indigo-500"
-                        } focus:outline-none focus:ring-2 focus:ring-indigo-500/20`}
-                />
+            {/* Search & Filter Tabs */}
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center">
+                <div className="relative flex-1">
+                    <Search
+                        className={`absolute left-4 top-1/2 -translate-y-1/2 ${isDark ? "text-slate-400" : "text-slate-500"
+                            }`}
+                        size={20}
+                    />
+                    <input
+                        type="text"
+                        placeholder="Search projects by title or description..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 transition-all ${isDark
+                            ? "bg-slate-900 border-slate-800 text-white placeholder-slate-500 focus:border-indigo-500"
+                            : "bg-white border-gray-200 text-slate-900 placeholder-slate-400 focus:border-indigo-500"
+                            } focus:outline-none focus:ring-2 focus:ring-indigo-500/20`}
+                    />
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                    {[
+                        { id: "all" as const, label: "All", count: projects.length },
+                        { id: "pinned" as const, label: "📌 Pinned", count: projects.filter(p => p.is_featured || p.isFeatured).length },
+                        { id: "custom" as const, label: "Custom Code", count: projects.filter(p => !p.category || p.category === "custom").length },
+                        { id: "wix" as const, label: "Wix", count: projects.filter(p => p.category === "wix").length },
+                    ].map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setFilterCategory(tab.id)}
+                            className={`px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+                                filterCategory === tab.id
+                                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                                    : isDark
+                                    ? "bg-slate-900 text-slate-400 border border-slate-800 hover:text-white hover:bg-slate-800"
+                                    : "bg-white text-slate-600 border border-slate-200 hover:text-slate-900 hover:bg-slate-50"
+                            }`}
+                        >
+                            <span>{tab.label}</span>
+                            <span className={`px-1.5 py-0.5 rounded text-[11px] font-mono ${
+                                filterCategory === tab.id ? "bg-white/20 text-white" : isDark ? "bg-slate-800 text-slate-400" : "bg-slate-100 text-slate-600"
+                            }`}>
+                                {tab.count}
+                            </span>
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {/* Projects Grid */}
@@ -288,7 +366,7 @@ export default function ProjectsPage() {
                         }`}
                 >
                     <p className={isDark ? "text-slate-400" : "text-slate-600"}>
-                        {searchTerm ? "No projects found" : "No projects yet"}
+                        {searchTerm ? "No matching projects found" : "No projects in this category"}
                     </p>
                 </div>
             ) : (
@@ -317,6 +395,18 @@ export default function ProjectsPage() {
                                     </div>
                                 )}
                                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+
+                                {/* Category & Pinned Badges */}
+                                <div className="absolute top-3 left-3 flex gap-2">
+                                    <span className="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-slate-900/85 backdrop-blur-md text-indigo-300 border border-indigo-500/30">
+                                        {project.category === "wix" ? "Wix / No-Code" : "Custom Code"}
+                                    </span>
+                                    {Boolean(project.is_featured || project.isFeatured) && (
+                                        <span className="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/90 text-slate-950 flex items-center gap-1 shadow-md">
+                                            <span>📌</span> Pinned
+                                        </span>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="p-6">
@@ -381,6 +471,26 @@ export default function ProjectsPage() {
 
                                 {/* Actions */}
                                 <div className="flex items-center gap-2">
+                                    {/* Pin to Home Toggle Button */}
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            const isPinned = Boolean(project.is_featured || project.isFeatured);
+                                            handleTogglePin(project._id, isPinned);
+                                        }}
+                                        className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all duration-200 cursor-pointer relative z-10 ${
+                                            Boolean(project.is_featured || project.isFeatured)
+                                                ? "bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-[0_0_12px_rgba(245,158,11,0.25)] hover:bg-amber-500/30"
+                                                : isDark
+                                                ? "bg-slate-800 text-slate-400 hover:text-amber-300 hover:border-amber-500/40 border border-slate-700 hover:bg-slate-750"
+                                                : "bg-slate-100 text-slate-600 hover:text-amber-700 hover:border-amber-400 border border-slate-200 hover:bg-amber-50"
+                                        }`}
+                                        title={Boolean(project.is_featured || project.isFeatured) ? "Click to Unpin from Home Page" : "Click to Pin to Home Page"}
+                                    >
+                                        <Pin size={13} className={Boolean(project.is_featured || project.isFeatured) ? "fill-amber-400 text-amber-400 rotate-45" : ""} />
+                                        <span>{Boolean(project.is_featured || project.isFeatured) ? "Pinned to Home" : "Pin to Home"}</span>
+                                    </button>
+
                                     {project.liveUrl && (
                                         <a
                                             href={project.liveUrl}
@@ -552,6 +662,28 @@ export default function ProjectsPage() {
                                         <span className="font-medium">Wix/No-Code</span>
                                     </label>
                                 </div>
+                            </div>
+
+                            {/* Pin to Home Page Toggle */}
+                            <div className="flex items-center justify-between p-4 rounded-xl border border-amber-500/30 bg-amber-500/10">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 rounded-lg bg-amber-500/20 text-amber-300">
+                                        <Pin size={18} className="fill-amber-400" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-sm font-bold text-amber-300">Pin to Home Page (Featured)</h4>
+                                        <p className="text-xs text-slate-400">Pinned projects are showcased directly on the main landing page</p>
+                                    </div>
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.is_featured}
+                                        onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
+                                        className="sr-only peer"
+                                    />
+                                    <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                                </label>
                             </div>
 
                             <div>
