@@ -200,13 +200,13 @@ const NavBar = () => {
 
               {/* Text Logo */}
               <span
-                className={`relative ${
+                className={`relative font-mono font-black text-lg sm:text-xl tracking-tight ${
                   isDark ? "text-white" : "text-slate-900"
                 } transform transition-all duration-300 group-hover:scale-105`}
               >
-                MZ
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 animate-gradient">
-                  .
+                Moniruzzaman
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 animate-gradient">
+                  .dev
                 </span>
               </span>
 

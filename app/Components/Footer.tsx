@@ -116,12 +116,12 @@ const Footer: React.FC = () => {
                 <Code2 size={22} />
               </div>
               <h2
-                className={`text-2xl font-black tracking-tight ${
+                className={`text-2xl font-mono font-black tracking-tight ${
                   isDark ? "text-white" : "text-slate-900"
                 }`}
               >
-                {profile.name || "Moniruzzaman"}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-pink-500">.</span>
+                Moniruzzaman
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500">.dev</span>
               </h2>
             </div>
 

@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Moniruzzaman | Front-End & Full-Stack Developer",
-  description: "Moniruzzaman's Developer Portfolio - Front-End & MERN Stack Specialist",
+  title: "Moniruzzaman.dev | Front-End & Full-Stack Developer",
+  description: "Moniruzzaman.dev - Front-End & MERN Full-Stack Developer Portfolio",
 };
 
 export default function RootLayout({
