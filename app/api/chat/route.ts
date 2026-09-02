@@ -46,7 +46,9 @@ PixelNest Studio & Moniruzzaman's Profile:
 - Contact Details:
   * Portfolio / Live Site: https://pexelneststudio.vercel.app
   * Email: alvinmonir411@gmail.com
-  * WhatsApp / Phone: +8801979915165
+  * WhatsApp / Phone Call: +8801340571927 (https://wa.me/8801340571927)
+  * Facebook: https://www.facebook.com/pexelneststudio/
+  * Instagram: https://www.instagram.com/pixelneststudio.official/ (@pixelneststudio.official)
   * GitHub: https://github.com/alvinmonir411
   * LinkedIn: https://www.linkedin.com/in/moniruzzaman13663/
   * Location: Dhaka & Rangpur, Bangladesh
@@ -171,7 +173,7 @@ Guidelines:
       lower.includes("email") ||
       lower.includes("phone")
     ) {
-      reply = "Moniruzzaman is actively open for Full-Time Front-End/Full-Stack Roles, contracts, and freelance projects! Reach him directly at alvinmonir411@gmail.com, WhatsApp at +8801979915165, or LinkedIn at linkedin.com/in/moniruzzaman13663.";
+      reply = "Moniruzzaman is actively open for Full-Time Front-End/Full-Stack Roles, contracts, and freelance projects! Reach him directly at alvinmonir411@gmail.com, WhatsApp/Call at +8801340571927, Facebook at facebook.com/pexelneststudio, Instagram @pixelneststudio.official, or LinkedIn at linkedin.com/in/moniruzzaman13663.";
     } else if (
       lower.includes("education") ||
       lower.includes("degree") ||

@@ -9,6 +9,8 @@ import {
   MapPin,
   Github,
   Linkedin,
+  Facebook,
+  Instagram,
   Send,
   User,
   Zap,
@@ -43,7 +45,7 @@ const ContactSection: React.FC = () => {
   };
 
   const copyPhone = () => {
-    navigator.clipboard.writeText(profile.phone || profile.whatsapp || "+8801979915165");
+    navigator.clipboard.writeText(profile.phone || profile.whatsapp || "+8801340571927");
     setCopiedPhone(true);
     setTimeout(() => setCopiedPhone(false), 2000);
   };
@@ -91,7 +93,7 @@ const ContactSection: React.FC = () => {
     }
   };
 
-  const whatsappClean = (profile.whatsapp || "+8801979915165").replace(/[^0-9]/g, "");
+  const whatsappClean = (profile.whatsapp || "+8801340571927").replace(/[^0-9]/g, "");
 
   return (
     <section id="contact" className="py-24 relative z-10">
@@ -230,19 +232,19 @@ const ContactSection: React.FC = () => {
 
               {/* Social Profiles Grid */}
               <div className="mt-8 pt-6 border-t border-slate-800/60">
-                <p className="text-xs font-mono uppercase text-slate-400 mb-4">Professional Networks</p>
-                <div className="grid grid-cols-3 gap-3">
+                <p className="text-xs font-mono uppercase text-slate-400 mb-4">Official Channels & Networks</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   <a
                     href={profile.github || "https://github.com/alvinmonir411"}
                     target="_blank"
                     rel="noreferrer"
                     className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all duration-200 hover:-translate-y-1 ${
                       isDark
-                        ? "bg-slate-800/60 border-slate-700 hover:bg-slate-800 text-slate-200 hover:text-white"
-                        : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700"
+                        ? "bg-slate-800/60 border-slate-700 hover:bg-slate-800 text-slate-200 hover:text-white hover:border-purple-500/50"
+                        : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700 hover:border-purple-300"
                     }`}
                   >
-                    <Github size={20} />
+                    <Github size={20} className="text-purple-400" />
                     <span className="text-xs font-medium">GitHub</span>
                   </a>
 
@@ -252,26 +254,54 @@ const ContactSection: React.FC = () => {
                     rel="noreferrer"
                     className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all duration-200 hover:-translate-y-1 ${
                       isDark
-                        ? "bg-slate-800/60 border-slate-700 hover:bg-slate-800 text-slate-200 hover:text-white"
-                        : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700"
+                        ? "bg-slate-800/60 border-slate-700 hover:bg-slate-800 text-slate-200 hover:text-white hover:border-blue-500/50"
+                        : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700 hover:border-blue-300"
                     }`}
                   >
-                    <Linkedin size={20} />
+                    <Linkedin size={20} className="text-blue-400" />
                     <span className="text-xs font-medium">LinkedIn</span>
+                  </a>
+
+                  <a
+                    href={profile.facebook || "https://www.facebook.com/pexelneststudio/"}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all duration-200 hover:-translate-y-1 ${
+                      isDark
+                        ? "bg-slate-800/60 border-slate-700 hover:bg-slate-800 text-slate-200 hover:text-white hover:border-indigo-500/50"
+                        : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700 hover:border-indigo-300"
+                    }`}
+                  >
+                    <Facebook size={20} className="text-indigo-400" />
+                    <span className="text-xs font-medium">Facebook</span>
+                  </a>
+
+                  <a
+                    href={profile.instagram || "https://www.instagram.com/pixelneststudio.official/"}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all duration-200 hover:-translate-y-1 ${
+                      isDark
+                        ? "bg-slate-800/60 border-slate-700 hover:bg-slate-800 text-slate-200 hover:text-white hover:border-pink-500/50"
+                        : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700 hover:border-pink-300"
+                    }`}
+                  >
+                    <Instagram size={20} className="text-pink-400" />
+                    <span className="text-xs font-medium">Instagram</span>
                   </a>
 
                   <a
                     href={`https://wa.me/${whatsappClean}`}
                     target="_blank"
                     rel="noreferrer"
-                    className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all duration-200 hover:-translate-y-1 ${
+                    className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all duration-200 hover:-translate-y-1 sm:col-span-2 ${
                       isDark
-                        ? "bg-slate-800/60 border-slate-700 hover:bg-slate-800 text-slate-200 hover:text-white"
-                        : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700"
+                        ? "bg-slate-800/60 border-slate-700 hover:bg-slate-800 text-slate-200 hover:text-white hover:border-emerald-500/50"
+                        : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700 hover:border-emerald-300"
                     }`}
                   >
-                    <Phone size={20} />
-                    <span className="text-xs font-medium">WhatsApp</span>
+                    <Phone size={20} className="text-emerald-400" />
+                    <span className="text-xs font-medium">WhatsApp / Call (+8801340571927)</span>
                   </a>
                 </div>
               </div>

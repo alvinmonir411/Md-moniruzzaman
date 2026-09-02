@@ -224,8 +224,10 @@ Deploy seamlessly to [Vercel](https://vercel.com/):
 - 🌐 **Portfolio:** [pexelneststudio.vercel.app](https://pexelneststudio.vercel.app)
 - 💼 **LinkedIn:** [linkedin.com/in/moniruzzaman13663](https://www.linkedin.com/in/moniruzzaman13663/)
 - 🐙 **GitHub:** [github.com/alvinmonir411](https://github.com/alvinmonir411)
+- 📘 **Facebook:** [facebook.com/pexelneststudio](https://www.facebook.com/pexelneststudio/)
+- 📸 **Instagram:** [@pixelneststudio.official](https://www.instagram.com/pixelneststudio.official/)
 - 📧 **Email:** [alvinmonir411@gmail.com](mailto:alvinmonir411@gmail.com)
-- 📱 **WhatsApp:** [+8801979915165](https://wa.me/8801979915165)
+- 📱 **WhatsApp / Call:** [+8801340571927](https://wa.me/8801340571927)
 
 ---
 

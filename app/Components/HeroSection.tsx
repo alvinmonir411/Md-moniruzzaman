@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   Github,
   Linkedin,
+  Facebook,
+  Instagram,
   Mail,
   ArrowRight,
   Download,
@@ -202,7 +204,7 @@ const HeroSection: React.FC = () => {
               isDark ? "border-slate-800/80" : "border-slate-200"
             }`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5 flex-wrap">
               <SocialLink
                 href={profile.github || "https://github.com/alvinmonir411"}
                 icon={Github}
@@ -213,6 +215,18 @@ const HeroSection: React.FC = () => {
                 href={profile.linkedin || "https://www.linkedin.com/in/moniruzzaman13663/"}
                 icon={Linkedin}
                 label="LinkedIn Profile"
+                isDark={isDark}
+              />
+              <SocialLink
+                href={profile.facebook || "https://www.facebook.com/pexelneststudio/"}
+                icon={Facebook}
+                label="Facebook Page"
+                isDark={isDark}
+              />
+              <SocialLink
+                href={profile.instagram || "https://www.instagram.com/pixelneststudio.official/"}
+                icon={Instagram}
+                label="Instagram Profile"
                 isDark={isDark}
               />
               <SocialLink

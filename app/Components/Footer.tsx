@@ -10,6 +10,8 @@ import {
   Code2,
   Github,
   Linkedin,
+  Facebook,
+  Instagram,
   Sparkles,
   ArrowRight,
   Send,
@@ -39,7 +41,7 @@ const Footer: React.FC = () => {
     }
   };
 
-  const whatsappClean = (profile.whatsapp || "+8801979915165").replace(/[^0-9]/g, "");
+  const whatsappClean = (profile.whatsapp || "+8801340571927").replace(/[^0-9]/g, "");
 
   return (
     <footer
@@ -148,15 +150,15 @@ const Footer: React.FC = () => {
             </p>
 
             {/* Social Links Row */}
-            <div className="flex items-center gap-2 pt-2">
+            <div className="flex items-center gap-2 pt-2 flex-wrap">
               <a
                 href={profile.github || "https://github.com/alvinmonir411"}
                 target="_blank"
                 rel="noreferrer"
                 className={`p-2.5 rounded-xl border transition-all duration-200 hover:scale-110 ${
                   isDark
-                    ? "border-slate-800 bg-slate-900 text-slate-300 hover:text-indigo-400 hover:border-indigo-500/50"
-                    : "border-slate-200 bg-white text-slate-700 hover:text-indigo-600 hover:border-indigo-300 shadow-sm"
+                    ? "border-slate-800 bg-slate-900 text-slate-300 hover:text-purple-400 hover:border-purple-500/50"
+                    : "border-slate-200 bg-white text-slate-700 hover:text-purple-600 hover:border-purple-300 shadow-sm"
                 }`}
                 aria-label="GitHub Profile"
               >
@@ -175,6 +177,34 @@ const Footer: React.FC = () => {
                 aria-label="LinkedIn Profile"
               >
                 <Linkedin size={18} />
+              </a>
+
+              <a
+                href={profile.facebook || "https://www.facebook.com/pexelneststudio/"}
+                target="_blank"
+                rel="noreferrer"
+                className={`p-2.5 rounded-xl border transition-all duration-200 hover:scale-110 ${
+                  isDark
+                    ? "border-slate-800 bg-slate-900 text-slate-300 hover:text-indigo-400 hover:border-indigo-500/50"
+                    : "border-slate-200 bg-white text-slate-700 hover:text-indigo-600 hover:border-indigo-300 shadow-sm"
+                }`}
+                aria-label="Facebook Page"
+              >
+                <Facebook size={18} />
+              </a>
+
+              <a
+                href={profile.instagram || "https://www.instagram.com/pixelneststudio.official/"}
+                target="_blank"
+                rel="noreferrer"
+                className={`p-2.5 rounded-xl border transition-all duration-200 hover:scale-110 ${
+                  isDark
+                    ? "border-slate-800 bg-slate-900 text-slate-300 hover:text-pink-400 hover:border-pink-500/50"
+                    : "border-slate-200 bg-white text-slate-700 hover:text-pink-600 hover:border-pink-300 shadow-sm"
+                }`}
+                aria-label="Instagram Profile"
+              >
+                <Instagram size={18} />
               </a>
 
               <a
@@ -294,7 +324,7 @@ const Footer: React.FC = () => {
                   className="flex items-center gap-2.5 hover:text-emerald-400 transition group"
                 >
                   <Phone size={15} className="text-emerald-400 flex-shrink-0 group-hover:scale-110 transition" />
-                  <span>{profile.whatsapp || profile.phone || "+880 1979-915165"}</span>
+                  <span>{profile.whatsapp || profile.phone || "+880 1340-571927"}</span>
                 </a>
               </li>
               <li className="flex items-center gap-2.5">

@@ -20,6 +20,11 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://pexelneststudio.vercel.app"),
   title: "PixelNest Studio | Web & Software Development Studio (Founder: Moniruzzaman)",
   description: "PixelNest Studio — High-performance web applications, full-stack digital products, and modern UI/UX engineered by Moniruzzaman.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
   alternates: {
     canonical: "https://pexelneststudio.vercel.app",
   },
@@ -28,12 +33,14 @@ export const metadata: Metadata = {
     description: "PixelNest Studio — High-performance web applications, full-stack digital products, and modern UI/UX engineered by Moniruzzaman.",
     url: "https://pexelneststudio.vercel.app",
     siteName: "PixelNest Studio",
+    images: [{ url: "/logo.png" }],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "PixelNest Studio | Web & Software Development Studio (Founder: Moniruzzaman)",
     description: "PixelNest Studio — High-performance web applications, full-stack digital products, and modern UI/UX engineered by Moniruzzaman.",
+    images: ["/logo.png"],
   },
 };
 

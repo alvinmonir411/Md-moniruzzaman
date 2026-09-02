@@ -107,15 +107,23 @@ export async function initDatabase() {
         id INT PRIMARY KEY DEFAULT 1,
         name VARCHAR(255) DEFAULT 'Moniruzzaman',
         email VARCHAR(255) DEFAULT 'alvinmonir411@gmail.com',
-        phone VARCHAR(100) DEFAULT '+8801979915165',
-        whatsapp VARCHAR(100) DEFAULT '+8801979915165',
+        phone VARCHAR(100) DEFAULT '+8801340571927',
+        whatsapp VARCHAR(100) DEFAULT '+8801340571927',
         github VARCHAR(255) DEFAULT 'https://github.com/alvinmonir411',
         linkedin VARCHAR(255) DEFAULT 'https://www.linkedin.com/in/moniruzzaman13663/',
+        facebook VARCHAR(255) DEFAULT 'https://www.facebook.com/pexelneststudio/',
+        instagram VARCHAR(255) DEFAULT 'https://www.instagram.com/pixelneststudio.official/',
         location VARCHAR(255) DEFAULT 'Dhaka & Rangpur, Bangladesh (UTC+6)',
         bio TEXT DEFAULT 'Engineering high-performance, scalable web apps with Next.js, React, and TypeScript.',
         title VARCHAR(255) DEFAULT 'Front-End & MERN Full-Stack Developer',
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
+    `;
+
+    // Profile Settings table column migrations
+    await sql`
+      ALTER TABLE profile_settings ADD COLUMN IF NOT EXISTS facebook VARCHAR(255) DEFAULT 'https://www.facebook.com/pexelneststudio/';
+      ALTER TABLE profile_settings ADD COLUMN IF NOT EXISTS instagram VARCHAR(255) DEFAULT 'https://www.instagram.com/pixelneststudio.official/';
     `;
 
     console.log("✅ Neon DB tables initialized successfully.");

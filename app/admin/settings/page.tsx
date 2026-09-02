@@ -13,6 +13,8 @@ import {
   Globe,
   Github,
   Linkedin,
+  Facebook,
+  Instagram,
   Phone,
   Mail,
   MapPin,
@@ -279,7 +281,7 @@ export default function SettingsPage() {
                     type="text"
                     value={profileForm.whatsapp}
                     onChange={(e) => setProfileForm({ ...profileForm, whatsapp: e.target.value })}
-                    placeholder="+8801979915165"
+                    placeholder="+8801340571927"
                     className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-all ${
                       isDark
                         ? "bg-slate-800 border-slate-700 text-white focus:border-indigo-500"
@@ -331,6 +333,48 @@ export default function SettingsPage() {
                 </div>
               </div>
 
+              {/* Facebook Page URL */}
+              <div className="space-y-2">
+                <label className={`text-xs font-mono uppercase font-semibold ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+                  Facebook Page / Profile Link
+                </label>
+                <div className="relative">
+                  <Facebook size={18} className="absolute left-3.5 top-3 text-blue-500" />
+                  <input
+                    type="url"
+                    value={profileForm.facebook || ""}
+                    onChange={(e) => setProfileForm({ ...profileForm, facebook: e.target.value })}
+                    placeholder="https://www.facebook.com/pexelneststudio/"
+                    className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-all ${
+                      isDark
+                        ? "bg-slate-800 border-slate-700 text-white focus:border-indigo-500"
+                        : "bg-slate-50 border-slate-200 text-slate-900 focus:border-indigo-600"
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {/* Instagram URL */}
+              <div className="space-y-2">
+                <label className={`text-xs font-mono uppercase font-semibold ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+                  Instagram Profile Link
+                </label>
+                <div className="relative">
+                  <Instagram size={18} className="absolute left-3.5 top-3 text-pink-400" />
+                  <input
+                    type="url"
+                    value={profileForm.instagram || ""}
+                    onChange={(e) => setProfileForm({ ...profileForm, instagram: e.target.value })}
+                    placeholder="https://www.instagram.com/pixelneststudio.official/"
+                    className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-all ${
+                      isDark
+                        ? "bg-slate-800 border-slate-700 text-white focus:border-indigo-500"
+                        : "bg-slate-50 border-slate-200 text-slate-900 focus:border-indigo-600"
+                    }`}
+                  />
+                </div>
+              </div>
+
               {/* Location */}
               <div className="space-y-2">
                 <label className={`text-xs font-mono uppercase font-semibold ${isDark ? "text-slate-300" : "text-slate-700"}`}>
@@ -363,7 +407,7 @@ export default function SettingsPage() {
                     type="text"
                     value={profileForm.phone}
                     onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
-                    placeholder="+8801979915165"
+                    placeholder="+8801340571927"
                     className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-all ${
                       isDark
                         ? "bg-slate-800 border-slate-700 text-white focus:border-indigo-500"
