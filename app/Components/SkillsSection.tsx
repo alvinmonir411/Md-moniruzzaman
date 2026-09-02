@@ -176,12 +176,34 @@ const SKILLS_DATA: SkillItem[] = [
 const SkillsSection: React.FC = () => {
   const isDark = useSelector((state: RootState) => state.theme.isDark);
   const [activeFilter, setActiveFilter] = useState<"all" | "frontend" | "backend" | "tools">("all");
+  const [skills, setSkills] = useState<SkillItem[]>(SKILLS_DATA);
   const [selectedSkill, setSelectedSkill] = useState<SkillItem>(SKILLS_DATA[0]);
+
+  React.useEffect(() => {
+    fetch("/api/skills")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped: SkillItem[] = data.map((item: any) => ({
+            name: item.name,
+            category: (item.category || "frontend").toLowerCase() as "frontend" | "backend" | "tools",
+            level: Number(item.proficiency) || 85,
+            icon: item.icon || "⚡",
+            color: item.color || "from-indigo-500 to-purple-500",
+            description: item.description || "Production-tested skill used in real-world applications.",
+            tag: item.tag || (Number(item.proficiency) >= 95 ? "Master" : Number(item.proficiency) >= 90 ? "Expert" : "Advanced"),
+          }));
+          setSkills(mapped);
+          setSelectedSkill(mapped[0]);
+        }
+      })
+      .catch((err) => console.log("Using cached skills data:", err));
+  }, []);
 
   const filteredSkills =
     activeFilter === "all"
-      ? SKILLS_DATA
-      : SKILLS_DATA.filter((s) => s.category === activeFilter);
+      ? skills
+      : skills.filter((s) => s.category === activeFilter);
 
   return (
     <section id="skills" className="py-24 relative z-10">

@@ -38,9 +38,19 @@ export async function initDatabase() {
         category VARCHAR(100),
         proficiency VARCHAR(50),
         icon TEXT,
+        description TEXT,
+        tag VARCHAR(50),
+        color VARCHAR(100),
         "order" INT DEFAULT 0,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
+    `;
+
+    // Skills table column migrations
+    await sql`
+      ALTER TABLE skills ADD COLUMN IF NOT EXISTS description TEXT;
+      ALTER TABLE skills ADD COLUMN IF NOT EXISTS tag VARCHAR(50);
+      ALTER TABLE skills ADD COLUMN IF NOT EXISTS color VARCHAR(100);
     `;
 
     // Messages table

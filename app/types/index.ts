@@ -35,6 +35,9 @@ export interface Skill {
   category: string;
   proficiency: number;
   icon?: string;
+  description?: string;
+  tag?: string;
+  color?: string;
   order?: number;
   createdAt?: string;
 }
