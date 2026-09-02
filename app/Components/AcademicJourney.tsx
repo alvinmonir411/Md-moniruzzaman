@@ -36,6 +36,8 @@ const ACADEMIC_DATA = [
 const AcademicJourney: React.FC = () => {
   const isDark = useSelector((state: RootState) => state.theme.isDark);
   const [wixExp, setWixExp] = useState(() => calculateExperience(WIX_JOIN_DATE));
+  const [experiences, setExperiences] = useState<any[]>([]);
+  const [academics, setAcademics] = useState<any[]>(ACADEMIC_DATA);
 
   useEffect(() => {
     setWixExp(calculateExperience(WIX_JOIN_DATE));
@@ -45,7 +47,49 @@ const AcademicJourney: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const experienceData = [
+  useEffect(() => {
+    fetch("/api/experience")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          const expItems = data.filter((item: any) => item.type === "experience" || !item.type);
+          const eduItems = data.filter((item: any) => item.type === "education");
+
+          if (expItems.length > 0) {
+            setExperiences(
+              expItems.map((item: any) => ({
+                role: item.position || item.role,
+                company: item.company,
+                timeline: item.isLive ? `${wixExp.formatted}` : item.timeline || "Present",
+                location: item.location || "Remote",
+                tag: item.tag || (item.isLive ? "Live Experience" : "Active"),
+                icon: item.icon || "💼",
+                isLive: Boolean(item.isLive),
+                highlights: Array.isArray(item.highlights) && item.highlights.length > 0
+                  ? item.highlights
+                  : [item.details || "Professional development & engineering deliverables."],
+              }))
+            );
+          }
+
+          if (eduItems.length > 0) {
+            setAcademics(
+              eduItems.map((item: any) => ({
+                title: item.position || item.role,
+                institution: item.company,
+                timeline: item.timeline || "Academic",
+                tag: item.tag || "Education",
+                icon: item.icon || "🎓",
+                details: item.details || (Array.isArray(item.highlights) ? item.highlights.join(" ") : "Academic coursework and foundational studies."),
+              }))
+            );
+          }
+        }
+      })
+      .catch((err) => console.log("Using cached experience data:", err));
+  }, [wixExp.formatted]);
+
+  const defaultExpData = [
     {
       role: "Wix Developer",
       company: "SM Technology",
@@ -75,6 +119,9 @@ const AcademicJourney: React.FC = () => {
       ],
     },
   ];
+
+  const experienceData = experiences.length > 0 ? experiences : defaultExpData;
+  const academicData = academics.length > 0 ? academics : ACADEMIC_DATA;
 
   return (
     <section id="experience" className="py-24 relative z-10">
@@ -160,8 +207,8 @@ const AcademicJourney: React.FC = () => {
                   </p>
 
                   <ul className="space-y-2">
-                    {exp.highlights.map((point, pIdx) => (
-                      <li key={pIdx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-400">
+                    {exp.highlights.map((point: string, pIdx: number) => (
+                      <li key={pIdx} className={`flex items-start gap-2 text-xs sm:text-sm ${isDark ? "text-slate-300" : "text-slate-600"}`}>
                         <CheckCircle size={14} className="text-emerald-400 flex-shrink-0 mt-0.5" />
                         <span>{point}</span>
                       </li>
@@ -187,7 +234,7 @@ const AcademicJourney: React.FC = () => {
             </div>
 
             <div className="space-y-6 relative before:absolute before:inset-0 before:left-4 before:w-0.5 before:bg-gradient-to-b before:from-purple-500 before:via-pink-500 before:to-transparent pl-8">
-              {ACADEMIC_DATA.map((edu, idx) => (
+              {academicData.map((edu, idx) => (
                 <div
                   key={idx}
                   className={`p-6 rounded-3xl border transition-all duration-300 relative group hover:-translate-y-1 ${

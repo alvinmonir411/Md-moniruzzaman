@@ -44,13 +44,21 @@ export interface Skill {
 
 export interface Experience {
   _id: string;
-  company: string;
+  type?: 'experience' | 'education';
   position: string;
-  description: string;
-  startDate: string;
+  role?: string;
+  company: string;
+  timeline?: string;
+  location?: string;
+  tag?: string;
+  icon?: string;
+  isLive?: boolean;
+  details?: string;
+  highlights?: string[];
+  startDate?: string;
   endDate?: string | null;
-  isCurrent: boolean;
-  technologies: string[];
+  isCurrent?: boolean;
+  technologies?: string[];
   createdAt?: string;
 }
 

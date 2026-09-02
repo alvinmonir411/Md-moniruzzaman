@@ -70,14 +70,26 @@ export async function initDatabase() {
     await sql`
       CREATE TABLE IF NOT EXISTS experience (
         id SERIAL PRIMARY KEY,
+        type VARCHAR(50) DEFAULT 'experience',
         role VARCHAR(255) NOT NULL,
         company VARCHAR(255) NOT NULL,
         timeline VARCHAR(100),
         location VARCHAR(255),
         tag VARCHAR(100),
+        icon VARCHAR(50),
+        is_live BOOLEAN DEFAULT false,
+        details TEXT,
         highlights JSONB DEFAULT '[]'::jsonb,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
+    `;
+
+    // Experience table column migrations
+    await sql`
+      ALTER TABLE experience ADD COLUMN IF NOT EXISTS type VARCHAR(50) DEFAULT 'experience';
+      ALTER TABLE experience ADD COLUMN IF NOT EXISTS icon VARCHAR(50);
+      ALTER TABLE experience ADD COLUMN IF NOT EXISTS is_live BOOLEAN DEFAULT false;
+      ALTER TABLE experience ADD COLUMN IF NOT EXISTS details TEXT;
     `;
 
     // Page Views table
