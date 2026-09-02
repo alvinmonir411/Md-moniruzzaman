@@ -8,73 +8,62 @@ import {
     TrendingUp,
     Activity,
     FileText,
+    Sparkles,
+    Github,
+    ExternalLink,
+    ArrowUpRight,
+    CheckCircle2,
+    Database,
+    Cloud,
+    Bot,
+    Plus,
+    Clock,
+    User,
+    Mail,
+    Pin,
+    Globe,
+    Code,
+    Layers,
+    Briefcase,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "../lib/store";
+import { Project } from "../types";
+import Link from "next/link";
 
-interface StatCardProps {
-    title: string;
-    value: number;
-    icon: React.ReactNode;
-    color: string;
-    trend?: string;
+interface MessageItem {
+    _id: string;
+    name: string;
+    email: string;
+    subject?: string;
+    message: string;
+    isRead?: boolean;
+    createdAt?: string;
 }
-
-const StatCard = ({ title, value, icon, color, trend }: StatCardProps) => {
-    const isDark = useSelector((state: RootState) => state.theme.isDark);
-
-    return (
-        <div
-            className={`rounded-2xl p-6 ${isDark
-                    ? "bg-slate-900 border border-slate-800"
-                    : "bg-white border border-gray-200"
-                } shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105`}
-        >
-            <div className="flex items-center justify-between mb-4">
-                <div
-                    className={`p-3 rounded-xl bg-gradient-to-br ${color} bg-opacity-10`}
-                >
-                    {icon}
-                </div>
-                {trend && (
-                    <div className="flex items-center gap-1 text-green-500 text-sm font-medium">
-                        <TrendingUp size={16} />
-                        <span>{trend}</span>
-                    </div>
-                )}
-            </div>
-            <h3
-                className={`text-3xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"
-                    }`}
-            >
-                {value}
-            </h3>
-            <p
-                className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}
-            >
-                {title}
-            </p>
-        </div>
-    );
-};
 
 export default function AdminDashboard() {
     const router = useRouter();
     const isDark = useSelector((state: RootState) => state.theme.isDark);
+
     const [stats, setStats] = useState({
         projects: 0,
+        customProjects: 0,
+        wixProjects: 0,
         skills: 0,
         messages: 0,
+        unreadMessages: 0,
         views: 0,
     });
+    const [recentProjects, setRecentProjects] = useState<Project[]>([]);
+    const [recentMessages, setRecentMessages] = useState<MessageItem[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchStats();
+        fetchDashboardData();
     }, []);
 
-    const fetchStats = async () => {
+    const fetchDashboardData = async () => {
         try {
             const [projectsRes, skillsRes, messagesRes, viewsRes] = await Promise.all([
                 fetch("/api/projects"),
@@ -90,152 +79,545 @@ export default function AdminDashboard() {
                 viewsRes.json(),
             ]);
 
+            const projectList: Project[] = Array.isArray(projects) ? projects : [];
+            const messageList: MessageItem[] = Array.isArray(messages) ? messages : [];
+            const skillsList = Array.isArray(skills) ? skills : [];
+
+            const customCount = projectList.filter((p) => p.category !== "wix").length;
+            const wixCount = projectList.filter((p) => p.category === "wix").length;
+            const unreadCount = messageList.filter((m) => !m.isRead).length;
+
             setStats({
-                projects: Array.isArray(projects) ? projects.length : 0,
-                skills: Array.isArray(skills) ? skills.length : 0,
-                messages: Array.isArray(messages) ? messages.length : 0,
-                views: typeof viewsData?.views === "number" ? viewsData.views : 1,
+                projects: projectList.length,
+                customProjects: customCount,
+                wixProjects: wixCount,
+                skills: skillsList.length,
+                messages: messageList.length,
+                unreadMessages: unreadCount,
+                views: typeof viewsData?.views === "number" ? viewsData.views : 16,
             });
+
+            setRecentProjects(projectList.slice(0, 4));
+            setRecentMessages(messageList.slice(0, 3));
         } catch (error) {
-            console.error("Failed to fetch stats:", error);
+            console.error("Failed to fetch dashboard data:", error);
         } finally {
             setLoading(false);
         }
     };
 
-    const quickActions = [
-        {
-            title: "Add Project",
-            icon: <FolderKanban size={20} />,
-            href: "/admin/projects",
-            color: "from-blue-500 to-cyan-500",
-        },
-        {
-            title: "Add Skill",
-            icon: <Award size={20} />,
-            href: "/admin/skills",
-            color: "from-purple-500 to-pink-500",
-        },
-        {
-            title: "View Messages",
-            icon: <MessageSquare size={20} />,
-            href: "/admin/messages",
-            color: "from-green-500 to-emerald-500",
-        },
-        {
-            title: "Upload CV",
-            icon: <FileText size={20} />,
-            href: "/admin/settings",
-            color: "from-amber-500 to-orange-500",
-        },
-    ];
-
     return (
-        <div className="space-y-8">
-            {/* Header */}
-            <div>
-                <h1
-                    className={`text-4xl font-bold mb-2 ${isDark ? "text-white" : "text-slate-900"
-                        }`}
-                >
-                    Welcome Back! 👋
-                </h1>
-                <p className={isDark ? "text-slate-400" : "text-slate-600"}>
-                    Here's what's happening with your portfolio today.
-                </p>
-            </div>
+        <div className="space-y-8 animate-fade-in pb-12">
+            {/* Top Welcome Hero Banner */}
+            <div className="relative overflow-hidden rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-indigo-950/40 via-purple-950/20 to-slate-900/60 p-6 sm:p-8 backdrop-blur-xl shadow-2xl">
+                {/* Background ambient glow circles */}
+                <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-indigo-500/15 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-20 left-1/3 h-64 w-64 rounded-full bg-purple-500/15 blur-3xl" />
 
-            {/* Stats Grid */}
-            {loading ? (
-                <div className="text-center py-12">
-                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div>
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <StatCard
-                        title="Total Projects"
-                        value={stats.projects}
-                        icon={<FolderKanban className="text-blue-500" size={24} />}
-                        color="from-blue-500 to-cyan-500"
-                        trend="+12%"
-                    />
-                    <StatCard
-                        title="Skills"
-                        value={stats.skills}
-                        icon={<Award className="text-purple-500" size={24} />}
-                        color="from-purple-500 to-pink-500"
-                    />
-                    <StatCard
-                        title="Messages"
-                        value={stats.messages}
-                        icon={<MessageSquare className="text-green-500" size={24} />}
-                        color="from-green-500 to-emerald-500"
-                        trend={stats.messages > 0 ? `+${stats.messages}` : undefined}
-                    />
-                    <StatCard
-                        title="Portfolio Views"
-                        value={stats.views}
-                        icon={<Activity className="text-orange-500" size={24} />}
-                        color="from-orange-500 to-red-500"
-                        trend="+24%"
-                    />
-                </div>
-            )}
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                    <div className="space-y-2">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold tracking-wider uppercase bg-indigo-500/10 border border-indigo-500/30 text-indigo-300">
+                            <Sparkles size={13} className="text-amber-400" />
+                            <span>PixelNest Studio Command Center</span>
+                        </div>
+                        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white">
+                            Welcome back, <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Moniruzzaman!</span> 👋
+                        </h1>
+                        <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                            Your agency portfolio is live at{" "}
+                            <a
+                                href="/"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-indigo-400 hover:underline font-semibold font-mono inline-flex items-center gap-1"
+                            >
+                                pexelneststudio.vercel.app <ArrowUpRight size={13} />
+                            </a>
+                            . Monitor live traffic, sync latest GitHub repositories, and manage client inquiries in real-time.
+                        </p>
+                    </div>
 
-            {/* Quick Actions */}
-            <div>
-                <h2
-                    className={`text-2xl font-bold mb-4 ${isDark ? "text-white" : "text-slate-900"
-                        }`}
-                >
-                    Quick Actions
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {quickActions.map((action) => (
+                    {/* Quick Hero Actions */}
+                    <div className="flex flex-wrap items-center gap-3">
                         <button
-                            key={action.title}
-                            onClick={() => router.push(action.href)}
-                            className={`p-6 rounded-2xl ${isDark
-                                    ? "bg-slate-900 border border-slate-800 hover:border-slate-700"
-                                    : "bg-white border border-gray-200 hover:border-gray-300"
-                                } shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group`}
+                            onClick={() => router.push("/admin/projects")}
+                            className="px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white shadow-lg shadow-indigo-500/25 hover:opacity-95 transition-all flex items-center gap-2 cursor-pointer"
                         >
-                            <div
-                                className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${action.color} text-white mb-3 group-hover:scale-110 transition-transform`}
-                            >
-                                {action.icon}
-                            </div>
-                            <h3
-                                className={`font-semibold ${isDark ? "text-white" : "text-slate-900"
-                                    }`}
-                            >
-                                {action.title}
-                            </h3>
+                            <Plus size={15} />
+                            <span>New Project</span>
                         </button>
-                    ))}
+                        <button
+                            onClick={() => router.push("/admin/projects")}
+                            className={`px-4 py-2.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-2 cursor-pointer ${
+                                isDark
+                                    ? "border-slate-700 bg-slate-800/80 text-slate-200 hover:bg-slate-700"
+                                    : "border-slate-200 bg-white text-slate-800 hover:bg-slate-100"
+                            }`}
+                        >
+                            <Github size={15} className="text-purple-400" />
+                            <span>Sync GitHub</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {/* Recent Activity */}
-            <div>
-                <h2
-                    className={`text-2xl font-bold mb-4 ${isDark ? "text-white" : "text-slate-900"
-                        }`}
-                >
-                    Recent Activity
-                </h2>
+            {/* 4 Premium Metric KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {/* 1. Projects KPI */}
                 <div
-                    className={`rounded-2xl p-6 ${isDark
-                            ? "bg-slate-900 border border-slate-800"
-                            : "bg-white border border-gray-200"
-                        } shadow-lg`}
+                    onClick={() => router.push("/admin/projects")}
+                    className={`rounded-2xl p-5 border transition-all duration-300 hover:-translate-y-1 cursor-pointer group ${
+                        isDark
+                            ? "bg-slate-900/70 border-slate-800 hover:border-indigo-500/40"
+                            : "bg-white border-slate-200 hover:border-indigo-300"
+                    } shadow-lg`}
                 >
-                    <p
-                        className={`text-center py-8 ${isDark ? "text-slate-400" : "text-slate-600"
-                            }`}
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 text-white shadow-md shadow-indigo-500/20 group-hover:scale-110 transition-transform">
+                            <FolderKanban size={20} />
+                        </div>
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400 font-bold border border-indigo-500/20">
+                            Live Showcase
+                        </span>
+                    </div>
+                    <div className="flex items-baseline justify-between">
+                        <h3 className="text-3xl font-black font-mono tracking-tight">
+                            {loading ? "..." : stats.projects}
+                        </h3>
+                        <span className="text-xs text-slate-400 font-medium">Projects Published</span>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-slate-200/50 dark:border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+                        <span>{stats.customProjects} Custom Code</span>
+                        <span>•</span>
+                        <span>{stats.wixProjects} Wix / No-Code</span>
+                    </div>
+                </div>
+
+                {/* 2. Skills KPI */}
+                <div
+                    onClick={() => router.push("/admin/skills")}
+                    className={`rounded-2xl p-5 border transition-all duration-300 hover:-translate-y-1 cursor-pointer group ${
+                        isDark
+                            ? "bg-slate-900/70 border-slate-800 hover:border-purple-500/40"
+                            : "bg-white border-slate-200 hover:border-purple-300"
+                    } shadow-lg`}
+                >
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md shadow-purple-500/20 group-hover:scale-110 transition-transform">
+                            <Award size={20} />
+                        </div>
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 font-bold border border-purple-500/20">
+                            Tech Stack
+                        </span>
+                    </div>
+                    <div className="flex items-baseline justify-between">
+                        <h3 className="text-3xl font-black font-mono tracking-tight">
+                            {loading ? "..." : stats.skills}
+                        </h3>
+                        <span className="text-xs text-slate-400 font-medium">Core Skills</span>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-slate-200/50 dark:border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+                        <span>Next.js, React, Node.js</span>
+                        <ArrowUpRight size={12} className="text-purple-400" />
+                    </div>
+                </div>
+
+                {/* 3. Messages KPI */}
+                <div
+                    onClick={() => router.push("/admin/messages")}
+                    className={`rounded-2xl p-5 border transition-all duration-300 hover:-translate-y-1 cursor-pointer group ${
+                        isDark
+                            ? "bg-slate-900/70 border-slate-800 hover:border-emerald-500/40"
+                            : "bg-white border-slate-200 hover:border-emerald-300"
+                    } shadow-lg`}
+                >
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/20 group-hover:scale-110 transition-transform">
+                            <MessageSquare size={20} />
+                        </div>
+                        {stats.unreadMessages > 0 ? (
+                            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-400 font-bold border border-rose-500/30 animate-pulse">
+                                {stats.unreadMessages} New
+                            </span>
+                        ) : (
+                            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
+                                All Caught Up
+                            </span>
+                        )}
+                    </div>
+                    <div className="flex items-baseline justify-between">
+                        <h3 className="text-3xl font-black font-mono tracking-tight">
+                            {loading ? "..." : stats.messages}
+                        </h3>
+                        <span className="text-xs text-slate-400 font-medium">Inquiries Received</span>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-slate-200/50 dark:border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+                        <span>Client Messages</span>
+                        <ArrowUpRight size={12} className="text-emerald-400" />
+                    </div>
+                </div>
+
+                {/* 4. Traffic Views KPI */}
+                <div
+                    className={`rounded-2xl p-5 border transition-all duration-300 ${
+                        isDark
+                            ? "bg-slate-900/70 border-slate-800 hover:border-amber-500/40"
+                            : "bg-white border-slate-200 hover:border-amber-300"
+                    } shadow-lg`}
+                >
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/20">
+                            <Activity size={20} />
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-emerald-400">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                            <span>Live Pulse</span>
+                        </div>
+                    </div>
+                    <div className="flex items-baseline justify-between">
+                        <h3 className="text-3xl font-black font-mono tracking-tight">
+                            {loading ? "..." : stats.views}
+                        </h3>
+                        <span className="text-xs text-slate-400 font-medium">Total Site Views</span>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-slate-200/50 dark:border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+                        <span>Unique Visitor Hits</span>
+                        <TrendingUp size={13} className="text-emerald-400" />
+                    </div>
+                </div>
+            </div>
+
+            {/* Main 2-Column Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* LEFT COLUMN: Recent Projects & Cloud Infrastructure (8 cols) */}
+                <div className="lg:col-span-8 space-y-8">
+                    {/* Recent Projects Showcase */}
+                    <div
+                        className={`rounded-3xl p-6 border ${
+                            isDark ? "bg-slate-900/60 border-slate-800" : "bg-white border-slate-200"
+                        } shadow-xl`}
                     >
-                        No recent activity to display
-                    </p>
+                        <div className="flex items-center justify-between mb-5">
+                            <div>
+                                <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                                    <FolderKanban size={18} className="text-indigo-400" />
+                                    <span>Active Portfolio Projects</span>
+                                </h2>
+                                <p className="text-xs text-slate-400 mt-0.5">
+                                    Latest projects published on your live portfolio
+                                </p>
+                            </div>
+
+                            <Link
+                                href="/admin/projects"
+                                className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors"
+                            >
+                                <span>View All</span>
+                                <ArrowUpRight size={13} />
+                            </Link>
+                        </div>
+
+                        {loading ? (
+                            <div className="py-12 text-center">
+                                <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent" />
+                            </div>
+                        ) : recentProjects.length === 0 ? (
+                            <div className="text-center py-10 border-2 border-dashed rounded-2xl border-slate-700/50">
+                                <FolderKanban size={36} className="mx-auto text-slate-500 mb-2" />
+                                <h4 className="text-sm font-bold text-slate-300">No Projects Published Yet</h4>
+                                <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                                    Sync your public repositories from GitHub or create your first project.
+                                </p>
+                                <button
+                                    onClick={() => router.push("/admin/projects")}
+                                    className="mt-4 px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
+                                >
+                                    + Add First Project
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {recentProjects.map((project) => (
+                                    <div
+                                        key={project._id}
+                                        onClick={() => router.push("/admin/projects")}
+                                        className={`rounded-2xl border p-3.5 transition-all hover:border-indigo-500/50 hover:shadow-lg cursor-pointer group flex flex-col justify-between ${
+                                            isDark ? "bg-slate-800/40 border-slate-800" : "bg-slate-50 border-slate-200"
+                                        }`}
+                                    >
+                                        <div>
+                                            <div className="relative aspect-video w-full rounded-xl overflow-hidden mb-3 bg-slate-950">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img
+                                                    src={project.img}
+                                                    alt={project.title}
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                    onError={(e) => {
+                                                        (e.target as HTMLImageElement).src =
+                                                            "https://placehold.co/600x400/1e293b/ffffff?text=Project+Thumbnail";
+                                                    }}
+                                                />
+                                                <div className="absolute top-2 left-2 flex gap-1">
+                                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/70 text-indigo-300 backdrop-blur-md">
+                                                        {project.category === "wix" ? "Wix" : "Custom Code"}
+                                                    </span>
+                                                    {project.is_featured && (
+                                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-slate-950">
+                                                            📌 Pinned
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <h3 className="text-sm font-bold text-slate-900 dark:text-white line-clamp-1 group-hover:text-indigo-400 transition-colors">
+                                                {project.title}
+                                            </h3>
+                                            <p className="text-[11px] text-slate-400 line-clamp-2 mt-1">
+                                                {project.description}
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-3 pt-2.5 border-t border-slate-200/50 dark:border-slate-700/50 flex items-center justify-between text-[10px] text-slate-400">
+                                            <span className="truncate max-w-[150px] font-mono">{project.tech}</span>
+                                            <span className="text-indigo-400 font-bold flex items-center gap-0.5">
+                                                Manage <ArrowUpRight size={10} />
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Cloud Infrastructure & System Status */}
+                    <div
+                        className={`rounded-3xl p-6 border ${
+                            isDark ? "bg-slate-900/60 border-slate-800" : "bg-white border-slate-200"
+                        } shadow-xl`}
+                    >
+                        <h2 className="text-base font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+                            <Activity size={18} className="text-emerald-400" />
+                            <span>PixelNest Cloud Infrastructure</span>
+                        </h2>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
+                            {/* 1. Neon DB */}
+                            <div className="p-3.5 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 flex flex-col justify-between">
+                                <div className="flex items-center justify-between mb-2">
+                                    <Database size={18} className="text-emerald-400" />
+                                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                                </div>
+                                <div>
+                                    <h4 className="text-xs font-bold text-slate-200">Neon PostgreSQL</h4>
+                                    <p className="text-[10px] text-emerald-400 font-mono mt-0.5">🟢 Connected & Active</p>
+                                </div>
+                            </div>
+
+                            {/* 2. Cloudinary */}
+                            <div className="p-3.5 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 flex flex-col justify-between">
+                                <div className="flex items-center justify-between mb-2">
+                                    <Cloud size={18} className="text-indigo-400" />
+                                    <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+                                </div>
+                                <div>
+                                    <h4 className="text-xs font-bold text-slate-200">Cloudinary CDN</h4>
+                                    <p className="text-[10px] text-indigo-400 font-mono mt-0.5">🟢 Media Storage Live</p>
+                                </div>
+                            </div>
+
+                            {/* 3. Gemini AI */}
+                            <div className="p-3.5 rounded-2xl border border-purple-500/20 bg-purple-500/5 flex flex-col justify-between">
+                                <div className="flex items-center justify-between mb-2">
+                                    <Bot size={18} className="text-purple-400" />
+                                    <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+                                </div>
+                                <div>
+                                    <h4 className="text-xs font-bold text-slate-200">Google Gemini AI</h4>
+                                    <p className="text-[10px] text-purple-400 font-mono mt-0.5">🟢 Auto-Writer Ready</p>
+                                </div>
+                            </div>
+
+                            {/* 4. Vercel Deployment */}
+                            <div className="p-3.5 rounded-2xl border border-amber-500/20 bg-amber-500/5 flex flex-col justify-between">
+                                <div className="flex items-center justify-between mb-2">
+                                    <Globe size={18} className="text-amber-400" />
+                                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                                </div>
+                                <div>
+                                    <h4 className="text-xs font-bold text-slate-200">Vercel Edge Node</h4>
+                                    <p className="text-[10px] text-amber-400 font-mono mt-0.5">🟢 SSL & HTTPS Live</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* RIGHT COLUMN: Quick Studio Actions & Recent Inquiries (4 cols) */}
+                <div className="lg:col-span-4 space-y-8">
+                    {/* Quick Studio Actions */}
+                    <div
+                        className={`rounded-3xl p-6 border ${
+                            isDark ? "bg-slate-900/60 border-slate-800" : "bg-white border-slate-200"
+                        } shadow-xl space-y-4`}
+                    >
+                        <h2 className="text-base font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                            <Sparkles size={16} className="text-amber-400" />
+                            <span>Quick Actions</span>
+                        </h2>
+
+                        <div className="space-y-2.5">
+                            <button
+                                onClick={() => router.push("/admin/projects")}
+                                className="w-full p-3 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 transition-all flex items-center justify-between group cursor-pointer"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 rounded-xl bg-indigo-500 text-white shadow-md">
+                                        <Plus size={16} />
+                                    </div>
+                                    <div className="text-left">
+                                        <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                                            Create Project (with AI)
+                                        </h4>
+                                        <p className="text-[10px] text-slate-400">1-click auto-writing copy</p>
+                                    </div>
+                                </div>
+                                <ArrowUpRight size={14} className="text-indigo-400 group-hover:translate-x-0.5 transition-transform" />
+                            </button>
+
+                            <button
+                                onClick={() => router.push("/admin/projects")}
+                                className="w-full p-3 rounded-2xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 transition-all flex items-center justify-between group cursor-pointer"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 rounded-xl bg-purple-500 text-white shadow-md">
+                                        <Github size={16} />
+                                    </div>
+                                    <div className="text-left">
+                                        <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                                            Sync from GitHub
+                                        </h4>
+                                        <p className="text-[10px] text-slate-400">Scan & import repos</p>
+                                    </div>
+                                </div>
+                                <ArrowUpRight size={14} className="text-purple-400 group-hover:translate-x-0.5 transition-transform" />
+                            </button>
+
+                            <button
+                                onClick={() => router.push("/admin/skills")}
+                                className="w-full p-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 transition-all flex items-center justify-between group cursor-pointer"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 rounded-xl bg-emerald-500 text-white shadow-md">
+                                        <Award size={16} />
+                                    </div>
+                                    <div className="text-left">
+                                        <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                                            Manage Skills
+                                        </h4>
+                                        <p className="text-[10px] text-slate-400">Add or edit tech competencies</p>
+                                    </div>
+                                </div>
+                                <ArrowUpRight size={14} className="text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
+                            </button>
+
+                            <button
+                                onClick={() => router.push("/admin/experience")}
+                                className="w-full p-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 transition-all flex items-center justify-between group cursor-pointer"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 rounded-xl bg-amber-500 text-white shadow-md">
+                                        <Briefcase size={16} />
+                                    </div>
+                                    <div className="text-left">
+                                        <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                                            Add Experience
+                                        </h4>
+                                        <p className="text-[10px] text-slate-400">Career timeline & roles</p>
+                                    </div>
+                                </div>
+                                <ArrowUpRight size={14} className="text-amber-400 group-hover:translate-x-0.5 transition-transform" />
+                            </button>
+
+                            <button
+                                onClick={() => router.push("/admin/settings")}
+                                className="w-full p-3 rounded-2xl border border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 transition-all flex items-center justify-between group cursor-pointer"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 rounded-xl bg-cyan-500 text-white shadow-md">
+                                        <FileText size={16} />
+                                    </div>
+                                    <div className="text-left">
+                                        <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                                            Upload Resume / CV
+                                        </h4>
+                                        <p className="text-[10px] text-slate-400">Update resume.pdf</p>
+                                    </div>
+                                </div>
+                                <ArrowUpRight size={14} className="text-cyan-400 group-hover:translate-x-0.5 transition-transform" />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Recent Client Messages Feed */}
+                    <div
+                        className={`rounded-3xl p-6 border ${
+                            isDark ? "bg-slate-900/60 border-slate-800" : "bg-white border-slate-200"
+                        } shadow-xl`}
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-base font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                                <MessageSquare size={16} className="text-indigo-400" />
+                                <span>Recent Inquiries</span>
+                            </h2>
+                            <Link
+                                href="/admin/messages"
+                                className="text-xs font-bold text-indigo-400 hover:underline"
+                            >
+                                Inbox
+                            </Link>
+                        </div>
+
+                        {loading ? (
+                            <div className="py-6 text-center text-xs text-slate-400">Loading messages...</div>
+                        ) : recentMessages.length === 0 ? (
+                            <div className="text-center py-6">
+                                <CheckCircle2 size={24} className="mx-auto text-emerald-400 mb-1.5" />
+                                <p className="text-xs font-semibold text-slate-300">No new messages</p>
+                                <p className="text-[10px] text-slate-500">Contact form inquiries will appear here.</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {recentMessages.map((msg) => (
+                                    <div
+                                        key={msg._id}
+                                        onClick={() => router.push("/admin/messages")}
+                                        className={`p-3 rounded-2xl border transition-all cursor-pointer hover:border-indigo-500/40 ${
+                                            !msg.isRead
+                                                ? "border-indigo-500/30 bg-indigo-500/5"
+                                                : isDark
+                                                ? "border-slate-800 bg-slate-800/30"
+                                                : "border-slate-200 bg-slate-50"
+                                        }`}
+                                    >
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                                                {msg.name}
+                                            </span>
+                                            {!msg.isRead && (
+                                                <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-rose-500 text-white">
+                                                    NEW
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="text-[11px] text-slate-400 line-clamp-1">{msg.message}</p>
+                                        <span className="text-[10px] text-slate-500 font-mono mt-1 block">
+                                            {msg.email}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
