@@ -112,17 +112,20 @@ const Footer: React.FC = () => {
           {/* Col 1: Brand & Bio (5 cols) */}
           <div className="md:col-span-5 space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white shadow-lg shadow-indigo-500/20 flex items-center justify-center">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white shadow-lg shadow-indigo-500/20 flex items-center justify-center w-11 h-11 overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/logo.png"
                   alt="PixelNest Logo"
-                  className="w-6 h-6 object-contain"
+                  className="w-full h-full object-contain rounded-lg"
                   onError={(e) => {
-                    (e.target as HTMLElement).style.display = "none";
+                    const el = e.target as HTMLElement;
+                    el.style.display = "none";
+                    const fallback = el.nextElementSibling as HTMLElement;
+                    if (fallback) fallback.style.display = "block";
                   }}
                 />
-                <Code2 size={22} />
+                <Code2 size={22} className="hidden" />
               </div>
               <div className="flex flex-col">
                 <h2

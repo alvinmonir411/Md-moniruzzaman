@@ -188,9 +188,9 @@ const NavBar = () => {
                 }`}
               />
 
-              {/* Logo Icon Container */}
+              {/* Logo Icon / Image Container */}
               <div
-                className={`relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-1.5 rounded-xl shadow-lg transform transition-all duration-300 group-hover:scale-110 flex items-center justify-center ${
+                className={`relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-1.5 rounded-xl shadow-lg transform transition-all duration-300 group-hover:scale-110 flex items-center justify-center overflow-hidden w-10 h-10 ${
                   isLogoAnimating ? "scale-125 rotate-[360deg] shadow-2xl shadow-indigo-500/50" : ""
                 }`}
               >
@@ -198,12 +198,15 @@ const NavBar = () => {
                 <img
                   src="/logo.png"
                   alt="PixelNest Logo"
-                  className="w-6 h-6 object-contain"
+                  className="w-full h-full object-contain rounded-lg"
                   onError={(e) => {
-                    (e.target as HTMLElement).style.display = "none";
+                    const el = e.target as HTMLElement;
+                    el.style.display = "none";
+                    const fallback = el.nextElementSibling as HTMLElement;
+                    if (fallback) fallback.style.display = "block";
                   }}
                 />
-                <Code2 className="w-6 h-6 text-white relative z-10" />
+                <Code2 className="w-6 h-6 text-white relative z-10 hidden" />
                 <div className="absolute inset-0 bg-white/20 rounded-xl blur-sm" />
               </div>
 
