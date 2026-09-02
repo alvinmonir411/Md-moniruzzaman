@@ -79,6 +79,7 @@ export default function ProjectsPage() {
     const [isAdding, setIsAdding] = useState(false);
     const [isGitHubSyncOpen, setIsGitHubSyncOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isGeneratingAI, setIsGeneratingAI] = useState(false);
     const [thumbnailMode, setThumbnailMode] = useState<"file" | "url">("file");
     const [formData, setFormData] = useState({
         title: "",
@@ -93,6 +94,38 @@ export default function ProjectsPage() {
         images: [] as File[],
         existingImages: [] as string[],
     });
+
+    const handleGenerateWithAI = async () => {
+        setIsGeneratingAI(true);
+        try {
+            const res = await fetch("/api/admin/generate-project-ai", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    title: formData.title,
+                    githubUrl: formData.github,
+                    liveUrl: formData.live,
+                    tech: formData.tech,
+                }),
+            });
+            const data = await res.json();
+            if (data.success && data.data) {
+                setFormData((prev) => ({
+                    ...prev,
+                    title: data.data.title || prev.title,
+                    desc: data.data.description || prev.desc,
+                    tech: data.data.tech || prev.tech,
+                    category: data.data.category || prev.category,
+                }));
+            } else {
+                alert(data.error || "Failed to generate details with AI.");
+            }
+        } catch (err: any) {
+            alert("AI Generation Error: " + err.message);
+        } finally {
+            setIsGeneratingAI(false);
+        }
+    };
 
     const addTechPill = (tech: string) => {
         const currentList = formData.tech
@@ -1079,11 +1112,33 @@ export default function ProjectsPage() {
                                         </label>
                                     </div>
 
-                                    {/* Project Title */}
+                                    {/* Project Title with AI Magic Button */}
                                     <div>
-                                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                                            Project Title <span className="text-rose-500">*</span>
-                                        </label>
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                                                Project Title <span className="text-rose-500">*</span>
+                                            </label>
+
+                                            {/* AI Auto-Writer Button */}
+                                            <button
+                                                type="button"
+                                                onClick={handleGenerateWithAI}
+                                                disabled={isGeneratingAI}
+                                                className="flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white shadow-md shadow-indigo-500/20 hover:opacity-95 transition-all cursor-pointer hover:scale-105"
+                                            >
+                                                {isGeneratingAI ? (
+                                                    <>
+                                                        <Loader2 size={12} className="animate-spin" />
+                                                        <span>AI Writing...</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Sparkles size={12} />
+                                                        <span>✨ Auto-Write with Gemini AI</span>
+                                                    </>
+                                                )}
+                                            </button>
+                                        </div>
                                         <input
                                             type="text"
                                             value={formData.title}
@@ -1093,7 +1148,7 @@ export default function ProjectsPage() {
                                                     ? "bg-slate-800/80 border-slate-700/80 text-white placeholder-slate-500 focus:border-indigo-500"
                                                     : "bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-indigo-500"
                                             }`}
-                                            placeholder="e.g., Murtec SaaS Platform"
+                                            placeholder="e.g., Murtec (or type a keyword & click Auto-Write)"
                                             required
                                         />
                                     </div>
