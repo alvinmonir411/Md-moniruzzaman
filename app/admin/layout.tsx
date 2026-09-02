@@ -45,6 +45,17 @@ export default function AdminLayout({ children }: SidebarProps) {
     const dispatch = useDispatch<AppDispatch>();
     const isDark = useSelector((state: RootState) => state.theme.isDark);
 
+    // Sync html dark class
+    useEffect(() => {
+        if (typeof document !== "undefined") {
+            if (isDark) {
+                document.documentElement.classList.add("dark");
+            } else {
+                document.documentElement.classList.remove("dark");
+            }
+        }
+    }, [isDark]);
+
     useEffect(() => {
         fetch("/api/messages")
             .then((res) => res.json())
@@ -64,15 +75,15 @@ export default function AdminLayout({ children }: SidebarProps) {
     return (
         <div
             className={`min-h-screen flex ${
-                isDark ? "bg-[#080C14] text-slate-100" : "bg-slate-50 text-slate-900"
+                isDark ? "bg-[#070B14] text-white" : "bg-slate-50 text-slate-900"
             } transition-colors duration-200`}
         >
             {/* Mobile Header Bar */}
             <div
                 className={`lg:hidden fixed top-0 left-0 right-0 z-40 ${
                     isDark
-                        ? "bg-[#0F172A]/90 border-b border-slate-800"
-                        : "bg-white/90 border-b border-slate-200"
+                        ? "bg-[#0F172A] border-b border-slate-800 text-white"
+                        : "bg-white border-b border-slate-200 text-slate-900"
                 } backdrop-blur-md px-4 py-3 flex items-center justify-between`}
             >
                 <div className="flex items-center gap-2.5">
@@ -89,7 +100,7 @@ export default function AdminLayout({ children }: SidebarProps) {
                         <h1 className="text-sm font-black tracking-tight font-mono leading-none">
                             PixelNest<span className="text-indigo-400">.Studio</span>
                         </h1>
-                        <p className="text-[10px] text-slate-400 font-mono">Admin OS</p>
+                        <p className="text-[10px] text-slate-400 font-mono">Admin Command Center</p>
                     </div>
                 </div>
 
@@ -97,7 +108,7 @@ export default function AdminLayout({ children }: SidebarProps) {
                     <button
                         onClick={() => dispatch(toggleTheme())}
                         className={`p-2 rounded-xl border ${
-                            isDark ? "border-slate-800 bg-slate-900" : "border-slate-200 bg-white"
+                            isDark ? "border-slate-700 bg-slate-800 text-white" : "border-slate-200 bg-white text-slate-700"
                         }`}
                     >
                         {isDark ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} className="text-slate-600" />}
@@ -106,7 +117,7 @@ export default function AdminLayout({ children }: SidebarProps) {
                         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                         className={`p-2 rounded-xl border ${
                             isDark
-                                ? "border-slate-800 bg-slate-900 text-slate-300"
+                                ? "border-slate-700 bg-slate-800 text-white"
                                 : "border-slate-200 bg-white text-slate-700"
                         }`}
                     >
@@ -118,7 +129,7 @@ export default function AdminLayout({ children }: SidebarProps) {
             {/* Mobile Backdrop */}
             {isSidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden"
+                    className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 lg:hidden"
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}
@@ -127,8 +138,8 @@ export default function AdminLayout({ children }: SidebarProps) {
             <aside
                 className={`fixed top-0 left-0 h-full w-72 ${
                     isDark
-                        ? "bg-[#0D1322] border-r border-slate-800/80"
-                        : "bg-white border-r border-slate-200"
+                        ? "bg-[#0C1222] border-r border-slate-800 text-white"
+                        : "bg-white border-r border-slate-200 text-slate-900"
                 } flex flex-col justify-between transform transition-transform duration-300 ease-in-out z-50 ${
                     isSidebarOpen ? "translate-x-0" : "-translate-x-full"
                 } lg:translate-x-0 shadow-2xl lg:shadow-none`}
@@ -136,7 +147,7 @@ export default function AdminLayout({ children }: SidebarProps) {
                 {/* Top Section */}
                 <div className="flex-1 overflow-y-auto">
                     {/* Brand Header */}
-                    <div className="p-5 border-b border-slate-200/60 dark:border-slate-800/80">
+                    <div className="p-5 border-b border-slate-800/80">
                         <Link
                             href="/admin"
                             className="flex items-center gap-3 group"
@@ -154,12 +165,12 @@ export default function AdminLayout({ children }: SidebarProps) {
                                 />
                             </div>
                             <div>
-                                <h1 className="text-base font-black font-mono tracking-tight leading-none text-slate-900 dark:text-white">
-                                    PixelNest<span className="text-indigo-500">.Studio</span>
+                                <h1 className={`text-base font-black font-mono tracking-tight leading-none ${isDark ? "text-white" : "text-slate-900"}`}>
+                                    PixelNest<span className="text-indigo-400">.Studio</span>
                                 </h1>
-                                <div className="flex items-center gap-1.5 mt-1">
-                                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                    <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                                <div className="flex items-center gap-1.5 mt-1.5">
+                                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">
                                         Admin Command Center
                                     </span>
                                 </div>
@@ -173,14 +184,14 @@ export default function AdminLayout({ children }: SidebarProps) {
                             href="/"
                             target="_blank"
                             rel="noreferrer"
-                            className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold border transition-all ${
                                 isDark
-                                    ? "bg-indigo-950/30 border-indigo-500/30 text-indigo-300 hover:bg-indigo-900/40 hover:border-indigo-400"
+                                    ? "bg-indigo-950/40 border-indigo-500/40 text-indigo-300 hover:bg-indigo-900/60 hover:text-white"
                                     : "bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100"
                             }`}
                         >
                             <span className="flex items-center gap-2">
-                                <Activity size={13} className="text-indigo-400" />
+                                <Activity size={14} className="text-indigo-400" />
                                 View Live Portfolio
                             </span>
                             <ExternalLink size={12} />
@@ -189,7 +200,7 @@ export default function AdminLayout({ children }: SidebarProps) {
 
                     {/* Navigation Items */}
                     <div className="p-4 space-y-1.5">
-                        <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 font-mono">
+                        <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 font-mono">
                             Management Studio
                         </p>
                         {navItems.map((item) => {
@@ -205,14 +216,14 @@ export default function AdminLayout({ children }: SidebarProps) {
                                     }}
                                     className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
                                         isActive
-                                            ? "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white shadow-lg shadow-indigo-500/25"
+                                            ? "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white shadow-lg shadow-indigo-500/30"
                                             : isDark
-                                            ? "text-slate-300 hover:bg-slate-800/70 hover:text-white"
+                                            ? "text-slate-200 hover:bg-slate-800/80 hover:text-white"
                                             : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
                                     }`}
                                 >
                                     <div className="flex items-center gap-3">
-                                        <Icon size={17} className={isActive ? "text-white" : "text-slate-400"} />
+                                        <Icon size={17} className={isActive ? "text-white" : isDark ? "text-slate-300" : "text-slate-500"} />
                                         <span>{item.name}</span>
                                     </div>
 
@@ -228,7 +239,7 @@ export default function AdminLayout({ children }: SidebarProps) {
                 </div>
 
                 {/* Bottom User Profile & Actions */}
-                <div className="p-4 border-t border-slate-200/60 dark:border-slate-800/80 space-y-3 bg-slate-50/50 dark:bg-slate-900/30">
+                <div className={`p-4 border-t ${isDark ? "border-slate-800 bg-slate-900/50" : "border-slate-200 bg-slate-50"} space-y-3`}>
                     {/* Founder Mini Card */}
                     <div className="flex items-center gap-3 px-1">
                         <div className="relative">
@@ -238,7 +249,7 @@ export default function AdminLayout({ children }: SidebarProps) {
                             <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-slate-900" />
                         </div>
                         <div className="flex-1 min-w-0">
-                            <h4 className="text-xs font-bold truncate text-slate-900 dark:text-white">
+                            <h4 className={`text-xs font-bold truncate ${isDark ? "text-white" : "text-slate-900"}`}>
                                 Moniruzzaman
                             </h4>
                             <p className="text-[10px] text-slate-400 truncate">
@@ -251,28 +262,28 @@ export default function AdminLayout({ children }: SidebarProps) {
                     <div className="flex items-center gap-2 pt-1">
                         <button
                             onClick={() => dispatch(toggleTheme())}
-                            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold border transition-all ${
                                 isDark
-                                    ? "border-slate-800 bg-slate-800/60 hover:bg-slate-800 text-slate-300"
-                                    : "border-slate-200 bg-white hover:bg-slate-100 text-slate-700"
+                                    ? "border-slate-700 bg-slate-800 text-slate-200 hover:text-white"
+                                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
                             }`}
                         >
                             {isDark ? (
                                 <>
                                     <Sun size={13} className="text-amber-400" />
-                                    <span>Light</span>
+                                    <span>Light Mode</span>
                                 </>
                             ) : (
                                 <>
                                     <Moon size={13} className="text-indigo-600" />
-                                    <span>Dark</span>
+                                    <span>Dark Mode</span>
                                 </>
                             )}
                         </button>
 
                         <button
                             onClick={handleLogout}
-                            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border border-rose-500/20 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-all cursor-pointer"
+                            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-all cursor-pointer"
                             title="Logout to Home"
                         >
                             <LogOut size={13} />
@@ -286,14 +297,14 @@ export default function AdminLayout({ children }: SidebarProps) {
             <div className="flex-1 lg:pl-72 flex flex-col min-w-0">
                 {/* Desktop Top Header Bar */}
                 <header
-                    className={`hidden lg:flex items-center justify-between px-8 py-4 sticky top-0 z-30 ${
+                    className={`hidden lg:flex items-center justify-between px-8 py-3.5 border-b ${
                         isDark
-                            ? "bg-[#080C14]/85 border-b border-slate-800/80"
-                            : "bg-white/85 border-b border-slate-200"
+                            ? "bg-[#0C1222]/90 border-slate-800 text-white"
+                            : "bg-white/90 border-slate-200 text-slate-900"
                     } backdrop-blur-xl`}
                 >
                     <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
+                        <div className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold border border-emerald-500/40 bg-emerald-500/10 text-emerald-400">
                             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                             <span>System Online • Production Node</span>
                         </div>
@@ -307,7 +318,7 @@ export default function AdminLayout({ children }: SidebarProps) {
                             rel="noreferrer"
                             className={`p-2 rounded-xl border transition-all ${
                                 isDark
-                                    ? "border-slate-800 bg-slate-900 text-slate-400 hover:text-white hover:border-slate-700"
+                                    ? "border-slate-700 bg-slate-800 text-slate-300 hover:text-white"
                                     : "border-slate-200 bg-white text-slate-600 hover:text-slate-900"
                             }`}
                             title="GitHub"
@@ -319,7 +330,7 @@ export default function AdminLayout({ children }: SidebarProps) {
                             href="/"
                             target="_blank"
                             rel="noreferrer"
-                            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20 transition-all"
+                            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/25 transition-all"
                         >
                             <span>Live Portfolio</span>
                             <ExternalLink size={12} />

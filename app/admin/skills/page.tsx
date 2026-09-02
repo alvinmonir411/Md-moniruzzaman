@@ -250,19 +250,19 @@ export default function SkillsPage() {
                             <div
                                 key={cat.id}
                                 className={`rounded-3xl p-6 border ${
-                                    isDark ? "bg-slate-900/60 border-slate-800" : "bg-white border-slate-200"
+                                    isDark ? "bg-[#0F172A] border-slate-800 text-white" : "bg-white border-slate-200 text-slate-900"
                                 } shadow-xl`}
                             >
-                                <div className="flex items-center justify-between mb-5 border-b border-slate-200/60 dark:border-slate-800/80 pb-3.5">
+                                <div className={`flex items-center justify-between mb-5 border-b ${isDark ? "border-slate-800" : "border-slate-200"} pb-3.5`}>
                                     <div className="flex items-center gap-3">
                                         <div className={`p-2 rounded-xl bg-gradient-to-br ${cat.color} text-white shadow-md`}>
                                             <Icon size={18} />
                                         </div>
                                         <div>
-                                            <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                                            <h2 className={`text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
                                                 {cat.label}
                                             </h2>
-                                            <p className="text-[11px] text-slate-400">
+                                            <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                                                 {categorySkills.length} competencies registered
                                             </p>
                                         </div>
@@ -290,7 +290,7 @@ export default function SkillsPage() {
                                 </div>
 
                                 {categorySkills.length === 0 ? (
-                                    <p className="text-xs text-slate-500 py-4 text-center">
+                                    <p className={`text-xs py-4 text-center ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                                         No skills added to this category yet.
                                     </p>
                                 ) : (
@@ -299,7 +299,7 @@ export default function SkillsPage() {
                                             <div
                                                 key={skill._id}
                                                 className={`p-4 rounded-2xl border transition-all duration-200 hover:border-indigo-500/50 hover:shadow-lg flex flex-col justify-between group ${
-                                                    isDark ? "bg-slate-800/50 border-slate-800" : "bg-slate-50 border-slate-200"
+                                                    isDark ? "bg-[#161F37] border-slate-700/80 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
                                                 }`}
                                             >
                                                 <div>
@@ -309,10 +309,10 @@ export default function SkillsPage() {
                                                                 {skill.icon || "⚡"}
                                                             </div>
                                                             <div>
-                                                                <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-400 transition-colors">
+                                                                <h3 className={`text-sm font-bold group-hover:text-indigo-400 transition-colors ${isDark ? "text-white" : "text-slate-900"}`}>
                                                                     {skill.name}
                                                                 </h3>
-                                                                <span className="text-[10px] font-mono px-2 py-0.2 rounded-full bg-indigo-500/10 text-indigo-400 font-semibold border border-indigo-500/20">
+                                                                <span className="text-[10px] font-mono px-2 py-0.2 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold border border-indigo-500/30">
                                                                     {skill.tag || "Advanced"}
                                                                 </span>
                                                             </div>
@@ -322,14 +322,14 @@ export default function SkillsPage() {
                                                         <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
                                                             <button
                                                                 onClick={() => openEditModal(skill)}
-                                                                className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"
+                                                                className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors cursor-pointer"
                                                                 title="Edit Skill"
                                                             >
                                                                 <Edit size={14} />
                                                             </button>
                                                             <button
                                                                 onClick={() => setDeleteId(skill._id)}
-                                                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                                                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                                                                 title="Delete Skill"
                                                             >
                                                                 <Trash2 size={14} />
@@ -338,15 +338,15 @@ export default function SkillsPage() {
                                                     </div>
 
                                                     {skill.description && (
-                                                        <p className="text-[11px] text-slate-400 line-clamp-2 mt-2 leading-relaxed">
+                                                        <p className={`text-[11px] line-clamp-2 mt-2 leading-relaxed ${isDark ? "text-slate-300" : "text-slate-600"}`}>
                                                             {skill.description}
                                                         </p>
                                                     )}
                                                 </div>
 
                                                 {/* Proficiency Bar */}
-                                                <div className="mt-3 pt-2.5 border-t border-slate-200/50 dark:border-slate-700/50">
-                                                    <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-1 font-semibold">
+                                                <div className={`mt-3 pt-2.5 border-t ${isDark ? "border-slate-700" : "border-slate-200"}`}>
+                                                    <div className={`flex items-center justify-between text-[11px] font-mono mb-1 font-semibold ${isDark ? "text-slate-300" : "text-slate-600"}`}>
                                                         <span>Proficiency</span>
                                                         <span className="text-indigo-400 font-bold">{skill.proficiency}%</span>
                                                     </div>

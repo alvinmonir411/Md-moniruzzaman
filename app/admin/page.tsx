@@ -109,31 +109,35 @@ export default function AdminDashboard() {
     return (
         <div className="space-y-8 animate-fade-in pb-12">
             {/* Top Welcome Hero Banner */}
-            <div className="relative overflow-hidden rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-indigo-950/40 via-purple-950/20 to-slate-900/60 p-6 sm:p-8 backdrop-blur-xl shadow-2xl">
+            <div className={`relative overflow-hidden rounded-3xl border ${
+                isDark 
+                    ? "border-indigo-500/30 bg-gradient-to-br from-[#0F172A] via-[#161F38] to-[#0A0E1A] text-white" 
+                    : "border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-purple-50 text-slate-900"
+            } p-6 sm:p-8 shadow-2xl`}>
                 {/* Background ambient glow circles */}
-                <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-indigo-500/15 blur-3xl" />
-                <div className="pointer-events-none absolute -bottom-20 left-1/3 h-64 w-64 rounded-full bg-purple-500/15 blur-3xl" />
+                <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-indigo-500/20 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-20 left-1/3 h-64 w-64 rounded-full bg-purple-500/20 blur-3xl" />
 
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                    <div className="space-y-2">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold tracking-wider uppercase bg-indigo-500/10 border border-indigo-500/30 text-indigo-300">
+                    <div className="space-y-2.5">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold tracking-wider uppercase bg-indigo-500/15 border border-indigo-500/40 text-indigo-400">
                             <Sparkles size={13} className="text-amber-400" />
                             <span>PixelNest Studio Command Center</span>
                         </div>
-                        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white">
+                        <h1 className={`text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
                             Welcome back, <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Moniruzzaman!</span> 👋
                         </h1>
-                        <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                        <p className={`text-xs sm:text-sm max-w-2xl leading-relaxed ${isDark ? "text-slate-200" : "text-slate-600"}`}>
                             Your agency portfolio is live at{" "}
                             <a
                                 href="/"
                                 target="_blank"
                                 rel="noreferrer"
-                                className="text-indigo-400 hover:underline font-semibold font-mono inline-flex items-center gap-1"
+                                className="text-indigo-400 hover:text-indigo-300 underline font-bold font-mono inline-flex items-center gap-1"
                             >
                                 pexelneststudio.vercel.app <ArrowUpRight size={13} />
                             </a>
-                            . Monitor live traffic, sync latest GitHub repositories, and manage client inquiries in real-time.
+                            . Real-time visitor traffic, GitHub repositories, and client inquiries are all synced.
                         </p>
                     </div>
 
@@ -141,16 +145,16 @@ export default function AdminDashboard() {
                     <div className="flex flex-wrap items-center gap-3">
                         <button
                             onClick={() => router.push("/admin/projects")}
-                            className="px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white shadow-lg shadow-indigo-500/25 hover:opacity-95 transition-all flex items-center gap-2 cursor-pointer"
+                            className="px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white shadow-lg shadow-indigo-500/30 hover:opacity-95 transition-all flex items-center gap-2 cursor-pointer"
                         >
                             <Plus size={15} />
                             <span>New Project</span>
                         </button>
                         <button
                             onClick={() => router.push("/admin/projects")}
-                            className={`px-4 py-2.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-2 cursor-pointer ${
+                            className={`px-5 py-2.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-2 cursor-pointer ${
                                 isDark
-                                    ? "border-slate-700 bg-slate-800/80 text-slate-200 hover:bg-slate-700"
+                                    ? "border-slate-700 bg-slate-800 text-white hover:bg-slate-700"
                                     : "border-slate-200 bg-white text-slate-800 hover:bg-slate-100"
                             }`}
                         >
@@ -168,25 +172,25 @@ export default function AdminDashboard() {
                     onClick={() => router.push("/admin/projects")}
                     className={`rounded-2xl p-5 border transition-all duration-300 hover:-translate-y-1 cursor-pointer group ${
                         isDark
-                            ? "bg-slate-900/70 border-slate-800 hover:border-indigo-500/40"
-                            : "bg-white border-slate-200 hover:border-indigo-300"
+                            ? "bg-[#0F172A] border-slate-800 text-white hover:border-indigo-500/50"
+                            : "bg-white border-slate-200 text-slate-900 hover:border-indigo-300"
                     } shadow-lg`}
                 >
                     <div className="flex items-center justify-between mb-3">
                         <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 text-white shadow-md shadow-indigo-500/20 group-hover:scale-110 transition-transform">
                             <FolderKanban size={20} />
                         </div>
-                        <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400 font-bold border border-indigo-500/20">
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30">
                             Live Showcase
                         </span>
                     </div>
                     <div className="flex items-baseline justify-between">
-                        <h3 className="text-3xl font-black font-mono tracking-tight">
+                        <h3 className={`text-3xl font-black font-mono tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
                             {loading ? "..." : stats.projects}
                         </h3>
-                        <span className="text-xs text-slate-400 font-medium">Projects Published</span>
+                        <span className={`text-xs font-bold ${isDark ? "text-slate-300" : "text-slate-600"}`}>Projects Published</span>
                     </div>
-                    <div className="mt-3 pt-3 border-t border-slate-200/50 dark:border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+                    <div className={`mt-3 pt-3 border-t ${isDark ? "border-slate-800 text-slate-300" : "border-slate-100 text-slate-600"} flex items-center justify-between text-[11px]`}>
                         <span>{stats.customProjects} Custom Code</span>
                         <span>•</span>
                         <span>{stats.wixProjects} Wix / No-Code</span>
@@ -198,25 +202,25 @@ export default function AdminDashboard() {
                     onClick={() => router.push("/admin/skills")}
                     className={`rounded-2xl p-5 border transition-all duration-300 hover:-translate-y-1 cursor-pointer group ${
                         isDark
-                            ? "bg-slate-900/70 border-slate-800 hover:border-purple-500/40"
-                            : "bg-white border-slate-200 hover:border-purple-300"
+                            ? "bg-[#0F172A] border-slate-800 text-white hover:border-purple-500/50"
+                            : "bg-white border-slate-200 text-slate-900 hover:border-purple-300"
                     } shadow-lg`}
                 >
                     <div className="flex items-center justify-between mb-3">
                         <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md shadow-purple-500/20 group-hover:scale-110 transition-transform">
                             <Award size={20} />
                         </div>
-                        <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 font-bold border border-purple-500/20">
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">
                             Tech Stack
                         </span>
                     </div>
                     <div className="flex items-baseline justify-between">
-                        <h3 className="text-3xl font-black font-mono tracking-tight">
+                        <h3 className={`text-3xl font-black font-mono tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
                             {loading ? "..." : stats.skills}
                         </h3>
-                        <span className="text-xs text-slate-400 font-medium">Core Skills</span>
+                        <span className={`text-xs font-bold ${isDark ? "text-slate-300" : "text-slate-600"}`}>Core Skills</span>
                     </div>
-                    <div className="mt-3 pt-3 border-t border-slate-200/50 dark:border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+                    <div className={`mt-3 pt-3 border-t ${isDark ? "border-slate-800 text-slate-300" : "border-slate-100 text-slate-600"} flex items-center justify-between text-[11px]`}>
                         <span>Next.js, React, Node.js</span>
                         <ArrowUpRight size={12} className="text-purple-400" />
                     </div>
@@ -227,8 +231,8 @@ export default function AdminDashboard() {
                     onClick={() => router.push("/admin/messages")}
                     className={`rounded-2xl p-5 border transition-all duration-300 hover:-translate-y-1 cursor-pointer group ${
                         isDark
-                            ? "bg-slate-900/70 border-slate-800 hover:border-emerald-500/40"
-                            : "bg-white border-slate-200 hover:border-emerald-300"
+                            ? "bg-[#0F172A] border-slate-800 text-white hover:border-emerald-500/50"
+                            : "bg-white border-slate-200 text-slate-900 hover:border-emerald-300"
                     } shadow-lg`}
                 >
                     <div className="flex items-center justify-between mb-3">
@@ -236,22 +240,22 @@ export default function AdminDashboard() {
                             <MessageSquare size={20} />
                         </div>
                         {stats.unreadMessages > 0 ? (
-                            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-400 font-bold border border-rose-500/30 animate-pulse">
+                            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-300 font-bold border border-rose-500/40 animate-pulse">
                                 {stats.unreadMessages} New
                             </span>
                         ) : (
-                            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
+                            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
                                 All Caught Up
                             </span>
                         )}
                     </div>
                     <div className="flex items-baseline justify-between">
-                        <h3 className="text-3xl font-black font-mono tracking-tight">
+                        <h3 className={`text-3xl font-black font-mono tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
                             {loading ? "..." : stats.messages}
                         </h3>
-                        <span className="text-xs text-slate-400 font-medium">Inquiries Received</span>
+                        <span className={`text-xs font-bold ${isDark ? "text-slate-300" : "text-slate-600"}`}>Inquiries</span>
                     </div>
-                    <div className="mt-3 pt-3 border-t border-slate-200/50 dark:border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+                    <div className={`mt-3 pt-3 border-t ${isDark ? "border-slate-800 text-slate-300" : "border-slate-100 text-slate-600"} flex items-center justify-between text-[11px]`}>
                         <span>Client Messages</span>
                         <ArrowUpRight size={12} className="text-emerald-400" />
                     </div>
@@ -261,8 +265,8 @@ export default function AdminDashboard() {
                 <div
                     className={`rounded-2xl p-5 border transition-all duration-300 ${
                         isDark
-                            ? "bg-slate-900/70 border-slate-800 hover:border-amber-500/40"
-                            : "bg-white border-slate-200 hover:border-amber-300"
+                            ? "bg-[#0F172A] border-slate-800 text-white hover:border-amber-500/50"
+                            : "bg-white border-slate-200 text-slate-900 hover:border-amber-300"
                     } shadow-lg`}
                 >
                     <div className="flex items-center justify-between mb-3">
@@ -275,12 +279,12 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                     <div className="flex items-baseline justify-between">
-                        <h3 className="text-3xl font-black font-mono tracking-tight">
+                        <h3 className={`text-3xl font-black font-mono tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
                             {loading ? "..." : stats.views}
                         </h3>
-                        <span className="text-xs text-slate-400 font-medium">Total Site Views</span>
+                        <span className={`text-xs font-bold ${isDark ? "text-slate-300" : "text-slate-600"}`}>Site Views</span>
                     </div>
-                    <div className="mt-3 pt-3 border-t border-slate-200/50 dark:border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+                    <div className={`mt-3 pt-3 border-t ${isDark ? "border-slate-800 text-slate-300" : "border-slate-100 text-slate-600"} flex items-center justify-between text-[11px]`}>
                         <span>Unique Visitor Hits</span>
                         <TrendingUp size={13} className="text-emerald-400" />
                     </div>
@@ -294,16 +298,16 @@ export default function AdminDashboard() {
                     {/* Recent Projects Showcase */}
                     <div
                         className={`rounded-3xl p-6 border ${
-                            isDark ? "bg-slate-900/60 border-slate-800" : "bg-white border-slate-200"
+                            isDark ? "bg-[#0F172A] border-slate-800 text-white" : "bg-white border-slate-200 text-slate-900"
                         } shadow-xl`}
                     >
                         <div className="flex items-center justify-between mb-5">
                             <div>
-                                <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                                <h2 className={`text-lg font-bold tracking-tight flex items-center gap-2 ${isDark ? "text-white" : "text-slate-900"}`}>
                                     <FolderKanban size={18} className="text-indigo-400" />
                                     <span>Active Portfolio Projects</span>
                                 </h2>
-                                <p className="text-xs text-slate-400 mt-0.5">
+                                <p className={`text-xs mt-0.5 ${isDark ? "text-slate-300" : "text-slate-500"}`}>
                                     Latest projects published on your live portfolio
                                 </p>
                             </div>
@@ -322,10 +326,10 @@ export default function AdminDashboard() {
                                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent" />
                             </div>
                         ) : recentProjects.length === 0 ? (
-                            <div className="text-center py-10 border-2 border-dashed rounded-2xl border-slate-700/50">
-                                <FolderKanban size={36} className="mx-auto text-slate-500 mb-2" />
-                                <h4 className="text-sm font-bold text-slate-300">No Projects Published Yet</h4>
-                                <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                            <div className={`text-center py-10 border-2 border-dashed rounded-2xl ${isDark ? "border-slate-700 bg-slate-900/40" : "border-slate-200 bg-slate-50"}`}>
+                                <FolderKanban size={36} className="mx-auto text-slate-400 mb-2" />
+                                <h4 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-800"}`}>No Projects Published Yet</h4>
+                                <p className={`text-xs mt-1 max-w-sm mx-auto ${isDark ? "text-slate-300" : "text-slate-500"}`}>
                                     Sync your public repositories from GitHub or create your first project.
                                 </p>
                                 <button
@@ -341,8 +345,8 @@ export default function AdminDashboard() {
                                     <div
                                         key={project._id}
                                         onClick={() => router.push("/admin/projects")}
-                                        className={`rounded-2xl border p-3.5 transition-all hover:border-indigo-500/50 hover:shadow-lg cursor-pointer group flex flex-col justify-between ${
-                                            isDark ? "bg-slate-800/40 border-slate-800" : "bg-slate-50 border-slate-200"
+                                        className={`rounded-2xl border p-4 transition-all hover:border-indigo-500/50 hover:shadow-lg cursor-pointer group flex flex-col justify-between ${
+                                            isDark ? "bg-[#161F37] border-slate-700/80 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
                                         }`}
                                     >
                                         <div>
@@ -358,7 +362,7 @@ export default function AdminDashboard() {
                                                     }}
                                                 />
                                                 <div className="absolute top-2 left-2 flex gap-1">
-                                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/70 text-indigo-300 backdrop-blur-md">
+                                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/80 text-indigo-300 backdrop-blur-md border border-white/10">
                                                         {project.category === "wix" ? "Wix" : "Custom Code"}
                                                     </span>
                                                     {project.is_featured && (
@@ -369,16 +373,16 @@ export default function AdminDashboard() {
                                                 </div>
                                             </div>
 
-                                            <h3 className="text-sm font-bold text-slate-900 dark:text-white line-clamp-1 group-hover:text-indigo-400 transition-colors">
+                                            <h3 className={`text-sm font-bold line-clamp-1 group-hover:text-indigo-400 transition-colors ${isDark ? "text-white" : "text-slate-900"}`}>
                                                 {project.title}
                                             </h3>
-                                            <p className="text-[11px] text-slate-400 line-clamp-2 mt-1">
+                                            <p className={`text-[11px] line-clamp-2 mt-1 leading-relaxed ${isDark ? "text-slate-300" : "text-slate-600"}`}>
                                                 {project.description}
                                             </p>
                                         </div>
 
-                                        <div className="mt-3 pt-2.5 border-t border-slate-200/50 dark:border-slate-700/50 flex items-center justify-between text-[10px] text-slate-400">
-                                            <span className="truncate max-w-[150px] font-mono">{project.tech}</span>
+                                        <div className={`mt-3 pt-2.5 border-t ${isDark ? "border-slate-700 text-slate-300" : "border-slate-200 text-slate-500"} flex items-center justify-between text-[11px]`}>
+                                            <span className="truncate max-w-[150px] font-mono font-medium">{project.tech}</span>
                                             <span className="text-indigo-400 font-bold flex items-center gap-0.5">
                                                 Manage <ArrowUpRight size={10} />
                                             </span>
@@ -392,60 +396,60 @@ export default function AdminDashboard() {
                     {/* Cloud Infrastructure & System Status */}
                     <div
                         className={`rounded-3xl p-6 border ${
-                            isDark ? "bg-slate-900/60 border-slate-800" : "bg-white border-slate-200"
+                            isDark ? "bg-[#0F172A] border-slate-800 text-white" : "bg-white border-slate-200 text-slate-900"
                         } shadow-xl`}
                     >
-                        <h2 className="text-base font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+                        <h2 className={`text-base font-bold tracking-tight flex items-center gap-2 mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
                             <Activity size={18} className="text-emerald-400" />
                             <span>PixelNest Cloud Infrastructure</span>
                         </h2>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
                             {/* 1. Neon DB */}
-                            <div className="p-3.5 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 flex flex-col justify-between">
+                            <div className={`p-3.5 rounded-2xl border ${isDark ? "border-emerald-500/30 bg-emerald-950/20" : "border-emerald-200 bg-emerald-50/50"} flex flex-col justify-between`}>
                                 <div className="flex items-center justify-between mb-2">
                                     <Database size={18} className="text-emerald-400" />
                                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                                 </div>
                                 <div>
-                                    <h4 className="text-xs font-bold text-slate-200">Neon PostgreSQL</h4>
-                                    <p className="text-[10px] text-emerald-400 font-mono mt-0.5">🟢 Connected & Active</p>
+                                    <h4 className={`text-xs font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Neon PostgreSQL</h4>
+                                    <p className="text-[10px] text-emerald-400 font-mono font-semibold mt-0.5">🟢 Connected & Active</p>
                                 </div>
                             </div>
 
                             {/* 2. Cloudinary */}
-                            <div className="p-3.5 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 flex flex-col justify-between">
+                            <div className={`p-3.5 rounded-2xl border ${isDark ? "border-indigo-500/30 bg-indigo-950/20" : "border-indigo-200 bg-indigo-50/50"} flex flex-col justify-between`}>
                                 <div className="flex items-center justify-between mb-2">
                                     <Cloud size={18} className="text-indigo-400" />
                                     <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
                                 </div>
                                 <div>
-                                    <h4 className="text-xs font-bold text-slate-200">Cloudinary CDN</h4>
-                                    <p className="text-[10px] text-indigo-400 font-mono mt-0.5">🟢 Media Storage Live</p>
+                                    <h4 className={`text-xs font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Cloudinary CDN</h4>
+                                    <p className="text-[10px] text-indigo-400 font-mono font-semibold mt-0.5">🟢 Media Storage Live</p>
                                 </div>
                             </div>
 
                             {/* 3. Gemini AI */}
-                            <div className="p-3.5 rounded-2xl border border-purple-500/20 bg-purple-500/5 flex flex-col justify-between">
+                            <div className={`p-3.5 rounded-2xl border ${isDark ? "border-purple-500/30 bg-purple-950/20" : "border-purple-200 bg-purple-50/50"} flex flex-col justify-between`}>
                                 <div className="flex items-center justify-between mb-2">
                                     <Bot size={18} className="text-purple-400" />
                                     <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
                                 </div>
                                 <div>
-                                    <h4 className="text-xs font-bold text-slate-200">Google Gemini AI</h4>
-                                    <p className="text-[10px] text-purple-400 font-mono mt-0.5">🟢 Auto-Writer Ready</p>
+                                    <h4 className={`text-xs font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Google Gemini AI</h4>
+                                    <p className="text-[10px] text-purple-400 font-mono font-semibold mt-0.5">🟢 Auto-Writer Ready</p>
                                 </div>
                             </div>
 
                             {/* 4. Vercel Deployment */}
-                            <div className="p-3.5 rounded-2xl border border-amber-500/20 bg-amber-500/5 flex flex-col justify-between">
+                            <div className={`p-3.5 rounded-2xl border ${isDark ? "border-amber-500/30 bg-amber-950/20" : "border-amber-200 bg-amber-50/50"} flex flex-col justify-between`}>
                                 <div className="flex items-center justify-between mb-2">
                                     <Globe size={18} className="text-amber-400" />
                                     <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                                 </div>
                                 <div>
-                                    <h4 className="text-xs font-bold text-slate-200">Vercel Edge Node</h4>
-                                    <p className="text-[10px] text-amber-400 font-mono mt-0.5">🟢 SSL & HTTPS Live</p>
+                                    <h4 className={`text-xs font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Vercel Edge Node</h4>
+                                    <p className="text-[10px] text-amber-400 font-mono font-semibold mt-0.5">🟢 SSL & HTTPS Live</p>
                                 </div>
                             </div>
                         </div>
@@ -457,10 +461,10 @@ export default function AdminDashboard() {
                     {/* Quick Studio Actions */}
                     <div
                         className={`rounded-3xl p-6 border ${
-                            isDark ? "bg-slate-900/60 border-slate-800" : "bg-white border-slate-200"
+                            isDark ? "bg-[#0F172A] border-slate-800 text-white" : "bg-white border-slate-200 text-slate-900"
                         } shadow-xl space-y-4`}
                     >
-                        <h2 className="text-base font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        <h2 className={`text-base font-bold tracking-tight flex items-center gap-2 ${isDark ? "text-white" : "text-slate-900"}`}>
                             <Sparkles size={16} className="text-amber-400" />
                             <span>Quick Actions</span>
                         </h2>
@@ -468,17 +472,21 @@ export default function AdminDashboard() {
                         <div className="space-y-2.5">
                             <button
                                 onClick={() => router.push("/admin/projects")}
-                                className="w-full p-3 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 transition-all flex items-center justify-between group cursor-pointer"
+                                className={`w-full p-3 rounded-2xl border transition-all flex items-center justify-between group cursor-pointer ${
+                                    isDark
+                                        ? "border-indigo-500/40 bg-indigo-950/30 hover:bg-indigo-900/50"
+                                        : "border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100"
+                                }`}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-xl bg-indigo-500 text-white shadow-md">
+                                    <div className="p-2 rounded-xl bg-indigo-600 text-white shadow-md">
                                         <Plus size={16} />
                                     </div>
                                     <div className="text-left">
-                                        <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                                        <h4 className={`text-xs font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
                                             Create Project (with AI)
                                         </h4>
-                                        <p className="text-[10px] text-slate-400">1-click auto-writing copy</p>
+                                        <p className={`text-[10px] ${isDark ? "text-slate-300" : "text-slate-500"}`}>1-click auto-writing copy</p>
                                     </div>
                                 </div>
                                 <ArrowUpRight size={14} className="text-indigo-400 group-hover:translate-x-0.5 transition-transform" />
@@ -486,17 +494,21 @@ export default function AdminDashboard() {
 
                             <button
                                 onClick={() => router.push("/admin/projects")}
-                                className="w-full p-3 rounded-2xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 transition-all flex items-center justify-between group cursor-pointer"
+                                className={`w-full p-3 rounded-2xl border transition-all flex items-center justify-between group cursor-pointer ${
+                                    isDark
+                                        ? "border-purple-500/40 bg-purple-950/30 hover:bg-purple-900/50"
+                                        : "border-purple-200 bg-purple-50/70 hover:bg-purple-100"
+                                }`}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-xl bg-purple-500 text-white shadow-md">
+                                    <div className="p-2 rounded-xl bg-purple-600 text-white shadow-md">
                                         <Github size={16} />
                                     </div>
                                     <div className="text-left">
-                                        <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                                        <h4 className={`text-xs font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
                                             Sync from GitHub
                                         </h4>
-                                        <p className="text-[10px] text-slate-400">Scan & import repos</p>
+                                        <p className={`text-[10px] ${isDark ? "text-slate-300" : "text-slate-500"}`}>Scan & import repos</p>
                                     </div>
                                 </div>
                                 <ArrowUpRight size={14} className="text-purple-400 group-hover:translate-x-0.5 transition-transform" />
@@ -504,17 +516,21 @@ export default function AdminDashboard() {
 
                             <button
                                 onClick={() => router.push("/admin/skills")}
-                                className="w-full p-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 transition-all flex items-center justify-between group cursor-pointer"
+                                className={`w-full p-3 rounded-2xl border transition-all flex items-center justify-between group cursor-pointer ${
+                                    isDark
+                                        ? "border-emerald-500/40 bg-emerald-950/30 hover:bg-emerald-900/50"
+                                        : "border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100"
+                                }`}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-xl bg-emerald-500 text-white shadow-md">
+                                    <div className="p-2 rounded-xl bg-emerald-600 text-white shadow-md">
                                         <Award size={16} />
                                     </div>
                                     <div className="text-left">
-                                        <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                                        <h4 className={`text-xs font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
                                             Manage Skills
                                         </h4>
-                                        <p className="text-[10px] text-slate-400">Add or edit tech competencies</p>
+                                        <p className={`text-[10px] ${isDark ? "text-slate-300" : "text-slate-500"}`}>Add or edit tech competencies</p>
                                     </div>
                                 </div>
                                 <ArrowUpRight size={14} className="text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
@@ -522,17 +538,21 @@ export default function AdminDashboard() {
 
                             <button
                                 onClick={() => router.push("/admin/experience")}
-                                className="w-full p-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 transition-all flex items-center justify-between group cursor-pointer"
+                                className={`w-full p-3 rounded-2xl border transition-all flex items-center justify-between group cursor-pointer ${
+                                    isDark
+                                        ? "border-amber-500/40 bg-amber-950/30 hover:bg-amber-900/50"
+                                        : "border-amber-200 bg-amber-50/70 hover:bg-amber-100"
+                                }`}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-xl bg-amber-500 text-white shadow-md">
+                                    <div className="p-2 rounded-xl bg-amber-600 text-white shadow-md">
                                         <Briefcase size={16} />
                                     </div>
                                     <div className="text-left">
-                                        <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                                        <h4 className={`text-xs font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
                                             Add Experience
                                         </h4>
-                                        <p className="text-[10px] text-slate-400">Career timeline & roles</p>
+                                        <p className={`text-[10px] ${isDark ? "text-slate-300" : "text-slate-500"}`}>Career timeline & roles</p>
                                     </div>
                                 </div>
                                 <ArrowUpRight size={14} className="text-amber-400 group-hover:translate-x-0.5 transition-transform" />
@@ -540,17 +560,21 @@ export default function AdminDashboard() {
 
                             <button
                                 onClick={() => router.push("/admin/settings")}
-                                className="w-full p-3 rounded-2xl border border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 transition-all flex items-center justify-between group cursor-pointer"
+                                className={`w-full p-3 rounded-2xl border transition-all flex items-center justify-between group cursor-pointer ${
+                                    isDark
+                                        ? "border-cyan-500/40 bg-cyan-950/30 hover:bg-cyan-900/50"
+                                        : "border-cyan-200 bg-cyan-50/70 hover:bg-cyan-100"
+                                }`}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-xl bg-cyan-500 text-white shadow-md">
+                                    <div className="p-2 rounded-xl bg-cyan-600 text-white shadow-md">
                                         <FileText size={16} />
                                     </div>
                                     <div className="text-left">
-                                        <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                                        <h4 className={`text-xs font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
                                             Upload Resume / CV
                                         </h4>
-                                        <p className="text-[10px] text-slate-400">Update resume.pdf</p>
+                                        <p className={`text-[10px] ${isDark ? "text-slate-300" : "text-slate-500"}`}>Update resume.pdf</p>
                                     </div>
                                 </div>
                                 <ArrowUpRight size={14} className="text-cyan-400 group-hover:translate-x-0.5 transition-transform" />
@@ -561,11 +585,11 @@ export default function AdminDashboard() {
                     {/* Recent Client Messages Feed */}
                     <div
                         className={`rounded-3xl p-6 border ${
-                            isDark ? "bg-slate-900/60 border-slate-800" : "bg-white border-slate-200"
+                            isDark ? "bg-[#0F172A] border-slate-800 text-white" : "bg-white border-slate-200 text-slate-900"
                         } shadow-xl`}
                     >
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-base font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                            <h2 className={`text-base font-bold tracking-tight flex items-center gap-2 ${isDark ? "text-white" : "text-slate-900"}`}>
                                 <MessageSquare size={16} className="text-indigo-400" />
                                 <span>Recent Inquiries</span>
                             </h2>
@@ -578,12 +602,12 @@ export default function AdminDashboard() {
                         </div>
 
                         {loading ? (
-                            <div className="py-6 text-center text-xs text-slate-400">Loading messages...</div>
+                            <div className={`py-6 text-center text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>Loading messages...</div>
                         ) : recentMessages.length === 0 ? (
                             <div className="text-center py-6">
                                 <CheckCircle2 size={24} className="mx-auto text-emerald-400 mb-1.5" />
-                                <p className="text-xs font-semibold text-slate-300">No new messages</p>
-                                <p className="text-[10px] text-slate-500">Contact form inquiries will appear here.</p>
+                                <p className={`text-xs font-bold ${isDark ? "text-white" : "text-slate-800"}`}>No new messages</p>
+                                <p className={`text-[10px] ${isDark ? "text-slate-300" : "text-slate-500"}`}>Contact form inquiries will appear here.</p>
                             </div>
                         ) : (
                             <div className="space-y-3">
@@ -591,16 +615,16 @@ export default function AdminDashboard() {
                                     <div
                                         key={msg._id}
                                         onClick={() => router.push("/admin/messages")}
-                                        className={`p-3 rounded-2xl border transition-all cursor-pointer hover:border-indigo-500/40 ${
+                                        className={`p-3 rounded-2xl border transition-all cursor-pointer hover:border-indigo-500/50 ${
                                             !msg.isRead
-                                                ? "border-indigo-500/30 bg-indigo-500/5"
+                                                ? "border-indigo-500/40 bg-indigo-950/30"
                                                 : isDark
-                                                ? "border-slate-800 bg-slate-800/30"
+                                                ? "border-slate-700 bg-slate-800/60"
                                                 : "border-slate-200 bg-slate-50"
                                         }`}
                                     >
                                         <div className="flex items-center justify-between mb-1">
-                                            <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                                            <span className={`text-xs font-bold truncate ${isDark ? "text-white" : "text-slate-900"}`}>
                                                 {msg.name}
                                             </span>
                                             {!msg.isRead && (
@@ -609,8 +633,8 @@ export default function AdminDashboard() {
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-[11px] text-slate-400 line-clamp-1">{msg.message}</p>
-                                        <span className="text-[10px] text-slate-500 font-mono mt-1 block">
+                                        <p className={`text-[11px] line-clamp-1 ${isDark ? "text-slate-200" : "text-slate-600"}`}>{msg.message}</p>
+                                        <span className={`text-[10px] font-mono mt-1 block ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                                             {msg.email}
                                         </span>
                                     </div>
