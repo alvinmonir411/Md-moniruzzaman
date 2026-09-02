@@ -86,6 +86,52 @@ export default function GitHubSyncModal({
     }
   };
 
+  const [inspectingId, setInspectingId] = useState<number | null>(null);
+
+  const handleAIInspect = async (repo: GitHubRepoItem) => {
+    setInspectingId(repo.id);
+    try {
+      const res = await fetch("/api/admin/generate-project-ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: repo.name,
+          githubUrl: repo.githubUrl,
+          liveUrl: repo.liveUrl,
+          tech: repo.tech,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.data) {
+        setRepos((prev) =>
+          prev.map((r) =>
+            r.id === repo.id
+              ? {
+                  ...r,
+                  title: data.data.title || r.title,
+                  description: data.data.description || r.description,
+                  tech: data.data.tech || r.tech,
+                  techArray: (data.data.tech || r.tech)
+                    .split(",")
+                    .map((t: string) => t.trim())
+                    .filter(Boolean),
+                }
+              : r
+          )
+        );
+        setSuccessMessage(`✨ AI analyzed codebase for "${repo.name}"!`);
+        setTimeout(() => setSuccessMessage(null), 3500);
+      } else {
+        alert(data.error || "AI inspection failed.");
+      }
+    } catch (err: any) {
+      alert("AI inspection error: " + err.message);
+    } finally {
+      setInspectingId(null);
+    }
+  };
+
   const handleApprove = async (repo: GitHubRepoItem) => {
     setApprovingId(repo.id);
     try {
@@ -102,6 +148,7 @@ export default function GitHubSyncModal({
           category: "custom",
           isFeatured: false,
           uploadToCloudinary: true,
+          autoEnhanceWithAI: true,
         }),
       });
 
@@ -419,7 +466,28 @@ export default function GitHubSyncModal({
                         )}
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleAIInspect(repo)}
+                          disabled={inspectingId === repo.id}
+                          title="Inspect actual codebase (package.json & README) with Gemini AI"
+                          className={`px-2.5 py-1.5 text-xs font-semibold rounded-xl border transition-all flex items-center gap-1 cursor-pointer ${
+                            inspectingId === repo.id
+                              ? "bg-purple-900/40 text-purple-300 border-purple-500/50 animate-pulse"
+                              : isDark
+                              ? "border-purple-500/30 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20"
+                              : "border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100"
+                          }`}
+                        >
+                          {inspectingId === repo.id ? (
+                            <Loader2 size={12} className="animate-spin" />
+                          ) : (
+                            <Sparkles size={12} className="text-amber-400" />
+                          )}
+                          <span>AI Inspect</span>
+                        </button>
+
                         <button
                           onClick={() => {
                             onClose();

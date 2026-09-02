@@ -21,8 +21,47 @@ interface GitHubRepo {
   archived: boolean;
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const inspectRepo = searchParams.get("inspectRepo");
+
+    // If specific repo inspection requested
+    if (inspectRepo) {
+      let pkg: any = null;
+      let readme = "";
+
+      for (const branch of ["main", "master"]) {
+        if (!pkg) {
+          try {
+            const pkgRes = await fetch(
+              `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${inspectRepo}/${branch}/package.json`,
+              { headers: { "User-Agent": "Portfolio-App" }, next: { revalidate: 60 } }
+            );
+            if (pkgRes.ok) pkg = await pkgRes.json();
+          } catch (e) {}
+        }
+        if (!readme) {
+          try {
+            const readmeRes = await fetch(
+              `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${inspectRepo}/${branch}/README.md`,
+              { headers: { "User-Agent": "Portfolio-App" }, next: { revalidate: 60 } }
+            );
+            if (readmeRes.ok) readme = await readmeRes.text();
+          } catch (e) {}
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        repo: inspectRepo,
+        pkgName: pkg?.name,
+        pkgDescription: pkg?.description,
+        dependencies: pkg?.dependencies ? Object.keys(pkg.dependencies) : [],
+        readmeSnippet: readme.slice(0, 1500),
+      });
+    }
+
     // 1. Fetch repositories from GitHub
     const res = await fetch(
       `https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=100`,
@@ -113,16 +152,16 @@ export async function GET() {
 
         const socialPreviewUrl = `https://opengraph.githubassets.com/1/${GITHUB_USERNAME}/${repo.name}`;
 
-        // Default thumbnail: use live screenshot if homepage is available, else GitHub open graph preview
+        // Default thumbnail
         const defaultThumbnail = liveScreenshotUrl || socialPreviewUrl;
 
         return {
           id: repo.id,
           name: repo.name,
-          title: cleanTitle,
+          title: `${cleanTitle} — Full-Stack Platform`,
           description:
             repo.description ||
-            `Modern ${techList[0] || "full-stack"} web application built with clean architecture and responsive UI.`,
+            `Modern ${techList[0] || "full-stack"} web application built with clean architecture, responsive design, and seamless performance.`,
           tech: techList.join(", "),
           techArray: techList,
           githubUrl: repo.html_url,
@@ -158,7 +197,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    const {
+    let {
       title,
       description,
       tech,
@@ -170,6 +209,7 @@ export async function POST(request: NextRequest) {
       challengesSolutions = "",
       estimateTime = "",
       uploadToCloudinary = true,
+      autoEnhanceWithAI = true,
     } = body;
 
     if (!title) {
@@ -177,6 +217,30 @@ export async function POST(request: NextRequest) {
         { success: false, error: "Project title is required" },
         { status: 400 }
       );
+    }
+
+    // Optional: Auto-enhance with AI Codebase Inspection if enabled and available
+    if (autoEnhanceWithAI && githubUrl) {
+      try {
+        const aiRes = await fetch(`${request.nextUrl.origin}/api/admin/generate-project-ai`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, githubUrl, liveUrl, tech }),
+        });
+        if (aiRes.ok) {
+          const aiJson = await aiRes.json();
+          if (aiJson.success && aiJson.data) {
+            title = aiJson.data.title || title;
+            description = aiJson.data.description || description;
+            tech = aiJson.data.tech || tech;
+            if (aiJson.data.challengesSolutions) {
+              challengesSolutions = aiJson.data.challengesSolutions;
+            }
+          }
+        }
+      } catch (aiErr) {
+        console.warn("AI Auto-Enhance skipped during import:", aiErr);
+      }
     }
 
     let finalImageUrl = img || "";
@@ -240,7 +304,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: `Project "${title}" approved and imported successfully!`,
+        message: `Project "${title}" analyzed & imported successfully!`,
         project: {
           ...created,
           _id: String(created.id),
