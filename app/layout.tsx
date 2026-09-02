@@ -18,22 +18,22 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://pexelneststudio.vercel.app"),
-  title: "Moniruzzaman.dev | Front-End & Full-Stack Developer",
-  description: "Moniruzzaman.dev - Front-End & MERN Full-Stack Developer Portfolio",
+  title: "PixelNest Studio | Web & Software Development Studio (Founder: Moniruzzaman)",
+  description: "PixelNest Studio — High-performance web applications, full-stack digital products, and modern UI/UX engineered by Moniruzzaman.",
   alternates: {
     canonical: "https://pexelneststudio.vercel.app",
   },
   openGraph: {
-    title: "Moniruzzaman.dev | Front-End & Full-Stack Developer",
-    description: "Moniruzzaman.dev - Front-End & MERN Full-Stack Developer Portfolio",
+    title: "PixelNest Studio | Web & Software Development Studio (Founder: Moniruzzaman)",
+    description: "PixelNest Studio — High-performance web applications, full-stack digital products, and modern UI/UX engineered by Moniruzzaman.",
     url: "https://pexelneststudio.vercel.app",
-    siteName: "Moniruzzaman Portfolio",
+    siteName: "PixelNest Studio",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Moniruzzaman.dev | Front-End & Full-Stack Developer",
-    description: "Moniruzzaman.dev - Front-End & MERN Full-Stack Developer Portfolio",
+    title: "PixelNest Studio | Web & Software Development Studio (Founder: Moniruzzaman)",
+    description: "PixelNest Studio — High-performance web applications, full-stack digital products, and modern UI/UX engineered by Moniruzzaman.",
   },
 };
 

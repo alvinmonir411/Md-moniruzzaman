@@ -190,25 +190,39 @@ const NavBar = () => {
 
               {/* Logo Icon Container */}
               <div
-                className={`relative bg-gradient-to-br from-indigo-600 to-purple-600 p-1.5 rounded-lg shadow-lg transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 ${
+                className={`relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-1.5 rounded-xl shadow-lg transform transition-all duration-300 group-hover:scale-110 flex items-center justify-center ${
                   isLogoAnimating ? "scale-125 rotate-[360deg] shadow-2xl shadow-indigo-500/50" : ""
                 }`}
               >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/logo.png"
+                  alt="PixelNest Logo"
+                  className="w-6 h-6 object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = "none";
+                  }}
+                />
                 <Code2 className="w-6 h-6 text-white relative z-10" />
-                <div className="absolute inset-0 bg-white/20 rounded-lg blur-sm" />
+                <div className="absolute inset-0 bg-white/20 rounded-xl blur-sm" />
               </div>
 
               {/* Text Logo */}
-              <span
-                className={`relative font-mono font-black text-lg sm:text-xl tracking-tight ${
-                  isDark ? "text-white" : "text-slate-900"
-                } transform transition-all duration-300 group-hover:scale-105`}
-              >
-                Moniruzzaman
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 animate-gradient">
-                  .dev
+              <div className="flex flex-col">
+                <span
+                  className={`relative font-mono font-black text-lg sm:text-xl tracking-tight leading-tight ${
+                    isDark ? "text-white" : "text-slate-900"
+                  } transform transition-all duration-300 group-hover:scale-105 flex items-center gap-0.5`}
+                >
+                  PixelNest
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 animate-gradient">
+                    .Studio
+                  </span>
                 </span>
-              </span>
+                <span className="text-[10px] font-mono tracking-wider uppercase text-slate-400 dark:text-slate-500 font-semibold">
+                  Founder: Moniruzzaman
+                </span>
+              </div>
 
               {/* Sparkle Effect on Hover */}
               <Sparkles

@@ -112,22 +112,36 @@ const Footer: React.FC = () => {
           {/* Col 1: Brand & Bio (5 cols) */}
           <div className="md:col-span-5 space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/20">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white shadow-lg shadow-indigo-500/20 flex items-center justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/logo.png"
+                  alt="PixelNest Logo"
+                  className="w-6 h-6 object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = "none";
+                  }}
+                />
                 <Code2 size={22} />
               </div>
-              <h2
-                className={`text-2xl font-mono font-black tracking-tight ${
-                  isDark ? "text-white" : "text-slate-900"
-                }`}
-              >
-                Moniruzzaman
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500">.dev</span>
-              </h2>
+              <div className="flex flex-col">
+                <h2
+                  className={`text-2xl font-mono font-black tracking-tight leading-none ${
+                    isDark ? "text-white" : "text-slate-900"
+                  }`}
+                >
+                  PixelNest
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500">.Studio</span>
+                </h2>
+                <span className="text-[11px] font-mono tracking-wider uppercase text-slate-400 dark:text-slate-500 font-semibold mt-0.5">
+                  Founder & Lead: Moniruzzaman
+                </span>
+              </div>
             </div>
 
             <p className={`text-sm leading-relaxed max-w-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
               {profile.bio ||
-                "Front-End & MERN Full-Stack Developer specializing in high-performance Next.js, React, and TypeScript web applications."}
+                "PixelNest Studio creates high-performance digital platforms, modern web applications, and full-stack solutions engineered by Moniruzzaman."}
             </p>
 
             {/* Social Links Row */}
