@@ -6,7 +6,7 @@ interface CachedData {
 }
 
 let cache: CachedData | null = null;
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes cache
+const CACHE_TTL_MS = 30 * 1000; // 30 seconds fresh cache
 
 export async function GET() {
   try {
@@ -17,18 +17,14 @@ export async function GET() {
 
     const username = "alvinmonir411";
 
-    const [userRes, reposRes, eventsRes] = await Promise.allSettled([
+    const [userRes, reposRes] = await Promise.allSettled([
       fetch(`https://api.github.com/users/${username}`, {
         headers: { "User-Agent": "Portfolio-App" },
-        next: { revalidate: 300 },
+        next: { revalidate: 30 },
       }),
-      fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`, {
+      fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=pushed`, {
         headers: { "User-Agent": "Portfolio-App" },
-        next: { revalidate: 300 },
-      }),
-      fetch(`https://api.github.com/users/${username}/events/public?per_page=15`, {
-        headers: { "User-Agent": "Portfolio-App" },
-        next: { revalidate: 300 },
+        next: { revalidate: 30 },
       }),
     ]);
 
@@ -49,12 +45,7 @@ export async function GET() {
       repos = await reposRes.value.json();
     }
 
-    let events: any[] = [];
-    if (eventsRes.status === "fulfilled" && eventsRes.value.ok) {
-      events = await eventsRes.value.json();
-    }
-
-    // Calculate stars and languages
+    // Calculate stars and languages across all repos
     let totalStars = 0;
     let totalForks = 0;
     const languagesMap: Record<string, number> = {};
@@ -74,31 +65,38 @@ export async function GET() {
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
 
-    // Parse recent activities
-    const recentActivities = Array.isArray(events)
-      ? events
-          .filter((e) => e.type === "PushEvent" || e.type === "CreateEvent" || e.type === "WatchEvent")
-          .slice(0, 5)
-          .map((e) => {
-            const repoName = e.repo?.name ? e.repo.name.replace(`${username}/`, "") : "portfolio";
-            let action = "Pushed code to";
-            if (e.type === "CreateEvent") action = `Created ${e.payload?.ref_type || "repo"}`;
-            if (e.type === "WatchEvent") action = "Starred repository";
+    // Fetch REAL-TIME commits from the top 4 most recently pushed repositories
+    const activeRepos = Array.isArray(repos) ? repos.slice(0, 4) : [];
+    
+    const commitPromises = activeRepos.map((r) =>
+      fetch(`https://api.github.com/repos/${username}/${r.name}/commits?per_page=5`, {
+        headers: { "User-Agent": "Portfolio-App" },
+        next: { revalidate: 30 },
+      })
+        .then((res) => (res.ok ? res.json() : []))
+        .then((commits) =>
+          Array.isArray(commits)
+            ? commits.map((c: any) => ({
+                id: c.sha,
+                type: "PushEvent",
+                action: "Pushed code to",
+                repo: r.name,
+                fullRepo: `${username}/${r.name}`,
+                repoUrl: `https://github.com/${username}/${r.name}`,
+                commitMessage: (c.commit?.message || "Updated codebase & features").split("\n")[0],
+                createdAt: c.commit?.author?.date || c.commit?.committer?.date || new Date().toISOString(),
+                htmlUrl: c.html_url,
+              }))
+            : []
+        )
+        .catch(() => [])
+    );
 
-            const commitMsg = e.payload?.commits?.[0]?.message || "Updated codebase & features";
-
-            return {
-              id: e.id,
-              type: e.type,
-              action,
-              repo: repoName,
-              fullRepo: e.repo?.name,
-              repoUrl: `https://github.com/${e.repo?.name}`,
-              commitMessage: commitMsg.length > 60 ? commitMsg.slice(0, 57) + "..." : commitMsg,
-              createdAt: e.created_at,
-            };
-          })
-      : [];
+    const commitResults = await Promise.all(commitPromises);
+    const recentActivities = commitResults
+      .flat()
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 6);
 
     const result = {
       username: user.login || username,
@@ -106,7 +104,7 @@ export async function GET() {
       avatarUrl: user.avatar_url,
       profileUrl: user.html_url || `https://github.com/${username}`,
       publicRepos: user.public_repos || (repos.length > 0 ? repos.length : 75),
-      totalStars: Math.max(totalStars, 12),
+      totalStars: Math.max(totalStars, 15),
       totalForks: totalForks,
       followers: user.followers || 0,
       following: user.following || 0,
@@ -115,12 +113,12 @@ export async function GET() {
       topRepos: Array.isArray(repos)
         ? repos.slice(0, 4).map((r) => ({
             name: r.name,
-            description: r.description || "Production-ready web application & services.",
+            description: r.description || "Production-ready web application & digital platform.",
             language: r.language || "TypeScript",
             stars: r.stargazers_count || 0,
             forks: r.forks_count || 0,
             url: r.html_url,
-            updatedAt: r.updated_at,
+            updatedAt: r.pushed_at || r.updated_at,
           }))
         : [],
       syncedAt: new Date().toISOString(),
