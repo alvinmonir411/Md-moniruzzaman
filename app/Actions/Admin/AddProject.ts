@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 export async function addProject(formData: FormData) {
   try {
     const file = formData.get("thumbnail") as File;
-    let imageUrl = "";
+    let imageUrl = (formData.get("thumbnailUrl") as string) || "";
 
     if (file && file.size > 0) {
       imageUrl = await getcloudinaryImageurl(file);

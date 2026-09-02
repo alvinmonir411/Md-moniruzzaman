@@ -15,6 +15,14 @@ import {
     ChevronRight,
     Pin,
     Sparkles,
+    Globe,
+    Code,
+    UploadCloud,
+    Link as LinkIcon,
+    Layers,
+    Check,
+    Eye,
+    Palette,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
@@ -23,6 +31,24 @@ import Image from "next/image";
 import { addProject } from "@/app/Actions/Admin/AddProject";
 import { updateProject } from "@/app/Actions/Admin/UpdateProject";
 import GitHubSyncModal, { GitHubRepoItem } from "@/app/Components/Admin/GitHubSyncModal";
+
+const SUGGESTED_TECH = [
+    "Next.js",
+    "React",
+    "TypeScript",
+    "Tailwind CSS",
+    "Node.js",
+    "PostgreSQL",
+    "Neon DB",
+    "MongoDB",
+    "Redux Toolkit",
+    "Cloudinary",
+    "Express.js",
+    "REST API",
+    "Prisma",
+    "Firebase",
+    "Wix",
+];
 
 interface Project {
     _id: string;
@@ -53,6 +79,7 @@ export default function ProjectsPage() {
     const [isAdding, setIsAdding] = useState(false);
     const [isGitHubSyncOpen, setIsGitHubSyncOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [thumbnailMode, setThumbnailMode] = useState<"file" | "url">("file");
     const [formData, setFormData] = useState({
         title: "",
         desc: "",
@@ -62,9 +89,20 @@ export default function ProjectsPage() {
         category: "custom",
         is_featured: false,
         thumbnail: null as File | null,
+        thumbnailUrl: "",
         images: [] as File[],
         existingImages: [] as string[],
     });
+
+    const addTechPill = (tech: string) => {
+        const currentList = formData.tech
+            ? formData.tech.split(",").map((t) => t.trim()).filter(Boolean)
+            : [];
+        if (!currentList.includes(tech)) {
+            const updated = [...currentList, tech].join(", ");
+            setFormData({ ...formData, tech: updated });
+        }
+    };
 
     const handleCustomizeGitHubRepo = (repo: GitHubRepoItem) => {
         resetForm();
@@ -77,9 +115,13 @@ export default function ProjectsPage() {
             category: "custom",
             is_featured: false,
             thumbnail: null,
+            thumbnailUrl: repo.defaultThumbnail || "",
             images: [],
-            existingImages: repo.defaultThumbnail ? [repo.defaultThumbnail] : [],
+            existingImages: [],
         });
+        if (repo.defaultThumbnail) {
+            setThumbnailMode("url");
+        }
         setIsAdding(true);
     };
 
@@ -165,9 +207,13 @@ export default function ProjectsPage() {
             category: project.category || "custom",
             is_featured: Boolean(project.is_featured || project.isFeatured),
             thumbnail: null,
+            thumbnailUrl: project.img || "",
             images: [],
             existingImages: project.images || [],
         });
+        if (project.img) {
+            setThumbnailMode("url");
+        }
         setIsAdding(true);
     };
 
@@ -190,6 +236,8 @@ export default function ProjectsPage() {
 
                 if (formData.thumbnail) {
                     data.append("thumbnail", formData.thumbnail);
+                } else if (formData.thumbnailUrl) {
+                    data.append("thumbnailUrl", formData.thumbnailUrl);
                 }
 
                 // Add existing images (list of kept URLs)
@@ -220,9 +268,15 @@ export default function ProjectsPage() {
                 data.append("github", formData.github);
                 data.append("category", formData.category);
                 data.append("is_featured", String(formData.is_featured));
+
                 if (formData.thumbnail) {
                     data.append("thumbnail", formData.thumbnail);
+                } else if (formData.thumbnailUrl) {
+                    data.append("thumbnailUrl", formData.thumbnailUrl);
                 }
+
+                // Add existing images if any (e.g. from customize)
+                data.append("existingImages", JSON.stringify(formData.existingImages));
 
                 // Add gallery images
                 formData.images.forEach(file => {
@@ -256,9 +310,11 @@ export default function ProjectsPage() {
             category: "custom",
             is_featured: false,
             thumbnail: null,
+            thumbnailUrl: "",
             images: [],
             existingImages: [],
         });
+        setThumbnailMode("file");
         setEditingId(null);
     };
 
@@ -591,299 +647,602 @@ export default function ProjectsPage() {
                 </div>
             )}
 
-            {/* Add Project Modal */}
+            {/* Add/Edit Project Modal */}
             {isAdding && (
-                <div className="fixed inset-0 z-[200] min-h-screen flex items-center justify-center p-4 animate-fade-in overflow-y-auto">
+                <div className="fixed inset-0 z-[200] min-h-screen flex items-center justify-center p-3 sm:p-6 animate-fade-in overflow-y-auto">
                     <div
-                        className="absolute inset-0 bg-black/60 backdrop-blur-md"
-                        onClick={() => setIsAdding(false)}
+                        className="fixed inset-0 bg-black/75 backdrop-blur-md"
+                        onClick={() => {
+                            setIsAdding(false);
+                            resetForm();
+                        }}
                     />
                     <div
-                        className={`relative max-w-2xl w-full rounded-2xl p-6 my-8 ${isDark
-                            ? "bg-slate-900 border border-slate-800"
-                            : "bg-white border border-gray-200"
-                            } shadow-2xl animate-scale-in`}
+                        className={`relative max-w-5xl w-full max-h-[92vh] flex flex-col rounded-3xl my-auto ${
+                            isDark
+                                ? "bg-slate-900/95 border border-slate-800 text-white"
+                                : "bg-white/95 border border-slate-200 text-slate-900"
+                        } shadow-2xl animate-scale-in overflow-hidden z-10`}
                     >
-                        <h3
-                            className={`text-xl font-bold mb-4 ${isDark ? "text-white" : "text-slate-900"
-                                }`}
-                        >
-                            {editingId ? "Edit Project" : "Add New Project"}
-                        </h3>
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200/60 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/50">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2.5 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white shadow-lg shadow-indigo-500/25">
+                                    {editingId ? <Edit size={22} /> : <Sparkles size={22} />}
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold tracking-tight">
+                                        {editingId ? "Edit Project Details" : "Create New Project"}
+                                    </h3>
+                                    <p className={`text-xs mt-0.5 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                                        Configure project visuals, metadata, tech stack, and deployment links.
+                                    </p>
+                                </div>
+                            </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            {/* Image Upload - Only show if not editing, or allow replace (logic simplified for now) */}
-                            <div>
-                                <label className="block text-sm font-medium mb-2">
-                                    Project Thumbnail {editingId && "(Leave empty to keep current)"}
-                                </label>
-                                <div
-                                    className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${isDark
-                                        ? "border-slate-700 hover:border-indigo-500 bg-slate-800/50"
-                                        : "border-gray-300 hover:border-indigo-500 bg-gray-50"
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setIsAdding(false);
+                                    resetForm();
+                                }}
+                                className={`p-2 rounded-xl border transition-all ${
+                                    isDark
+                                        ? "border-slate-800 bg-slate-800/60 hover:bg-slate-800 text-slate-400 hover:text-white"
+                                        : "border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900"
+                                }`}
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        {/* Modal Form Scrollable Area */}
+                        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                                {/* LEFT COLUMN: Visuals, Media & Live Preview */}
+                                <div className="lg:col-span-5 space-y-5">
+                                    {/* Main Project Thumbnail */}
+                                    <div
+                                        className={`p-4.5 rounded-2xl border ${
+                                            isDark ? "bg-slate-800/40 border-slate-800" : "bg-slate-50/70 border-slate-200"
                                         }`}
-                                >
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleFileChange}
-                                        className="hidden"
-                                        id="thumbnail-upload"
-                                    />
-                                    <label
-                                        htmlFor="thumbnail-upload"
-                                        className="cursor-pointer flex flex-col items-center gap-2"
                                     >
+                                        <div className="flex items-center justify-between mb-3">
+                                            <label className="text-xs font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
+                                                <ImageIcon size={14} /> Main Thumbnail
+                                            </label>
+
+                                            {/* Toggle between File Upload & Direct URL */}
+                                            <div className="flex items-center gap-1 p-0.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-[11px] font-semibold">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setThumbnailMode("file")}
+                                                    className={`px-2.5 py-1 rounded-md transition-all ${
+                                                        thumbnailMode === "file"
+                                                            ? "bg-indigo-600 text-white shadow-sm"
+                                                            : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                                                    }`}
+                                                >
+                                                    Upload File
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setThumbnailMode("url")}
+                                                    className={`px-2.5 py-1 rounded-md transition-all ${
+                                                        thumbnailMode === "url"
+                                                            ? "bg-indigo-600 text-white shadow-sm"
+                                                            : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                                                    }`}
+                                                >
+                                                    Image URL
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* Thumbnail Preview / Drop Zone */}
                                         {formData.thumbnail ? (
-                                            <div className="relative w-full h-48 rounded-lg overflow-hidden">
-                                                <Image
+                                            <div className="relative w-full h-44 rounded-xl overflow-hidden border-2 border-indigo-500/40 bg-slate-950 group">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img
                                                     src={URL.createObjectURL(formData.thumbnail)}
-                                                    alt="Preview"
-                                                    fill
-                                                    className="object-contain"
+                                                    alt="Thumbnail Preview"
+                                                    className="w-full h-full object-cover"
                                                 />
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                    <label
+                                                        htmlFor="thumbnail-upload"
+                                                        className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg cursor-pointer shadow-md"
+                                                    >
+                                                        Change File
+                                                    </label>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFormData({ ...formData, thumbnail: null })}
+                                                        className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-lg shadow-md"
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                                <span className="absolute bottom-2 left-2 px-2 py-0.5 text-[10px] font-bold rounded bg-black/70 text-emerald-400 backdrop-blur-md">
+                                                    ✓ Local File Selected
+                                                </span>
+                                            </div>
+                                        ) : formData.thumbnailUrl ? (
+                                            <div className="relative w-full h-44 rounded-xl overflow-hidden border-2 border-indigo-500/40 bg-slate-950 group">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img
+                                                    src={formData.thumbnailUrl}
+                                                    alt="Thumbnail URL Preview"
+                                                    className="w-full h-full object-cover"
+                                                    onError={(e) => {
+                                                        (e.target as HTMLImageElement).src =
+                                                            "https://placehold.co/600x400/1e293b/ffffff?text=Preview+Unavailable";
+                                                    }}
+                                                />
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFormData({ ...formData, thumbnailUrl: "" })}
+                                                        className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-lg shadow-md"
+                                                    >
+                                                        Remove URL
+                                                    </button>
+                                                </div>
+                                                <span className="absolute bottom-2 left-2 px-2 py-0.5 text-[10px] font-bold rounded bg-black/70 text-indigo-300 backdrop-blur-md">
+                                                    🌐 Remote / Screenshot URL
+                                                </span>
+                                            </div>
+                                        ) : thumbnailMode === "file" ? (
+                                            <div
+                                                className={`border-2 border-dashed rounded-xl p-6 text-center transition-all ${
+                                                    isDark
+                                                        ? "border-slate-700 hover:border-indigo-500 bg-slate-800/30 hover:bg-slate-800/60"
+                                                        : "border-slate-300 hover:border-indigo-500 bg-slate-50 hover:bg-indigo-50/20"
+                                                }`}
+                                            >
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleFileChange}
+                                                    className="hidden"
+                                                    id="thumbnail-upload"
+                                                />
+                                                <label
+                                                    htmlFor="thumbnail-upload"
+                                                    className="cursor-pointer flex flex-col items-center gap-2"
+                                                >
+                                                    <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-400">
+                                                        <UploadCloud size={28} />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs font-semibold">
+                                                            Click or drag an image here
+                                                        </p>
+                                                        <p className={`text-[11px] mt-0.5 ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+                                                            PNG, JPG, WebP up to 10MB
+                                                        </p>
+                                                    </div>
+                                                </label>
                                             </div>
                                         ) : (
-                                            <>
-                                                <ImageIcon
-                                                    size={32}
-                                                    className={
-                                                        isDark ? "text-slate-500" : "text-slate-400"
-                                                    }
-                                                />
-                                                <span
-                                                    className={
-                                                        isDark ? "text-slate-400" : "text-slate-600"
-                                                    }
-                                                >
-                                                    {editingId ? "Click to change image" : "Click to upload image"}
-                                                </span>
-                                            </>
+                                            <div className="space-y-2">
+                                                <div className="relative">
+                                                    <LinkIcon
+                                                        size={14}
+                                                        className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                                                            isDark ? "text-slate-500" : "text-slate-400"
+                                                        }`}
+                                                    />
+                                                    <input
+                                                        type="url"
+                                                        value={formData.thumbnailUrl}
+                                                        onChange={(e) =>
+                                                            setFormData({ ...formData, thumbnailUrl: e.target.value })
+                                                        }
+                                                        placeholder="Paste image / screenshot URL..."
+                                                        className={`w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border transition-all ${
+                                                            isDark
+                                                                ? "bg-slate-800 border-slate-700 text-white placeholder-slate-500 focus:border-indigo-500"
+                                                                : "bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-indigo-500"
+                                                        } outline-none`}
+                                                    />
+                                                </div>
+                                                <p className={`text-[11px] ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+                                                    Cloudinary, GitHub OpenGraph, or direct image link.
+                                                </p>
+                                            </div>
                                         )}
-                                    </label>
-                                </div>
-                            </div>
 
-                            <div>
-                                <label className="block text-sm font-medium mb-2">
-                                    Project Type
-                                </label>
-                                <div className="flex gap-4">
-                                    <label className={`flex-1 cursor-pointer border-2 rounded-xl p-3 flex items-center justify-center gap-2 transition-all ${formData.category === 'custom'
-                                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                                        : isDark ? 'border-slate-700 bg-slate-800' : 'border-gray-200 bg-white'
-                                        }`}>
-                                        <input
-                                            type="radio"
-                                            name="category"
-                                            value="custom"
-                                            checked={formData.category === 'custom'}
-                                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                            className="hidden"
-                                        />
-                                        <span className="font-medium">Custom Code</span>
-                                    </label>
-                                    <label className={`flex-1 cursor-pointer border-2 rounded-xl p-3 flex items-center justify-center gap-2 transition-all ${formData.category === 'wix'
-                                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                                        : isDark ? 'border-slate-700 bg-slate-800' : 'border-gray-200 bg-white'
-                                        }`}>
-                                        <input
-                                            type="radio"
-                                            name="category"
-                                            value="wix"
-                                            checked={formData.category === 'wix'}
-                                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                            className="hidden"
-                                        />
-                                        <span className="font-medium">Wix/No-Code</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            {/* Pin to Home Page Toggle */}
-                            <div className="flex items-center justify-between p-4 rounded-xl border border-amber-500/30 bg-amber-500/10">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-amber-500/20 text-amber-300">
-                                        <Pin size={18} className="fill-amber-400" />
-                                    </div>
-                                    <div>
-                                        <h4 className="text-sm font-bold text-amber-300">Pin to Home Page (Featured)</h4>
-                                        <p className="text-xs text-slate-400">Pinned projects are showcased directly on the main landing page</p>
-                                    </div>
-                                </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={formData.is_featured}
-                                        onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-                                        className="sr-only peer"
-                                    />
-                                    <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                                </label>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium mb-2">
-                                    Project Title
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.title}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, title: e.target.value })
-                                    }
-                                    className={`w-full px-4 py-2 rounded-xl border-2 transition-all ${isDark
-                                        ? "bg-slate-800 border-slate-700 text-white"
-                                        : "bg-white border-gray-200 text-slate-900"
-                                        } focus:outline-none focus:border-indigo-500`}
-                                    placeholder="e.g., E-commerce Dashboard"
-                                    required
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium mb-2">
-                                    Description
-                                </label>
-                                <textarea
-                                    value={formData.desc}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, desc: e.target.value })
-                                    }
-                                    rows={3}
-                                    className={`w-full px-4 py-2 rounded-xl border-2 transition-all ${isDark
-                                        ? "bg-slate-800 border-slate-700 text-white"
-                                        : "bg-white border-gray-200 text-slate-900"
-                                        } focus:outline-none focus:border-indigo-500`}
-                                    placeholder="Brief description of the project..."
-                                    required
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium mb-2">
-                                    Tech Stack (comma separated)
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.tech}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, tech: e.target.value })
-                                    }
-                                    className={`w-full px-4 py-2 rounded-xl border-2 transition-all ${isDark
-                                        ? "bg-slate-800 border-slate-700 text-white"
-                                        : "bg-white border-gray-200 text-slate-900"
-                                        } focus:outline-none focus:border-indigo-500`}
-                                    placeholder="e.g., React, Node.js, MongoDB"
-                                    required
-                                />
-                            </div>
-
-                            {/* Gallery Images */}
-                            <div>
-                                <label className="block text-sm font-medium mb-2">
-                                    Project Gallery (Additional Images)
-                                </label>
-
-                                <div className="grid grid-cols-4 md:grid-cols-5 gap-3 mb-3">
-                                    {/* Existing Images */}
-                                    {formData.existingImages.map((img, idx) => (
-                                        <div key={`exist-${idx}`} className="relative aspect-square rounded-lg overflow-hidden border border-slate-700 bg-slate-800">
-                                            <Image src={img} alt="Existing" fill className="object-cover" />
-                                            <button
-                                                type="button"
-                                                onClick={() => removeExistingImage(idx)}
-                                                className="absolute top-1 right-1 p-1 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors"
-                                            >
-                                                <X size={12} />
-                                            </button>
-                                        </div>
-                                    ))}
-
-                                    {/* New Image Previews */}
-                                    {formData.images.map((file, idx) => (
-                                        <div key={`new-${idx}`} className="relative aspect-square rounded-lg overflow-hidden border border-indigo-500/50 bg-indigo-500/10">
-                                            <Image src={URL.createObjectURL(file)} alt="New Preview" fill className="object-cover" />
-                                            <button
-                                                type="button"
-                                                onClick={() => removeNewImage(idx)}
-                                                className="absolute top-1 right-1 p-1 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors"
-                                            >
-                                                <X size={12} />
-                                            </button>
-                                        </div>
-                                    ))}
-
-                                    {/* Upload Button */}
-                                    <label
-                                        htmlFor="gallery-upload"
-                                        className={`aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors ${isDark ? "border-slate-700 hover:border-indigo-500 bg-slate-800/50" : "border-gray-200 hover:border-indigo-500 bg-gray-50"
-                                            }`}
-                                    >
-                                        <Plus size={20} className="text-slate-400" />
-                                        <span className="text-[10px] text-slate-500 mt-1">Add More</span>
+                                        {/* Hidden file input for changing file */}
                                         <input
                                             type="file"
-                                            id="gallery-upload"
-                                            multiple
                                             accept="image/*"
+                                            onChange={handleFileChange}
                                             className="hidden"
-                                            onChange={handleGalleryChange}
-                                        />
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium mb-2">
-                                        Live URL
-                                    </label>
-                                    <input
-                                        type="url"
-                                        value={formData.live}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, live: e.target.value })
-                                        }
-                                        className={`w-full px-4 py-2 rounded-xl border-2 transition-all ${isDark
-                                            ? "bg-slate-800 border-slate-700 text-white"
-                                            : "bg-white border-gray-200 text-slate-900"
-                                            } focus:outline-none focus:border-indigo-500`}
-                                        placeholder="https://..."
-                                    />
-                                </div>
-                                {formData.category === 'custom' && (
-                                    <div>
-                                        <label className="block text-sm font-medium mb-2">
-                                            GitHub URL
-                                        </label>
-                                        <input
-                                            type="url"
-                                            value={formData.github}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, github: e.target.value })
-                                            }
-                                            className={`w-full px-4 py-2 rounded-xl border-2 transition-all ${isDark
-                                                ? "bg-slate-800 border-slate-700 text-white"
-                                                : "bg-white border-gray-200 text-slate-900"
-                                                } focus:outline-none focus:border-indigo-500`}
-                                            placeholder="https://github.com/..."
+                                            id="thumbnail-upload"
                                         />
                                     </div>
-                                )}
+
+                                    {/* Gallery Images (Additional screenshots) */}
+                                    <div
+                                        className={`p-4.5 rounded-2xl border ${
+                                            isDark ? "bg-slate-800/40 border-slate-800" : "bg-slate-50/70 border-slate-200"
+                                        }`}
+                                    >
+                                        <div className="flex items-center justify-between mb-3">
+                                            <label className="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
+                                                <Layers size={14} /> Project Gallery
+                                            </label>
+                                            <span className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                                                {formData.existingImages.length + formData.images.length} images
+                                            </span>
+                                        </div>
+
+                                        <div className="grid grid-cols-4 gap-2.5">
+                                            {/* Existing Gallery Images */}
+                                            {formData.existingImages.map((imgUrl, idx) => (
+                                                <div
+                                                    key={`exist-${idx}`}
+                                                    className="group relative aspect-square rounded-xl overflow-hidden border border-slate-700 bg-slate-900 shadow-sm"
+                                                >
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                    <img
+                                                        src={imgUrl}
+                                                        alt="Gallery Preview"
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => {
+                                                            (e.target as HTMLImageElement).src =
+                                                                "https://placehold.co/200x200/1e293b/ffffff?text=Image";
+                                                        }}
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeExistingImage(idx)}
+                                                        className="absolute top-1 right-1 p-1 rounded-full bg-rose-600 text-white shadow-md hover:scale-110 transition-transform opacity-90 group-hover:opacity-100"
+                                                    >
+                                                        <X size={11} />
+                                                    </button>
+                                                </div>
+                                            ))}
+
+                                            {/* New Gallery Images */}
+                                            {formData.images.map((file, idx) => (
+                                                <div
+                                                    key={`new-${idx}`}
+                                                    className="group relative aspect-square rounded-xl overflow-hidden border border-indigo-500/50 bg-indigo-950/30 shadow-sm"
+                                                >
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                    <img
+                                                        src={URL.createObjectURL(file)}
+                                                        alt="New Preview"
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeNewImage(idx)}
+                                                        className="absolute top-1 right-1 p-1 rounded-full bg-rose-600 text-white shadow-md hover:scale-110 transition-transform opacity-90 group-hover:opacity-100"
+                                                    >
+                                                        <X size={11} />
+                                                    </button>
+                                                </div>
+                                            ))}
+
+                                            {/* Add More Button */}
+                                            <label
+                                                htmlFor="gallery-upload"
+                                                className={`aspect-square rounded-xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all ${
+                                                    isDark
+                                                        ? "border-slate-700 hover:border-purple-500 bg-slate-800/30 hover:bg-slate-800"
+                                                        : "border-slate-300 hover:border-purple-500 bg-slate-50 hover:bg-purple-50/30"
+                                                }`}
+                                            >
+                                                <Plus size={18} className="text-purple-400" />
+                                                <span className="text-[10px] font-semibold text-slate-400 mt-0.5">
+                                                    Add
+                                                </span>
+                                                <input
+                                                    type="file"
+                                                    id="gallery-upload"
+                                                    multiple
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    onChange={handleGalleryChange}
+                                                />
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* Live Portfolio Card Mockup Preview */}
+                                    <div
+                                        className={`p-4 rounded-2xl border ${
+                                            isDark ? "bg-slate-950/60 border-slate-800" : "bg-slate-100/80 border-slate-200"
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-1.5 mb-2.5 text-slate-400 text-xs font-semibold">
+                                            <Eye size={13} /> Live Portfolio Mockup Preview
+                                        </div>
+                                        <div
+                                            className={`rounded-xl overflow-hidden border transition-all ${
+                                                isDark
+                                                    ? "bg-slate-900 border-slate-800"
+                                                    : "bg-white border-slate-200"
+                                            } shadow-lg`}
+                                        >
+                                            <div className="relative h-28 bg-gradient-to-br from-indigo-600 to-purple-600 overflow-hidden">
+                                                {formData.thumbnail ? (
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img
+                                                        src={URL.createObjectURL(formData.thumbnail)}
+                                                        alt="Mockup"
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : formData.thumbnailUrl ? (
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img
+                                                        src={formData.thumbnailUrl}
+                                                        alt="Mockup"
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="flex items-center justify-center h-full text-white/40">
+                                                        <ImageIcon size={32} />
+                                                    </div>
+                                                )}
+                                                <div className="absolute top-2 left-2 flex gap-1.5">
+                                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/70 text-indigo-300 backdrop-blur-md">
+                                                        {formData.category === "wix" ? "Wix / No-Code" : "Custom Code"}
+                                                    </span>
+                                                    {formData.is_featured && (
+                                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-slate-950 shadow-sm">
+                                                            📌 Pinned
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="p-3">
+                                                <h4 className="text-sm font-bold truncate">
+                                                    {formData.title || "Project Title"}
+                                                </h4>
+                                                <p className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">
+                                                    {formData.desc || "Brief project description will appear here."}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* RIGHT COLUMN: Project Details, Meta & Controls */}
+                                <div className="lg:col-span-7 space-y-4.5">
+                                    {/* Project Type Category Tabs */}
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                                            Project Category
+                                        </label>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, category: "custom" })}
+                                                className={`p-3 rounded-xl border-2 flex items-center justify-center gap-2 transition-all ${
+                                                    formData.category === "custom"
+                                                        ? "border-indigo-500 bg-indigo-500/10 text-indigo-400 font-bold shadow-md shadow-indigo-500/10"
+                                                        : isDark
+                                                        ? "border-slate-800 bg-slate-800/40 text-slate-400 hover:text-white"
+                                                        : "border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900"
+                                                }`}
+                                            >
+                                                <Code size={16} />
+                                                <span className="text-xs">Custom Code (Next.js/React)</span>
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, category: "wix" })}
+                                                className={`p-3 rounded-xl border-2 flex items-center justify-center gap-2 transition-all ${
+                                                    formData.category === "wix"
+                                                        ? "border-indigo-500 bg-indigo-500/10 text-indigo-400 font-bold shadow-md shadow-indigo-500/10"
+                                                        : isDark
+                                                        ? "border-slate-800 bg-slate-800/40 text-slate-400 hover:text-white"
+                                                        : "border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900"
+                                                }`}
+                                            >
+                                                <Palette size={16} />
+                                                <span className="text-xs">Wix / No-Code Platform</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Pin to Home Page Highlight Banner */}
+                                    <div className="flex items-center justify-between p-3.5 rounded-2xl border border-amber-500/30 bg-amber-500/10 transition-all">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="p-2 rounded-xl bg-amber-500/20 text-amber-300 shadow-sm">
+                                                <Pin size={16} className="fill-amber-400" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-xs font-bold text-amber-300">
+                                                    Pin to Landing Page (Featured)
+                                                </h4>
+                                                <p className="text-[11px] text-slate-400">
+                                                    Showcase this project directly on your homepage hero grid
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.is_featured}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, is_featured: e.target.checked })
+                                                }
+                                                className="sr-only peer"
+                                            />
+                                            <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                                        </label>
+                                    </div>
+
+                                    {/* Project Title */}
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                                            Project Title <span className="text-rose-500">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.title}
+                                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                            className={`w-full px-4 py-2.5 text-sm rounded-xl border-2 transition-all outline-none ${
+                                                isDark
+                                                    ? "bg-slate-800/80 border-slate-700/80 text-white placeholder-slate-500 focus:border-indigo-500"
+                                                    : "bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-indigo-500"
+                                            }`}
+                                            placeholder="e.g., Murtec SaaS Platform"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Project Description */}
+                                    <div>
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                                                Description <span className="text-rose-500">*</span>
+                                            </label>
+                                            <span className={`text-[11px] ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+                                                {formData.desc.length} chars
+                                            </span>
+                                        </div>
+                                        <textarea
+                                            value={formData.desc}
+                                            onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
+                                            rows={3}
+                                            className={`w-full px-4 py-2.5 text-sm rounded-xl border-2 transition-all outline-none resize-none ${
+                                                isDark
+                                                    ? "bg-slate-800/80 border-slate-700/80 text-white placeholder-slate-500 focus:border-indigo-500"
+                                                    : "bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-indigo-500"
+                                            }`}
+                                            placeholder="Brief overview of the project architecture, features, and key accomplishments..."
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Tech Stack Input + Quick Add Pills */}
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                                            Tech Stack <span className="text-rose-500">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.tech}
+                                            onChange={(e) => setFormData({ ...formData, tech: e.target.value })}
+                                            className={`w-full px-4 py-2.5 text-sm rounded-xl border-2 transition-all outline-none ${
+                                                isDark
+                                                    ? "bg-slate-800/80 border-slate-700/80 text-white placeholder-slate-500 focus:border-indigo-500"
+                                                    : "bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-indigo-500"
+                                            }`}
+                                            placeholder="e.g., Next.js 16, React 19, TypeScript, Tailwind CSS"
+                                            required
+                                        />
+
+                                        {/* Quick Add Suggestion Pills */}
+                                        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                                            <span className="text-[11px] text-slate-500 mr-1 font-medium">Quick Add:</span>
+                                            {SUGGESTED_TECH.map((tech) => {
+                                                const isIncluded = formData.tech
+                                                    .toLowerCase()
+                                                    .includes(tech.toLowerCase());
+                                                return (
+                                                    <button
+                                                        key={tech}
+                                                        type="button"
+                                                        onClick={() => addTechPill(tech)}
+                                                        className={`px-2 py-0.5 text-[11px] font-medium rounded-md border transition-all cursor-pointer ${
+                                                            isIncluded
+                                                                ? "bg-indigo-600 text-white border-indigo-600"
+                                                                : isDark
+                                                                ? "bg-slate-800 border-slate-700 text-slate-300 hover:border-indigo-500 hover:text-white"
+                                                                : "bg-slate-100 border-slate-200 text-slate-700 hover:border-indigo-400 hover:text-indigo-600"
+                                                        }`}
+                                                    >
+                                                        + {tech}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    {/* URLs Grid */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+                                        <div>
+                                            <div className="flex items-center justify-between mb-1.5">
+                                                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                                                    <Globe size={12} /> Live Website URL
+                                                </label>
+                                                {formData.live && (
+                                                    <a
+                                                        href={formData.live}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="text-[11px] text-indigo-400 hover:underline flex items-center gap-0.5"
+                                                    >
+                                                        Test <ExternalLink size={10} />
+                                                    </a>
+                                                )}
+                                            </div>
+                                            <input
+                                                type="url"
+                                                value={formData.live}
+                                                onChange={(e) => setFormData({ ...formData, live: e.target.value })}
+                                                className={`w-full px-3.5 py-2 text-xs rounded-xl border-2 transition-all outline-none ${
+                                                    isDark
+                                                        ? "bg-slate-800/80 border-slate-700/80 text-white placeholder-slate-500 focus:border-indigo-500"
+                                                        : "bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-indigo-500"
+                                                }`}
+                                                placeholder="https://your-project.vercel.app"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <div className="flex items-center justify-between mb-1.5">
+                                                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                                                    <Github size={12} /> GitHub Repository URL
+                                                </label>
+                                                {formData.github && (
+                                                    <a
+                                                        href={formData.github}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="text-[11px] text-purple-400 hover:underline flex items-center gap-0.5"
+                                                    >
+                                                        Test <ExternalLink size={10} />
+                                                    </a>
+                                                )}
+                                            </div>
+                                            <input
+                                                type="url"
+                                                value={formData.github}
+                                                onChange={(e) => setFormData({ ...formData, github: e.target.value })}
+                                                className={`w-full px-3.5 py-2 text-xs rounded-xl border-2 transition-all outline-none ${
+                                                    isDark
+                                                        ? "bg-slate-800/80 border-slate-700/80 text-white placeholder-slate-500 focus:border-indigo-500"
+                                                        : "bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-indigo-500"
+                                                }`}
+                                                placeholder="https://github.com/alvinmonir411/..."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="flex gap-3 mt-6">
+                            {/* Sticky Modal Footer */}
+                            <div className="pt-4 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center justify-end gap-3">
                                 <button
                                     type="button"
                                     onClick={() => {
                                         setIsAdding(false);
                                         resetForm();
                                     }}
-                                    className={`flex-1 px-4 py-3 rounded-xl font-medium transition-colors ${isDark
-                                        ? "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                                        : "bg-gray-100 text-slate-700 hover:bg-gray-200"
-                                        }`}
+                                    className={`px-5 py-2.5 rounded-xl text-xs font-bold border transition-all ${
+                                        isDark
+                                            ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"
+                                            : "border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200"
+                                    }`}
                                     disabled={isSubmitting}
                                 >
                                     Cancel
@@ -891,15 +1250,18 @@ export default function ProjectsPage() {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="flex-1 px-4 py-3 rounded-xl font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 transition-colors flex items-center justify-center gap-2"
+                                    className="px-6 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white hover:opacity-95 transition-all flex items-center gap-2 shadow-lg shadow-indigo-500/25 cursor-pointer"
                                 >
                                     {isSubmitting ? (
                                         <>
-                                            <Loader2 className="animate-spin" size={20} />
-                                            {editingId ? "Updating..." : "Adding..."}
+                                            <Loader2 className="animate-spin" size={16} />
+                                            <span>{editingId ? "Updating Project..." : "Publishing..."}</span>
                                         </>
                                     ) : (
-                                        editingId ? "Update Project" : "Add Project"
+                                        <>
+                                            <Check size={16} />
+                                            <span>{editingId ? "Update Project" : "Save & Publish Project"}</span>
+                                        </>
                                     )}
                                 </button>
                             </div>

@@ -11,7 +11,8 @@ export async function updateProject(formData: FormData) {
 
     // Handle Thumbnail
     const file = formData.get("thumbnail") as File;
-    let imageUrl: string | undefined = undefined;
+    const directThumbnailUrl = formData.get("thumbnailUrl") as string;
+    let imageUrl: string | undefined = directThumbnailUrl || undefined;
     if (file && file.size > 0) {
       imageUrl = await getcloudinaryImageurl(file);
     }
