@@ -22,6 +22,7 @@ import { RootState } from "@/app/lib/store";
 import Image from "next/image";
 import { addProject } from "@/app/Actions/Admin/AddProject";
 import { updateProject } from "@/app/Actions/Admin/UpdateProject";
+import GitHubSyncModal, { GitHubRepoItem } from "@/app/Components/Admin/GitHubSyncModal";
 
 interface Project {
     _id: string;
@@ -50,6 +51,7 @@ export default function ProjectsPage() {
 
     // Add Project State
     const [isAdding, setIsAdding] = useState(false);
+    const [isGitHubSyncOpen, setIsGitHubSyncOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         title: "",
@@ -63,6 +65,23 @@ export default function ProjectsPage() {
         images: [] as File[],
         existingImages: [] as string[],
     });
+
+    const handleCustomizeGitHubRepo = (repo: GitHubRepoItem) => {
+        resetForm();
+        setFormData({
+            title: repo.title,
+            desc: repo.description,
+            tech: repo.tech,
+            live: repo.liveUrl,
+            github: repo.githubUrl,
+            category: "custom",
+            is_featured: false,
+            thumbnail: null,
+            images: [],
+            existingImages: repo.defaultThumbnail ? [repo.defaultThumbnail] : [],
+        });
+        setIsAdding(true);
+    };
 
     useEffect(() => {
         fetchProjects();
@@ -292,16 +311,33 @@ export default function ProjectsPage() {
                         Manage your portfolio projects & pinned homepage highlights
                     </p>
                 </div>
-                <button
-                    onClick={() => {
-                        resetForm();
-                        setIsAdding(true);
-                    }}
-                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-medium hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
-                >
-                    <Plus size={20} />
-                    Add Project
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => setIsGitHubSyncOpen(true)}
+                        className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium border-2 transition-all duration-200 shadow-md hover:scale-105 ${
+                            isDark
+                                ? "bg-slate-800/80 border-indigo-500/30 text-indigo-300 hover:bg-slate-800 hover:border-indigo-500/60"
+                                : "bg-white border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300"
+                        }`}
+                    >
+                        <Github size={20} className="text-indigo-500" />
+                        <span>Sync GitHub</span>
+                        <span className="flex h-2 w-2 relative">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                    </button>
+                    <button
+                        onClick={() => {
+                            resetForm();
+                            setIsAdding(true);
+                        }}
+                        className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-medium hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+                    >
+                        <Plus size={20} />
+                        Add Project
+                    </button>
+                </div>
             </div>
 
             {/* Search & Filter Tabs */}
@@ -1024,6 +1060,15 @@ export default function ProjectsPage() {
                     </div>
                 </div>
             )}
+
+            {/* GitHub Sync & Selective Approval Modal */}
+            <GitHubSyncModal
+                isOpen={isGitHubSyncOpen}
+                onClose={() => setIsGitHubSyncOpen(false)}
+                isDark={isDark}
+                onProjectImported={fetchProjects}
+                onCustomizeRepo={handleCustomizeGitHubRepo}
+            />
         </div>
     );
 }
