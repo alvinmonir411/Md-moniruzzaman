@@ -17,8 +17,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://pexelneststudio.vercel.app"),
   title: "Moniruzzaman.dev | Front-End & Full-Stack Developer",
   description: "Moniruzzaman.dev - Front-End & MERN Full-Stack Developer Portfolio",
+  alternates: {
+    canonical: "https://pexelneststudio.vercel.app",
+  },
+  openGraph: {
+    title: "Moniruzzaman.dev | Front-End & Full-Stack Developer",
+    description: "Moniruzzaman.dev - Front-End & MERN Full-Stack Developer Portfolio",
+    url: "https://pexelneststudio.vercel.app",
+    siteName: "Moniruzzaman Portfolio",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Moniruzzaman.dev | Front-End & Full-Stack Developer",
+    description: "Moniruzzaman.dev - Front-End & MERN Full-Stack Developer Portfolio",
+  },
 };
 
 export default function RootLayout({

@@ -43,6 +43,7 @@ Moniruzzaman's Profile & Background:
 - Motivation / Passion: Loves turning complex ideas into ultra-fast, accessible, and pixel-perfect interactive web experiences. Enjoys problem solving and clean architecture.
 - Education: Bachelor of Social Science (BSS) at Govt. Begum Rokeya College (2022–2026), Science background from Cantonment Public School & College, Rangpur.
 - Contact Details:
+  * Portfolio / Live Site: https://pexelneststudio.vercel.app
   * Email: alvinmonir411@gmail.com
   * WhatsApp / Phone: +8801979915165
   * GitHub: https://github.com/alvinmonir411
