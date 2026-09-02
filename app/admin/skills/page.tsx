@@ -15,6 +15,8 @@ import {
     Check,
     Loader2,
     Sliders,
+    AlertCircle,
+    CheckCircle2,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/lib/store";
@@ -37,6 +39,15 @@ export default function SkillsPage() {
     const [isSeeding, setIsSeeding] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [confirmSeedModal, setConfirmSeedModal] = useState(false);
+
+    // Toast notification state
+    const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+    const showToast = (message: string, type: "success" | "error" = "success") => {
+        setToast({ message, type });
+        setTimeout(() => setToast(null), 3500);
+    };
 
     // Modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -65,21 +76,26 @@ export default function SkillsPage() {
             }
         } catch (error) {
             console.error("Failed to fetch skills:", error);
+            showToast("Failed to load skills from database", "error");
         } finally {
             setLoading(false);
         }
     };
 
-    const handleSeedSkills = async () => {
-        if (!confirm("This will populate your database with 16 curated technical skills. Continue?")) return;
+    const handleExecuteSeed = async () => {
+        setConfirmSeedModal(false);
         try {
             setIsSeeding(true);
             const res = await fetch("/api/skills?seed=true", { method: "POST" });
             if (res.ok) {
                 await fetchSkills();
+                showToast("✨ 16 verified technical skills populated successfully!");
+            } else {
+                showToast("Failed to seed skills. Please try again.", "error");
             }
         } catch (error) {
             console.error("Failed to seed skills:", error);
+            showToast("Network error while seeding skills", "error");
         } finally {
             setIsSeeding(false);
         }
@@ -135,6 +151,9 @@ export default function SkillsPage() {
                 if (res.ok) {
                     await fetchSkills();
                     setIsModalOpen(false);
+                    showToast(`Updated "${formData.name}" successfully!`);
+                } else {
+                    showToast("Failed to update skill", "error");
                 }
             } else {
                 // Create
@@ -146,10 +165,14 @@ export default function SkillsPage() {
                 if (res.ok) {
                     await fetchSkills();
                     setIsModalOpen(false);
+                    showToast(`Added "${formData.name}" to skills toolkit!`);
+                } else {
+                    showToast("Failed to create skill", "error");
                 }
             }
         } catch (error) {
             console.error("Failed to save skill:", error);
+            showToast("Error saving skill", "error");
         } finally {
             setIsSubmitting(false);
         }
@@ -161,9 +184,13 @@ export default function SkillsPage() {
             if (res.ok) {
                 setSkills((prev) => prev.filter((s) => s._id !== id));
                 setDeleteId(null);
+                showToast("Skill deleted successfully");
+            } else {
+                showToast("Failed to delete skill", "error");
             }
         } catch (error) {
             console.error("Failed to delete skill:", error);
+            showToast("Network error deleting skill", "error");
         }
     };
 
@@ -179,32 +206,50 @@ export default function SkillsPage() {
     };
 
     return (
-        <div className="space-y-8 animate-fade-in pb-12">
+        <div className="space-y-8 animate-fade-in pb-12 relative">
+            {/* Floating In-App Toast */}
+            {toast && (
+                <div className="fixed top-6 right-6 z-[300] animate-bounce-in">
+                    <div
+                        className={`flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border backdrop-blur-xl ${
+                            toast.type === "success"
+                                ? "bg-emerald-950/90 border-emerald-500/50 text-emerald-200"
+                                : "bg-rose-950/90 border-rose-500/50 text-rose-200"
+                        }`}
+                    >
+                        {toast.type === "success" ? (
+                            <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
+                        ) : (
+                            <AlertCircle size={18} className="text-rose-400 shrink-0" />
+                        )}
+                        <span className="text-xs font-bold">{toast.message}</span>
+                    </div>
+                </div>
+            )}
+
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <div className="flex items-center gap-2 mb-1">
                         <Award size={20} className="text-purple-400" />
-                        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+                        <h1 className={`text-2xl sm:text-3xl font-black tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
                             Technical Toolkit & Skills
                         </h1>
                     </div>
-                    <p className={`text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                    <p className={`text-xs sm:text-sm ${isDark ? "text-slate-300" : "text-slate-600"}`}>
                         Manage verified technical stack shown on your portfolio landing page ({skills.length} skills total)
                     </p>
                 </div>
 
                 <div className="flex items-center gap-2.5">
-                    {skills.length === 0 && (
-                        <button
-                            onClick={handleSeedSkills}
-                            disabled={isSeeding}
-                            className="px-4 py-2.5 rounded-xl text-xs font-bold border border-purple-500/30 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 transition-all flex items-center gap-2 cursor-pointer"
-                        >
-                            {isSeeding ? <Loader2 size={14} className="animate-spin" /> : <RotateCcw size={14} />}
-                            <span>Seed 16 Default Skills</span>
-                        </button>
-                    )}
+                    <button
+                        onClick={() => setConfirmSeedModal(true)}
+                        disabled={isSeeding}
+                        className="px-4 py-2.5 rounded-xl text-xs font-bold border border-purple-500/40 bg-purple-500/15 text-purple-300 hover:bg-purple-500/25 transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                        {isSeeding ? <Loader2 size={14} className="animate-spin" /> : <RotateCcw size={14} />}
+                        <span>Restore / Seed 16 Skills</span>
+                    </button>
 
                     <button
                         onClick={openAddModal}
@@ -220,18 +265,20 @@ export default function SkillsPage() {
             {loading ? (
                 <div className="text-center py-20">
                     <div className="inline-block animate-spin rounded-full h-10 w-10 border-2 border-indigo-500 border-t-transparent"></div>
-                    <p className="text-xs text-slate-400 mt-3">Loading skills from database...</p>
+                    <p className={`text-xs mt-3 ${isDark ? "text-slate-300" : "text-slate-500"}`}>Loading skills from database...</p>
                 </div>
             ) : skills.length === 0 ? (
-                /* Empty state with instant 1-click restore */
-                <div className="text-center py-16 border-2 border-dashed rounded-3xl border-slate-700/60 bg-slate-900/30 p-8">
+                /* Empty state with instant restore */
+                <div className={`text-center py-16 border-2 border-dashed rounded-3xl ${
+                    isDark ? "border-slate-700 bg-slate-900/40 text-white" : "border-slate-200 bg-slate-50 text-slate-900"
+                } p-8`}>
                     <Award size={44} className="mx-auto text-purple-400 mb-3" />
-                    <h3 className="text-lg font-bold text-white">Database is Currently Empty</h3>
-                    <p className="text-xs text-slate-400 max-w-md mx-auto mt-1 mb-5">
-                        Your skills database has no entries. Click below to instantly populate your Neon DB with your 16 standard skills (React, Next.js, TypeScript, Tailwind, Node.js, etc.).
+                    <h3 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Database is Currently Empty</h3>
+                    <p className={`text-xs max-w-md mx-auto mt-1 mb-5 ${isDark ? "text-slate-300" : "text-slate-500"}`}>
+                        Your skills database has no entries. Click below to populate your Neon DB with 16 technical skills (React, Next.js, TypeScript, Tailwind, Node.js, etc.).
                     </p>
                     <button
-                        onClick={handleSeedSkills}
+                        onClick={() => setConfirmSeedModal(true)}
                         disabled={isSeeding}
                         className="px-6 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold shadow-lg shadow-indigo-500/25 hover:opacity-95 transition-all flex items-center gap-2 mx-auto cursor-pointer"
                     >
@@ -367,6 +414,40 @@ export default function SkillsPage() {
                 </div>
             )}
 
+            {/* Seed Confirmation Modal */}
+            {confirmSeedModal && (
+                <div className="fixed inset-0 z-[200] min-h-screen flex items-center justify-center p-4 animate-fade-in">
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-md" onClick={() => setConfirmSeedModal(false)} />
+                    <div
+                        className={`relative max-w-sm w-full rounded-3xl p-6 ${
+                            isDark ? "bg-slate-900 border border-slate-800 text-white" : "bg-white border-slate-200 text-slate-900"
+                        } shadow-2xl animate-scale-in z-10 text-center space-y-4`}
+                    >
+                        <div className="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 mx-auto flex items-center justify-center">
+                            <Sparkles size={24} />
+                        </div>
+                        <h3 className="text-base font-bold">Populate 16 Verified Skills?</h3>
+                        <p className={`text-xs ${isDark ? "text-slate-300" : "text-slate-600"}`}>
+                            This will populate your Neon database with 16 core technical skills (React, Next.js, Node.js, TypeScript, etc.) with verified descriptions and proficiency ratings.
+                        </p>
+                        <div className="flex items-center gap-2 pt-2">
+                            <button
+                                onClick={() => setConfirmSeedModal(false)}
+                                className="flex-1 py-2.5 rounded-xl text-xs font-bold border border-slate-700 hover:bg-slate-800 text-slate-300 cursor-pointer"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleExecuteSeed}
+                                className="flex-1 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-600/30 cursor-pointer"
+                            >
+                                Confirm & Populate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Add / Edit Skill Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-[200] min-h-screen flex items-center justify-center p-4 animate-fade-in">
@@ -386,7 +467,7 @@ export default function SkillsPage() {
                             </h3>
                             <button
                                 onClick={() => setIsModalOpen(false)}
-                                className="p-1.5 rounded-xl border border-slate-700 hover:bg-slate-800 text-slate-400 hover:text-white"
+                                className="p-1.5 rounded-xl border border-slate-700 hover:bg-slate-800 text-slate-400 hover:text-white cursor-pointer"
                             >
                                 <X size={16} />
                             </button>
@@ -418,7 +499,7 @@ export default function SkillsPage() {
                                             key={emoji}
                                             type="button"
                                             onClick={() => setFormData({ ...formData, icon: emoji })}
-                                            className={`w-7 h-7 rounded-lg text-sm flex items-center justify-center transition-transform hover:scale-125 ${
+                                            className={`w-7 h-7 rounded-lg text-sm flex items-center justify-center transition-transform hover:scale-125 cursor-pointer ${
                                                 formData.icon === emoji ? "bg-indigo-600 shadow-md" : "hover:bg-slate-800"
                                             }`}
                                         >
@@ -456,7 +537,7 @@ export default function SkillsPage() {
                                             key={cat.id}
                                             type="button"
                                             onClick={() => setFormData({ ...formData, category: cat.id })}
-                                            className={`py-2 px-2.5 rounded-xl border text-[11px] font-bold transition-all ${
+                                            className={`py-2 px-2.5 rounded-xl border text-[11px] font-bold transition-all cursor-pointer ${
                                                 formData.category === cat.id
                                                     ? "bg-indigo-600 text-white border-indigo-600 shadow-md"
                                                     : isDark
@@ -530,7 +611,7 @@ export default function SkillsPage() {
                                 <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-700 hover:bg-slate-800 text-slate-400"
+                                    className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-700 hover:bg-slate-800 text-slate-400 cursor-pointer"
                                 >
                                     Cancel
                                 </button>
@@ -565,13 +646,13 @@ export default function SkillsPage() {
                             <Trash2 size={24} />
                         </div>
                         <h3 className="text-base font-bold">Delete Technical Skill?</h3>
-                        <p className="text-xs text-slate-400">
+                        <p className={`text-xs ${isDark ? "text-slate-300" : "text-slate-600"}`}>
                             This skill will be removed from your database and your public portfolio toolkit.
                         </p>
                         <div className="flex items-center gap-2 pt-2">
                             <button
                                 onClick={() => setDeleteId(null)}
-                                className="flex-1 py-2.5 rounded-xl text-xs font-bold border border-slate-700 hover:bg-slate-800 text-slate-300"
+                                className="flex-1 py-2.5 rounded-xl text-xs font-bold border border-slate-700 hover:bg-slate-800 text-slate-300 cursor-pointer"
                             >
                                 Cancel
                             </button>
