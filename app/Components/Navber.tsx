@@ -126,6 +126,8 @@ const NavBar = () => {
 
   const handleModalSubmit = (key: string): boolean => {
     if (key === ADMIN_SECRET_KEY) {
+      localStorage.setItem("pixelnest_admin_auth", "true");
+      document.cookie = "pixelnest_admin_auth=authorized; path=/; max-age=604800; SameSite=Lax";
       setIsModalOpen(false);
       setTimeout(() => {
         window.location.href = "/admin";

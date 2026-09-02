@@ -18,6 +18,13 @@ import {
     Moon,
     Activity,
     Github,
+    Lock,
+    ShieldCheck,
+    KeyRound,
+    Loader2,
+    Eye,
+    EyeOff,
+    ArrowLeft,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/lib/store";
@@ -38,6 +45,13 @@ const navItems = [
 ];
 
 export default function AdminLayout({ children }: SidebarProps) {
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+    const [passcode, setPasscode] = useState("");
+    const [showPasscode, setShowPasscode] = useState(false);
+    const [authError, setAuthError] = useState("");
+    const [isAuthorizing, setIsAuthorizing] = useState(false);
+    const [isShaking, setIsShaking] = useState(false);
+
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [unreadMessages, setUnreadMessages] = useState(0);
     const pathname = usePathname();
@@ -45,7 +59,19 @@ export default function AdminLayout({ children }: SidebarProps) {
     const dispatch = useDispatch<AppDispatch>();
     const isDark = useSelector((state: RootState) => state.theme.isDark);
 
-    // Sync html dark class
+    // 1. Check existing authentication status on mount
+    useEffect(() => {
+        const localAuth = localStorage.getItem("pixelnest_admin_auth");
+        const cookieAuth = document.cookie.includes("pixelnest_admin_auth=authorized");
+
+        if (localAuth === "true" || cookieAuth) {
+            setIsAuthenticated(true);
+        } else {
+            setIsAuthenticated(false);
+        }
+    }, []);
+
+    // 2. Sync html dark class
     useEffect(() => {
         if (typeof document !== "undefined") {
             if (isDark) {
@@ -56,22 +82,193 @@ export default function AdminLayout({ children }: SidebarProps) {
         }
     }, [isDark]);
 
+    // 3. Fetch unread messages count if authenticated
     useEffect(() => {
-        fetch("/api/messages")
-            .then((res) => res.json())
-            .then((data) => {
-                if (Array.isArray(data)) {
-                    const unread = data.filter((m: any) => !m.isRead).length;
-                    setUnreadMessages(unread);
-                }
-            })
-            .catch(() => {});
-    }, [pathname]);
+        if (isAuthenticated) {
+            fetch("/api/messages")
+                .then((res) => res.json())
+                .then((data) => {
+                    if (Array.isArray(data)) {
+                        const unread = data.filter((m: any) => !m.isRead).length;
+                        setUnreadMessages(unread);
+                    }
+                })
+                .catch(() => {});
+        }
+    }, [pathname, isAuthenticated]);
 
-    const handleLogout = () => {
+    // Handle Admin Authorization PIN Submit
+    const handleAuthorize = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!passcode.trim()) {
+            setAuthError("Please enter your admin secret passcode");
+            setIsShaking(true);
+            setTimeout(() => setIsShaking(false), 500);
+            return;
+        }
+
+        try {
+            setIsAuthorizing(true);
+            setAuthError("");
+
+            const res = await fetch("/api/admin/auth", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ passcode }),
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                localStorage.setItem("pixelnest_admin_auth", "true");
+                document.cookie = "pixelnest_admin_auth=authorized; path=/; max-age=604800; SameSite=Lax";
+                setIsAuthenticated(true);
+            } else {
+                setAuthError(data.error || "Invalid secret passcode. Access denied.");
+                setIsShaking(true);
+                setTimeout(() => setIsShaking(false), 500);
+                setPasscode("");
+            }
+        } catch (err: any) {
+            setAuthError("Authentication error: " + err.message);
+        } finally {
+            setIsAuthorizing(false);
+        }
+    };
+
+    const handleLogout = async () => {
+        localStorage.removeItem("pixelnest_admin_auth");
+        document.cookie = "pixelnest_admin_auth=; path=/; max-age=0";
+        await fetch("/api/admin/auth", { method: "DELETE" }).catch(() => {});
+        setIsAuthenticated(false);
         router.push("/");
     };
 
+    // While checking initial authentication
+    if (isAuthenticated === null) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#070B14] text-white">
+                <div className="text-center space-y-3">
+                    <Loader2 size={36} className="animate-spin text-indigo-500 mx-auto" />
+                    <p className="text-xs font-mono text-slate-400">Verifying security credentials...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // 🔒 RENDER SECURITY GATEWAY LOCK SCREEN IF NOT AUTHENTICATED
+    if (!isAuthenticated) {
+        return (
+            <div className="min-h-screen flex items-center justify-center p-4 bg-[#070B14] text-white relative overflow-hidden">
+                {/* Background ambient lighting */}
+                <div className="pointer-events-none absolute -left-20 -top-20 h-96 w-96 rounded-full bg-indigo-600/20 blur-3xl" />
+                <div className="pointer-events-none absolute -right-20 -bottom-20 h-96 w-96 rounded-full bg-purple-600/20 blur-3xl" />
+
+                <div
+                    className={`relative max-w-md w-full rounded-3xl p-8 border border-indigo-500/30 bg-[#0C1222]/95 backdrop-blur-2xl shadow-[0_0_50px_rgba(99,102,241,0.2)] transition-all ${
+                        isShaking ? "animate-shake" : ""
+                    }`}
+                >
+                    {/* Header Icon */}
+                    <div className="flex flex-col items-center text-center space-y-3 mb-6">
+                        <div className="relative">
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-3 shadow-lg shadow-indigo-500/40 flex items-center justify-center">
+                                <ShieldCheck size={32} className="text-white" />
+                            </div>
+                            <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-slate-900 text-amber-400 border border-slate-700">
+                                <Lock size={12} />
+                            </span>
+                        </div>
+
+                        <div>
+                            <h2 className="text-xl font-black font-mono tracking-tight text-white flex items-center justify-center gap-1">
+                                PixelNest<span className="text-indigo-400">.Studio</span>
+                            </h2>
+                            <p className="text-xs font-bold uppercase tracking-wider text-indigo-400 mt-0.5 font-mono">
+                                Security Command Gateway
+                            </p>
+                        </div>
+
+                        <p className="text-xs text-slate-300 max-w-xs leading-relaxed">
+                            Authorized personnel only. Please enter the Founder Passcode to access the studio management OS.
+                        </p>
+                    </div>
+
+                    {/* Auth Form */}
+                    <form onSubmit={handleAuthorize} className="space-y-4">
+                        <div className="space-y-1.5">
+                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 font-mono">
+                                Admin Secret Passcode
+                            </label>
+                            <div className="relative">
+                                <KeyRound size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                <input
+                                    type={showPasscode ? "text" : "password"}
+                                    value={passcode}
+                                    onChange={(e) => {
+                                        setPasscode(e.target.value);
+                                        setAuthError("");
+                                    }}
+                                    placeholder="Enter passcode (e.g. 13663)..."
+                                    autoFocus
+                                    className={`w-full pl-10 pr-10 py-3 text-sm rounded-xl border-2 transition-all outline-none ${
+                                        authError
+                                            ? "border-rose-500 bg-rose-950/20 text-white"
+                                            : "border-slate-700 bg-slate-800/80 text-white placeholder-slate-500 focus:border-indigo-500"
+                                    }`}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPasscode(!showPasscode)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                                >
+                                    {showPasscode ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
+                            </div>
+
+                            {authError && (
+                                <p className="text-xs text-rose-400 font-medium flex items-center gap-1.5 pt-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                                    <span>{authError}</span>
+                                </p>
+                            )}
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={isAuthorizing}
+                            className="w-full py-3 rounded-xl text-xs font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white hover:opacity-95 shadow-lg shadow-indigo-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                            {isAuthorizing ? (
+                                <>
+                                    <Loader2 size={16} className="animate-spin" />
+                                    <span>Verifying Credentials...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Lock size={15} />
+                                    <span>Authorize & Unlock Dashboard</span>
+                                </>
+                            )}
+                        </button>
+                    </form>
+
+                    {/* Back to Live Portfolio */}
+                    <div className="mt-6 pt-4 border-t border-slate-800 text-center">
+                        <Link
+                            href="/"
+                            className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-indigo-400 transition-colors"
+                        >
+                            <ArrowLeft size={13} />
+                            <span>Return to Live Portfolio</span>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // 🔓 RENDER AUTHENTICATED DASHBOARD
     return (
         <div
             className={`min-h-screen flex ${
