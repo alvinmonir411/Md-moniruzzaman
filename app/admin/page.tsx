@@ -122,13 +122,13 @@ export default function AdminDashboard() {
                     <div className="space-y-2.5">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold tracking-wider uppercase bg-indigo-500/15 border border-indigo-500/40 text-indigo-400">
                             <Sparkles size={13} className="text-amber-400" />
-                            <span>PixelNest Studio Command Center</span>
+                            <span>Moniruzzaman Command Center</span>
                         </div>
                         <h1 className={`text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
                             Welcome back, <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Moniruzzaman!</span> 👋
                         </h1>
                         <p className={`text-xs sm:text-sm max-w-2xl leading-relaxed ${isDark ? "text-slate-200" : "text-slate-600"}`}>
-                            Your agency portfolio is live at{" "}
+                            Your portfolio is live at{" "}
                             <a
                                 href="/"
                                 target="_blank"
@@ -401,7 +401,7 @@ export default function AdminDashboard() {
                     >
                         <h2 className={`text-base font-bold tracking-tight flex items-center gap-2 mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
                             <Activity size={18} className="text-emerald-400" />
-                            <span>PixelNest Cloud Infrastructure</span>
+                            <span>Moniruzzaman Cloud Infrastructure</span>
                         </h2>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">

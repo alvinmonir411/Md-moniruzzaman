@@ -182,7 +182,7 @@ export default function AdminLayout({ children }: SidebarProps) {
 
                         <div>
                             <h2 className="text-xl font-black font-mono tracking-tight text-white flex items-center justify-center gap-1">
-                                PixelNest<span className="text-indigo-400">.Studio</span>
+                                Moniruzzaman<span className="text-indigo-400">.dev</span>
                             </h2>
                             <p className="text-xs font-bold uppercase tracking-wider text-indigo-400 mt-0.5 font-mono">
                                 Security Command Gateway
@@ -190,7 +190,7 @@ export default function AdminLayout({ children }: SidebarProps) {
                         </div>
 
                         <p className="text-xs text-slate-300 max-w-xs leading-relaxed">
-                            Authorized personnel only. Please enter the Founder Passcode to access the studio management OS.
+                            Authorized personnel only. Please enter the Passcode to access the management OS.
                         </p>
                     </div>
 
@@ -295,7 +295,7 @@ export default function AdminLayout({ children }: SidebarProps) {
                     />
                     <div>
                         <h1 className="text-sm font-black tracking-tight font-mono leading-none">
-                            PixelNest<span className="text-indigo-400">.Studio</span>
+                            Moniruzzaman<span className="text-indigo-400">.dev</span>
                         </h1>
                         <p className="text-[10px] text-slate-400 font-mono">Admin Command Center</p>
                     </div>
@@ -354,7 +354,7 @@ export default function AdminLayout({ children }: SidebarProps) {
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src="/logo.png"
-                                    alt="PixelNest Logo"
+                                    alt="Moniruzzaman Logo"
                                     className="w-full h-full object-contain"
                                     onError={(e) => {
                                         (e.target as HTMLElement).style.display = "none";
@@ -363,7 +363,7 @@ export default function AdminLayout({ children }: SidebarProps) {
                             </div>
                             <div>
                                 <h1 className={`text-base font-black font-mono tracking-tight leading-none ${isDark ? "text-white" : "text-slate-900"}`}>
-                                    PixelNest<span className="text-indigo-400">.Studio</span>
+                                    Moniruzzaman<span className="text-indigo-400">.dev</span>
                                 </h1>
                                 <div className="flex items-center gap-1.5 mt-1.5">
                                     <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>

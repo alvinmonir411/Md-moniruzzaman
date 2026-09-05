@@ -118,7 +118,7 @@ const Footer: React.FC = () => {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/logo.png"
-                  alt="PixelNest Logo"
+                  alt="Moniruzzaman Logo"
                   className="w-full h-full object-contain rounded-lg"
                   onError={(e) => {
                     const el = e.target as HTMLElement;
@@ -135,18 +135,18 @@ const Footer: React.FC = () => {
                     isDark ? "text-white" : "text-slate-900"
                   }`}
                 >
-                  PixelNest
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500">.Studio</span>
+                  Moniruzzaman
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500">.dev</span>
                 </h2>
                 <span className="text-[11px] font-mono tracking-wider uppercase text-slate-400 dark:text-slate-500 font-semibold mt-0.5">
-                  Founder & Lead: Moniruzzaman
+                  Front-End & Full-Stack Engineer
                 </span>
               </div>
             </div>
 
             <p className={`text-sm leading-relaxed max-w-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
               {profile.bio ||
-                "PixelNest Studio creates high-performance digital platforms, modern web applications, and full-stack solutions engineered by Moniruzzaman."}
+                "Creating high-performance digital platforms, modern web applications, and full-stack solutions engineered by Moniruzzaman."}
             </p>
 
             {/* Social Links Row */}

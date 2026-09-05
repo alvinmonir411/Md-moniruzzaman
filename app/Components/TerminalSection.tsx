@@ -152,7 +152,7 @@ const TerminalSection: React.FC = () => {
       case "contact":
         output = (
           <div className="space-y-1 font-mono text-sm text-slate-300">
-            <p className="text-cyan-400 font-bold">📬 Connect with Moniruzzaman & PixelNest Studio:</p>
+            <p className="text-cyan-400 font-bold">📬 Connect with Moniruzzaman:</p>
             <p>📧 Email: <a href="mailto:alvinmonir411@gmail.com" className="text-indigo-400 underline">alvinmonir411@gmail.com</a></p>
             <p>📞 Phone/WhatsApp: <a href="https://wa.me/8801340571927" target="_blank" rel="noreferrer" className="text-emerald-400 underline">+8801340571927</a></p>
             <p>🐙 GitHub: <a href="https://github.com/alvinmonir411" target="_blank" rel="noreferrer" className="text-purple-400 underline">github.com/alvinmonir411</a></p>

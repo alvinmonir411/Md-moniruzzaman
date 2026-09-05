@@ -199,7 +199,7 @@ const NavBar = () => {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/logo.png"
-                  alt="PixelNest Logo"
+                  alt="Moniruzzaman Logo"
                   className="w-full h-full object-contain rounded-lg"
                   onError={(e) => {
                     const el = e.target as HTMLElement;
@@ -219,13 +219,13 @@ const NavBar = () => {
                     isDark ? "text-white" : "text-slate-900"
                   } transform transition-all duration-300 group-hover:scale-105 flex items-center gap-0.5`}
                 >
-                  PixelNest
+                  Moniruzzaman
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 animate-gradient">
-                    .Studio
+                    .dev
                   </span>
                 </span>
                 <span className="text-[10px] font-mono tracking-wider uppercase text-slate-400 dark:text-slate-500 font-semibold">
-                  Founder: Moniruzzaman
+                  Full-Stack Developer
                 </span>
               </div>
 

@@ -12,7 +12,7 @@
 [![Google Gemini](https://img.shields.io/badge/Google_Gemini-3.6_Flash_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
 [![Vercel](https://img.shields.io/badge/Vercel-Deployed-black?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 
-[**Explore Live Demo**](https://pexelneststudio.vercel.app) • [**Report Bug**](https://github.com/alvinmonir411/Protfolio/issues) • [**Request Feature**](https://github.com/alvinmonir411/Protfolio/issues)
+[**Explore Live Demo**](https://pexelneststudio.vercel.app) • [**Report Bug**](https://github.com/alvinmonir411/Md-moniruzzaman/issues) • [**Request Feature**](https://github.com/alvinmonir411/Md-moniruzzaman/issues)
 
 </div>
 
