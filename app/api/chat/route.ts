@@ -9,6 +9,50 @@ const GEMINI_MODELS = [
   "gemini-1.5-flash",
 ];
 
+// In-memory sliding window rate limiter: Max 5 requests per 1 minute (60 seconds)
+interface RateLimitEntry {
+  timestamps: number[];
+}
+const rateLimitMap = new Map<string, RateLimitEntry>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_MINUTE = 5; // 5 requests max
+
+function checkRateLimit(ip: string): { allowed: boolean; retryAfterSeconds: number } {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip) || { timestamps: [] };
+
+  // Retain only requests that occurred within the last 60 seconds
+  const activeTimestamps = entry.timestamps.filter(
+    (t) => now - t < RATE_LIMIT_WINDOW_MS
+  );
+
+  if (activeTimestamps.length >= MAX_REQUESTS_PER_MINUTE) {
+    const oldestTimestamp = activeTimestamps[0];
+    const retryAfter = Math.ceil(
+      (oldestTimestamp + RATE_LIMIT_WINDOW_MS - now) / 1000
+    );
+    rateLimitMap.set(ip, { timestamps: activeTimestamps });
+    return { allowed: false, retryAfterSeconds: Math.max(1, retryAfter) };
+  }
+
+  activeTimestamps.push(now);
+  rateLimitMap.set(ip, { timestamps: activeTimestamps });
+
+  // Cleanup old records to prevent memory leak
+  if (rateLimitMap.size > 1000) {
+    for (const [key, val] of rateLimitMap.entries()) {
+      const filtered = val.timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+      if (filtered.length === 0) {
+        rateLimitMap.delete(key);
+      } else {
+        rateLimitMap.set(key, { timestamps: filtered });
+      }
+    }
+  }
+
+  return { allowed: true, retryAfterSeconds: 0 };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { prompt, history } = await request.json();
@@ -17,6 +61,28 @@ export async function POST(request: NextRequest) {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });
+    }
+
+    // Identify Client IP for Rate Limiting
+    const clientIp =
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      request.headers.get("x-real-ip") ||
+      "client-default-ip";
+
+    const rateLimit = checkRateLimit(clientIp);
+    if (!rateLimit.allowed) {
+      return new Response(
+        JSON.stringify({
+          reply: `⏳ **Rate limit exceeded:** You can send a maximum of 5 messages per 1 minute. Please wait ${rateLimit.retryAfterSeconds} seconds before sending another question.\n\nআপনি প্রতি মিনিটে সর্বোচ্চ ৫টি মেসেজ পাঠাতে পারবেন। অনুগ্রহ করে ${rateLimit.retryAfterSeconds} সেকেন্ড অপেক্ষা করুন।`,
+        }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            "Retry-After": String(rateLimit.retryAfterSeconds),
+          },
+        }
+      );
     }
 
     const wixExp = calculateExperience(WIX_JOIN_DATE);
