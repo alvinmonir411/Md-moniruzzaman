@@ -38,8 +38,8 @@ export default function ATSResumeView({
   const [measuredHeight, setMeasuredHeight] = useState<number>(0);
   const printContainerRef = useRef<HTMLDivElement>(null);
 
-  // Standard Letter/A4 single-page height budget at 850px container width
-  const SINGLE_PAGE_BUDGET_PX = 1060;
+  // Standard Letter/A4 single-page safe height budget at 850px container width
+  const SINGLE_PAGE_BUDGET_PX = 980;
 
   // Measure DOM height after rendering
   useEffect(() => {
@@ -93,8 +93,8 @@ export default function ATSResumeView({
     updated.projects = updated.projects.map((proj) => ({
       ...proj,
       bullets: proj.bullets.slice(0, 3).map((b) => {
-        if (b.length > 135) {
-          const cut = b.slice(0, 130);
+        if (b.length > 130) {
+          const cut = b.slice(0, 125);
           const lastSpace = cut.lastIndexOf(" ");
           return (lastSpace > 80 ? cut.slice(0, lastSpace) : cut) + ".";
         }
@@ -187,24 +187,24 @@ export default function ATSResumeView({
   // Spacing style variations based on user selection
   const paddingClass =
     spacingMode === "tight"
-      ? "p-6 sm:p-8"
+      ? "p-5 sm:p-7"
       : spacingMode === "compact"
-      ? "p-7 sm:p-10"
-      : "p-8 sm:p-12";
+      ? "p-6 sm:p-8"
+      : "p-7 sm:p-10";
 
   const sectionMarginClass =
     spacingMode === "tight"
-      ? "mb-2.5"
+      ? "mb-2"
       : spacingMode === "compact"
-      ? "mb-3"
-      : "mb-3.5";
+      ? "mb-2.5"
+      : "mb-3";
 
   const projectSpacingClass =
     spacingMode === "tight"
-      ? "space-y-2.5"
+      ? "space-y-2"
       : spacingMode === "compact"
-      ? "space-y-3"
-      : "space-y-3.5";
+      ? "space-y-2.5"
+      : "space-y-3";
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -617,33 +617,72 @@ export default function ATSResumeView({
       {/* Native Print Styles */}
       <style jsx global>{`
         @media print {
-          /* Hide all surrounding portfolio / admin elements */
+          @page {
+            size: letter portrait;
+            margin: 0.3in 0.4in;
+          }
+
+          /* Hide all admin navigation and non-print items completely from flow */
+          aside,
+          header,
+          nav,
+          footer,
+          .no-print {
+            display: none !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+          }
+
+          html,
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
+            height: auto !important;
+            min-height: 0 !important;
+            max-height: 100% !important;
+            overflow: visible !important;
+            background: #ffffff !important;
+            color: #000000 !important;
+          }
+
+          /* Reset all parent wrappers */
+          main,
+          div,
+          section {
+            min-height: 0 !important;
+            height: auto !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+
+          /* Only show resume paper and its children */
           body * {
             visibility: hidden;
           }
+
           #ats-resume-print-area,
           #ats-resume-print-area * {
             visibility: visible;
           }
+
           #ats-resume-print-area {
-            position: absolute;
-            left: 0;
-            top: 0;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
             width: 100% !important;
             max-width: 100% !important;
             margin: 0 !important;
-            padding: 0.35in 0.45in !important;
+            padding: 0 !important; /* CRITICAL: Prevents margin-doubling which pushed content to page 2! */
             box-shadow: none !important;
             border: none !important;
-            background: white !important;
-            color: black !important;
-          }
-          .no-print {
-            display: none !important;
-          }
-          @page {
-            size: letter;
-            margin: 0.35in 0.45in;
+            background: #ffffff !important;
+            color: #000000 !important;
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
+            break-after: avoid !important;
+            break-inside: avoid !important;
           }
         }
       `}</style>
