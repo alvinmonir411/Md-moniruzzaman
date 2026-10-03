@@ -1,19 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import sql, { initDatabase } from "@/app/lib/db";
+import sql from "@/app/lib/db";
 import { readFile } from "fs/promises";
 import path from "path";
 
 export async function GET(req: NextRequest) {
   try {
-    await initDatabase();
-
     // 1. Try to fetch the latest uploaded PDF from Neon PostgreSQL
-    const rows = await sql`
-      SELECT filename, mime_type, file_data, file_size, updated_at
-      FROM cv_storage
-      WHERE id = 1
-      LIMIT 1;
-    `;
+    let rows: any[] = [];
+    try {
+      rows = await sql`
+        SELECT filename, mime_type, file_data, file_size, updated_at
+        FROM cv_storage
+        WHERE id = 1
+        LIMIT 1;
+      `;
+    } catch (dbErr) {
+      console.warn("Could not query cv_storage, falling back to disk:", dbErr);
+    }
 
     if (rows.length > 0 && rows[0].file_data) {
       const fileBuffer = Buffer.from(rows[0].file_data, "base64");

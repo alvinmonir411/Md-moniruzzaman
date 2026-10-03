@@ -3,17 +3,39 @@ import sql, { initDatabase } from "@/app/lib/db";
 import { writeFile, stat } from "fs/promises";
 import path from "path";
 
+async function ensureCvTable() {
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS cv_storage (
+        id INT PRIMARY KEY DEFAULT 1,
+        filename VARCHAR(255) DEFAULT 'Moniruzzaman_Resume.pdf',
+        mime_type VARCHAR(100) DEFAULT 'application/pdf',
+        file_data TEXT NOT NULL,
+        file_size INT,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+  } catch (err) {
+    console.warn("Could not ensure cv_storage table:", err);
+  }
+}
+
 export async function GET() {
   try {
-    await initDatabase();
+    await ensureCvTable();
 
-    // 1. Check Neon PostgreSQL database first
-    const rows = await sql`
-      SELECT filename, file_size, updated_at
-      FROM cv_storage
-      WHERE id = 1
-      LIMIT 1;
-    `;
+    // 1. Check Neon PostgreSQL database
+    let rows: any[] = [];
+    try {
+      rows = await sql`
+        SELECT filename, file_size, updated_at
+        FROM cv_storage
+        WHERE id = 1
+        LIMIT 1;
+      `;
+    } catch (dbErr) {
+      console.warn("cv_storage query failed, falling back to disk:", dbErr);
+    }
 
     if (rows.length > 0 && rows[0].file_size) {
       return NextResponse.json({
@@ -59,7 +81,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    await initDatabase();
+    await ensureCvTable();
 
     const formData = await request.formData();
     const file = formData.get("resume") as File | null;
