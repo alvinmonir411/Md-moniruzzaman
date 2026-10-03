@@ -126,6 +126,19 @@ export async function initDatabase() {
       ALTER TABLE profile_settings ADD COLUMN IF NOT EXISTS instagram VARCHAR(255) DEFAULT 'https://www.instagram.com/pixelneststudio.official/';
     `;
 
+    // Saved ATS Resumes table
+    await sql`
+      CREATE TABLE IF NOT EXISTS saved_resumes (
+        id SERIAL PRIMARY KEY,
+        job_title VARCHAR(255) NOT NULL,
+        company_name VARCHAR(255),
+        job_description TEXT,
+        resume_data JSONB NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+
     console.log("✅ Neon DB tables initialized successfully.");
   } catch (error) {
     console.error("❌ Neon DB init error:", error);

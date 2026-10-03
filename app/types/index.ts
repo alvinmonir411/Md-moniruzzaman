@@ -77,3 +77,58 @@ export interface SkillSet {
   backend: string[];
   tools: string[];
 }
+
+export interface ATSResumeProject {
+  title: string;
+  subtitle?: string;
+  liveUrl?: string;
+  clientSiteUrl?: string;
+  serverSiteUrl?: string;
+  technologies: string;
+  bullets: string[];
+}
+
+export interface ATSResumeData {
+  header: {
+    name: string;
+    title: string;
+    phone: string;
+    email: string;
+    location: string;
+    portfolioDisplay: string;
+    portfolioUrl: string;
+    githubDisplay: string;
+    githubUrl: string;
+    linkedinDisplay: string;
+    linkedinUrl: string;
+  };
+  careerObjective: string;
+  technicalSkills: Array<{
+    category: string;
+    skills: string;
+  }>;
+  experience?: {
+    enabled: boolean;
+    role: string;
+    company: string;
+    duration: string;
+    description: string;
+  };
+  projects: ATSResumeProject[];
+  education: {
+    degree: string;
+    expectedYear: string;
+    location: string;
+  };
+  languages: string;
+}
+
+export interface SavedResume {
+  id: number;
+  job_title: string;
+  company_name?: string;
+  job_description: string;
+  resume_data: ATSResumeData;
+  created_at: string;
+  updated_at: string;
+}

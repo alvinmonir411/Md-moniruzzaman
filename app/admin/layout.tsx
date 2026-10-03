@@ -9,6 +9,7 @@ import {
     Briefcase,
     MessageSquare,
     Settings,
+    FileText,
     LogOut,
     Menu,
     X,
@@ -40,6 +41,7 @@ const navItems = [
     { name: "Projects", href: "/admin/projects", icon: FolderKanban },
     { name: "Skills", href: "/admin/skills", icon: Award },
     { name: "Experience", href: "/admin/experience", icon: Briefcase },
+    { name: "AI Resume Builder", href: "/admin/resume-builder", icon: FileText, isAi: true },
     { name: "Messages", href: "/admin/messages", icon: MessageSquare },
     { name: "Settings & CV", href: "/admin/settings", icon: Settings },
 ];
@@ -423,6 +425,12 @@ export default function AdminLayout({ children }: SidebarProps) {
                                         <Icon size={17} className={isActive ? "text-white" : isDark ? "text-slate-300" : "text-slate-500"} />
                                         <span>{item.name}</span>
                                     </div>
+
+                                    {(item as any).isAi && (
+                                        <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                                            AI
+                                        </span>
+                                    )}
 
                                     {item.href === "/admin/messages" && unreadMessages > 0 && (
                                         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500 text-white animate-pulse">
