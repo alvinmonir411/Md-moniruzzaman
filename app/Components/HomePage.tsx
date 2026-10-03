@@ -33,7 +33,15 @@ export default function HomePage() {
     // 2. Track real page view (once per visitor session)
     const hasViewed = sessionStorage.getItem("portfolio_viewed");
     if (!hasViewed) {
-      fetch("/api/views", { method: "POST" })
+      fetch("/api/views", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          referrer: typeof document !== "undefined" ? document.referrer : "",
+          path: typeof window !== "undefined" ? window.location.pathname : "/",
+          search: typeof window !== "undefined" ? window.location.search : "",
+        }),
+      })
         .then(() => {
           sessionStorage.setItem("portfolio_viewed", "true");
         })

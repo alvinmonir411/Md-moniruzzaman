@@ -151,6 +151,21 @@ export async function initDatabase() {
       );
     `;
 
+    // Site Traffic & Visitor Analytics Table (Neon PostgreSQL)
+    await sql`
+      CREATE TABLE IF NOT EXISTS site_visits (
+        id SERIAL PRIMARY KEY,
+        source VARCHAR(100) NOT NULL,
+        referrer_url TEXT,
+        path VARCHAR(255) DEFAULT '/',
+        country VARCHAR(50) DEFAULT 'Unknown',
+        city VARCHAR(100),
+        device VARCHAR(50) DEFAULT 'Desktop',
+        browser VARCHAR(50),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+
     console.log("✅ Neon DB tables initialized successfully.");
   } catch (error) {
     console.error("❌ Neon DB init error:", error);
