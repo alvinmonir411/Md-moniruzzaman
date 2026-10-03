@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
       targetRole,
       includeExperience = "auto",
       templateType = "auto",
+      pageTarget = "1",
     } = body;
 
     if (!jobDescription || typeof jobDescription !== "string" || !jobDescription.trim()) {
@@ -164,6 +165,7 @@ CANDIDATE AVAILABLE PROJECTS FROM DATABASE:
 ${JSON.stringify(candidateProjects, null, 2)}
 
 TARGET ROLE OVERRIDE: ${targetRole || "Auto-detect from Job Description"}
+PAGE LENGTH TARGET: ${pageTarget === "2" ? "2-PAGE RESUME (Comprehensive, 3-4 projects, detailed bullets)" : "STRICT 1-PAGE RESUME (Compact, exactly 2 projects, concise 3 bullets each, fits on a single printed sheet without overflowing)"}
 INCLUDE EXPERIENCE: ${includeExperience} (If "auto", include if the JD relates to Front-End / Wix / Web Developer where 1+ yr experience gives an edge; otherwise leave false to prioritize technical projects).
 
 JOB DESCRIPTION TO TARGET:
@@ -172,6 +174,12 @@ ${jobDescription.trim()}
 \"\"\"
 
 STRICT RULES FOR OUTPUT:
+0. PAGE BUDGET COMPLIANCE:
+   ${
+     pageTarget === "2"
+       ? "- User requested a 2-PAGE RESUME. You may select 3-4 projects and write extensive technical bullet points."
+       : "- User requested a STRICT 1-PAGE RESUME. You MUST select EXACTLY 2 projects. Write concise, powerful bullets (approx 18-24 words per bullet). The entire resume must fit comfortably onto 1 page without spilling onto page 2!"
+   }
 1. TARGET TITLE: Set an accurate, professional title matching the JD (e.g. "Full-Stack Developer", "Senior Full-Stack Engineer", "Next.js & Full-Stack Developer", or "Wix Developer" only if the JD is explicitly about Wix). NEVER default to "Executive, Front End" or "Wix Developer" when the job is for Full-Stack, React, Next.js, Python, Node, etc.
 2. CAREER OBJECTIVE: Write exactly 2-3 sentences. Mention the exact role and core technologies from the JD (e.g. Next.js, React, TypeScript, PostgreSQL, APIs). Emphasize transforming complex requirements into scalable, high-performance applications.
 3. TECHNICAL SKILLS: Return exactly 3 rows/categories:

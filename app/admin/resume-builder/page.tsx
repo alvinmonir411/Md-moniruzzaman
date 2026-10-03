@@ -43,6 +43,7 @@ export default function ResumeBuilderPage() {
   const [targetRole, setTargetRole] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [includeExperience, setIncludeExperience] = useState<boolean>(false);
+  const [pageTarget, setPageTarget] = useState<"1" | "2">("1");
 
   // UI States
   const [isGenerating, setIsGenerating] = useState(false);
@@ -113,6 +114,7 @@ export default function ResumeBuilderPage() {
           jobDescription,
           targetRole: targetRole.trim() || undefined,
           includeExperience: includeExperience ? "true" : "false",
+          pageTarget,
         }),
       });
 
@@ -294,6 +296,50 @@ export default function ResumeBuilderPage() {
                     placeholder="e.g. TechCorp / Remote"
                     className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:border-indigo-500 transition-colors"
                   />
+                </div>
+              </div>
+
+              {/* Page Length Target Selector */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1.5">
+                  Page Length Budget <span className="text-rose-500">*</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPageTarget("1")}
+                    className={`p-2.5 rounded-xl border text-xs font-bold transition-all text-left flex items-start gap-2 cursor-pointer ${
+                      pageTarget === "1"
+                        ? "border-indigo-500 bg-indigo-500/10 text-indigo-400 shadow-sm"
+                        : "border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-400"
+                    }`}
+                  >
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 mt-1 shrink-0" />
+                    <div>
+                      <span className="block leading-tight">1 Page (Strict ATS)</span>
+                      <span className="text-[10px] text-slate-500 font-normal leading-tight">
+                        Compact, 2 projects, 0 overflow
+                      </span>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPageTarget("2")}
+                    className={`p-2.5 rounded-xl border text-xs font-bold transition-all text-left flex items-start gap-2 cursor-pointer ${
+                      pageTarget === "2"
+                        ? "border-purple-500 bg-purple-500/10 text-purple-400 shadow-sm"
+                        : "border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-400"
+                    }`}
+                  >
+                    <span className="w-2 h-2 rounded-full bg-purple-400 mt-1 shrink-0" />
+                    <div>
+                      <span className="block leading-tight">2 Pages (Senior)</span>
+                      <span className="text-[10px] text-slate-500 font-normal leading-tight">
+                        3-4 projects + experience
+                      </span>
+                    </div>
+                  </button>
                 </div>
               </div>
 
@@ -501,7 +547,12 @@ export default function ResumeBuilderPage() {
           {/* VIEW: LIVE ATS PREVIEW */}
           {activeTab === "preview" && (
             <div className="w-full flex justify-center">
-              <ATSResumeView data={resumeData} />
+              <ATSResumeView
+                data={resumeData}
+                pageTarget={pageTarget}
+                onPageTargetChange={setPageTarget}
+                onUpdate={setResumeData}
+              />
             </div>
           )}
 

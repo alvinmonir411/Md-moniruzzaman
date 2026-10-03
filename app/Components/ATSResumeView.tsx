@@ -1,25 +1,141 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { ATSResumeData } from "@/app/types";
-import { Printer, Copy, Check, Download, ExternalLink, Edit3, Eye } from "lucide-react";
+import {
+  Printer,
+  Copy,
+  Check,
+  Download,
+  ExternalLink,
+  Edit3,
+  Eye,
+  AlertTriangle,
+  Sparkles,
+  Scissors,
+  Layers,
+  ChevronDown,
+} from "lucide-react";
+import Swal from "sweetalert2";
 
 interface ATSResumeViewProps {
   data: ATSResumeData;
+  pageTarget?: "1" | "2";
   isEditable?: boolean;
   onUpdate?: (updated: ATSResumeData) => void;
+  onPageTargetChange?: (target: "1" | "2") => void;
 }
 
 export default function ATSResumeView({
   data,
+  pageTarget = "1",
   isEditable = false,
   onUpdate,
+  onPageTargetChange,
 }: ATSResumeViewProps) {
-  const [copied, setCopied] = React.useState(false);
+  const [copied, setCopied] = useState(false);
+  const [spacingMode, setSpacingMode] = useState<"normal" | "compact" | "tight">("normal");
+  const [measuredHeight, setMeasuredHeight] = useState<number>(0);
   const printContainerRef = useRef<HTMLDivElement>(null);
+
+  // Standard Letter/A4 single-page height budget at 850px container width
+  const SINGLE_PAGE_BUDGET_PX = 1060;
+
+  // Measure DOM height after rendering
+  useEffect(() => {
+    const updateHeight = () => {
+      if (printContainerRef.current) {
+        setMeasuredHeight(printContainerRef.current.scrollHeight);
+      }
+    };
+
+    updateHeight();
+    const timeout = setTimeout(updateHeight, 200);
+
+    const observer = new ResizeObserver(updateHeight);
+    if (printContainerRef.current) {
+      observer.observe(printContainerRef.current);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+      observer.disconnect();
+    };
+  }, [data, spacingMode]);
+
+  const isOverflow = pageTarget === "1" && measuredHeight > SINGLE_PAGE_BUDGET_PX;
+  const overflowPercentage = measuredHeight
+    ? Math.round((measuredHeight / SINGLE_PAGE_BUDGET_PX) * 100)
+    : 100;
+  const estimatedPages = (measuredHeight / SINGLE_PAGE_BUDGET_PX).toFixed(1);
 
   const handlePrint = () => {
     window.print();
+  };
+
+  // Auto-compress resume so it fits strictly onto 1 page
+  const handleAutoFitToOnePage = () => {
+    if (!onUpdate) return;
+
+    const updated: ATSResumeData = JSON.parse(JSON.stringify(data));
+
+    // 1. If experience is enabled and there are projects, turn off experience
+    if (updated.experience?.enabled && updated.projects.length >= 2) {
+      updated.experience.enabled = false;
+    }
+
+    // 2. Keep at most top 2 projects
+    if (updated.projects.length > 2) {
+      updated.projects = updated.projects.slice(0, 2);
+    }
+
+    // 3. Trim each project's bullets to max 3 concise bullet points (shorten long ones)
+    updated.projects = updated.projects.map((proj) => ({
+      ...proj,
+      bullets: proj.bullets.slice(0, 3).map((b) => {
+        if (b.length > 135) {
+          const cut = b.slice(0, 130);
+          const lastSpace = cut.lastIndexOf(" ");
+          return (lastSpace > 80 ? cut.slice(0, lastSpace) : cut) + ".";
+        }
+        return b;
+      }),
+    }));
+
+    // 4. Switch spacing mode to compact
+    setSpacingMode("compact");
+
+    onUpdate(updated);
+
+    Swal.fire({
+      icon: "success",
+      title: "Auto-Compressed to 1 Page!",
+      text: "Streamlined projects, shortened bullet points, and set compact layout to fit perfectly on a single sheet.",
+      toast: true,
+      position: "top-end",
+      timer: 3500,
+      showConfirmButton: false,
+    });
+  };
+
+  // Remove SM Technology experience with one click
+  const handleRemoveExperience = () => {
+    if (!onUpdate) return;
+    const updated = {
+      ...data,
+      experience: data.experience ? { ...data.experience, enabled: false } : undefined,
+    };
+    onUpdate(updated);
+  };
+
+  // Keep only top 2 projects
+  const handleKeepTopTwoProjects = () => {
+    if (!onUpdate) return;
+    const updated = {
+      ...data,
+      projects: data.projects.slice(0, 2),
+    };
+    onUpdate(updated);
   };
 
   const copyAsPlainText = () => {
@@ -68,42 +184,227 @@ export default function ATSResumeView({
     setTimeout(() => setCopied(false), 2500);
   };
 
+  // Spacing style variations based on user selection
+  const paddingClass =
+    spacingMode === "tight"
+      ? "p-6 sm:p-8"
+      : spacingMode === "compact"
+      ? "p-7 sm:p-10"
+      : "p-8 sm:p-12";
+
+  const sectionMarginClass =
+    spacingMode === "tight"
+      ? "mb-2.5"
+      : spacingMode === "compact"
+      ? "mb-3"
+      : "mb-3.5";
+
+  const projectSpacingClass =
+    spacingMode === "tight"
+      ? "space-y-2.5"
+      : spacingMode === "compact"
+      ? "space-y-3"
+      : "space-y-3.5";
+
   return (
     <div className="w-full flex flex-col items-center">
-      {/* Top Floating Control Bar (Hidden during print) */}
-      <div className="no-print w-full max-w-[850px] mb-4 flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400">
-            ✓ 100% ATS-Compliant Layout
-          </span>
-          <span className="text-xs text-slate-500 font-mono hidden sm:inline">
-            Single Page • Standard Serif • Zero Graphic Bloat
-          </span>
+      {/* ================= CONTROLS & LENGTH BUDGET BAR (Hidden during print) ================= */}
+      <div className="no-print w-full max-w-[850px] mb-4 space-y-3">
+        {/* Top Control Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          {/* Page Target Selector: 1 Page vs 2 Pages */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider hidden sm:inline">
+              Target:
+            </span>
+            <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700/60">
+              <button
+                type="button"
+                onClick={() => onPageTargetChange && onPageTargetChange("1")}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                  pageTarget === "1"
+                    ? "bg-indigo-600 text-white shadow-sm"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                }`}
+              >
+                1 Page (Strict)
+              </button>
+              <button
+                type="button"
+                onClick={() => onPageTargetChange && onPageTargetChange("2")}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                  pageTarget === "2"
+                    ? "bg-purple-600 text-white shadow-sm"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                }`}
+              >
+                2 Pages (Senior)
+              </button>
+            </div>
+
+            {/* Real-time Height Budget Status Badge */}
+            {pageTarget === "1" ? (
+              <span
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${
+                  isOverflow
+                    ? "bg-rose-500/10 text-rose-500 border border-rose-500/30 animate-pulse"
+                    : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/30"
+                }`}
+              >
+                {isOverflow ? (
+                  <>
+                    <AlertTriangle size={13} />
+                    <span>
+                      {overflowPercentage}% Height (⚠️ Spills to Page 2)
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Check size={13} />
+                    <span>Fits 1 Page ({overflowPercentage}%)</span>
+                  </>
+                )}
+              </span>
+            ) : (
+              <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                2-Page Layout Active ({estimatedPages} Pages)
+              </span>
+            )}
+          </div>
+
+          {/* Right Action Buttons */}
+          <div className="flex items-center gap-2">
+            {/* Spacing Mode Selector */}
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-[11px] font-medium text-slate-500">
+              <span className="px-1.5 hidden md:inline">Density:</span>
+              <button
+                type="button"
+                onClick={() => setSpacingMode("normal")}
+                className={`px-2 py-0.5 rounded-lg ${
+                  spacingMode === "normal"
+                    ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs font-bold"
+                    : "hover:text-slate-900 dark:hover:text-white"
+                }`}
+              >
+                Normal
+              </button>
+              <button
+                type="button"
+                onClick={() => setSpacingMode("compact")}
+                className={`px-2 py-0.5 rounded-lg ${
+                  spacingMode === "compact"
+                    ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs font-bold"
+                    : "hover:text-slate-900 dark:hover:text-white"
+                }`}
+              >
+                Compact
+              </button>
+              <button
+                type="button"
+                onClick={() => setSpacingMode("tight")}
+                className={`px-2 py-0.5 rounded-lg ${
+                  spacingMode === "tight"
+                    ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs font-bold"
+                    : "hover:text-slate-900 dark:hover:text-white"
+                }`}
+              >
+                Tight
+              </button>
+            </div>
+
+            <button
+              onClick={copyAsPlainText}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
+              title="Copy ATS Plain Text for Job Portals"
+            >
+              {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+              <span className="hidden sm:inline">{copied ? "Copied!" : "Plain Text"}</span>
+            </button>
+
+            <button
+              onClick={handlePrint}
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 transition-all cursor-pointer"
+              title="Print or Save as ATS PDF"
+            >
+              <Printer size={14} />
+              <span>Print / Save PDF</span>
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={copyAsPlainText}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
-            title="Copy ATS Plain Text for Job Portals"
-          >
-            {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-            <span>{copied ? "Copied Plain Text!" : "Copy Plain Text"}</span>
-          </button>
+        {/* ================= 1-PAGE OVERFLOW WARNING & AUTO-FIT BANNER ================= */}
+        {isOverflow && (
+          <div className="p-4 rounded-2xl bg-amber-500/10 border-2 border-amber-500/40 text-amber-900 dark:text-amber-200 space-y-3 shadow-md">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-2.5">
+                <AlertTriangle size={20} className="text-amber-500 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 font-mono">
+                    ⚠️ 1-Page Overflow Warning (Estimated {estimatedPages} Pages)
+                  </h4>
+                  <p className="text-xs text-slate-700 dark:text-slate-300 mt-0.5">
+                    আপনার রেজুমেটি ১-পেজের নির্ধারিত উচ্চতা অতিক্রম করেছে (প্রায় +
+                    {measuredHeight - SINGLE_PAGE_BUDGET_PX}px বেশি)। প্রিন্ট করলে এটি দ্বিতীয় পেজে চলে যাবে।
+                  </p>
+                </div>
+              </div>
 
-          <button
-            onClick={handlePrint}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 transition-all cursor-pointer"
-            title="Print or Save as ATS PDF"
-          >
-            <Printer size={14} />
-            <span>Print / Save as PDF</span>
-          </button>
-        </div>
+              {/* ✨ ONE-CLICK AUTO FIT TO 1-PAGE BUTTON */}
+              <button
+                type="button"
+                onClick={handleAutoFitToOnePage}
+                className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-600 to-indigo-600 hover:opacity-95 text-white shadow-md shadow-amber-500/20 transition-all cursor-pointer"
+              >
+                <Sparkles size={14} />
+                <span>✨ Auto-Fit to 1 Page</span>
+              </button>
+            </div>
+
+            {/* Smart Specific Suggestions */}
+            <div className="pt-2 border-t border-amber-500/20 flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-bold text-amber-500 text-[11px] uppercase">
+                Suggestions:
+              </span>
+
+              {data.experience?.enabled && (
+                <button
+                  type="button"
+                  onClick={handleRemoveExperience}
+                  className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-800 dark:text-amber-300 text-[11px] font-semibold transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  <Scissors size={12} />
+                  <span>Remove SM Technology Experience</span>
+                </button>
+              )}
+
+              {data.projects.length > 2 && (
+                <button
+                  type="button"
+                  onClick={handleKeepTopTwoProjects}
+                  className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-800 dark:text-amber-300 text-[11px] font-semibold transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  <Scissors size={12} />
+                  <span>Keep Top 2 Projects Only</span>
+                </button>
+              )}
+
+              {spacingMode !== "compact" && spacingMode !== "tight" && (
+                <button
+                  type="button"
+                  onClick={() => setSpacingMode("compact")}
+                  className="px-2.5 py-1 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-700 dark:text-indigo-300 text-[11px] font-semibold transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  <Layers size={12} />
+                  <span>Switch to Compact Density</span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 
-        ATS-FRIENDLY RESUME CONTAINER 
+        ================= ATS-FRIENDLY RESUME PAPER ================= 
         Strict Standard:
         - White Background
         - Classic High-Legibility Serif Font (Georgia, Times New Roman, serif)
@@ -113,10 +414,10 @@ export default function ATSResumeView({
       <div
         ref={printContainerRef}
         id="ats-resume-print-area"
-        className="ats-resume-paper w-full max-w-[850px] bg-white text-black p-8 sm:p-12 shadow-2xl rounded-sm border border-slate-200 print:border-none print:shadow-none print:p-0 print:m-0"
+        className={`ats-resume-paper w-full max-w-[850px] bg-white text-black ${paddingClass} shadow-2xl rounded-sm border border-slate-200 print:border-none print:shadow-none print:p-0 print:m-0 relative`}
         style={{
           fontFamily: "Georgia, 'Times New Roman', Times, serif",
-          lineHeight: "1.4",
+          lineHeight: spacingMode === "tight" ? "1.32" : spacingMode === "compact" ? "1.36" : "1.4",
           color: "#111827",
         }}
       >
@@ -181,19 +482,19 @@ export default function ATSResumeView({
           </div>
 
           {/* Header Divider Line */}
-          <hr className="border-t border-[#4b5563] mt-2.5 mb-3" />
+          <hr className="border-t border-[#4b5563] mt-2 mb-2.5" />
         </header>
 
         {/* ================= CAREER OBJECTIVE ================= */}
-        <section className="mb-3.5 text-[12.5px] sm:text-[13px] text-black leading-relaxed">
+        <section className={`${sectionMarginClass} text-[12.5px] sm:text-[13px] text-black leading-relaxed`}>
           <span className="font-bold text-black mr-1">Career Objective:</span>
           <span>{data.careerObjective}</span>
         </section>
 
         {/* ================= TECHNICAL SKILLS ================= */}
-        <section className="mb-3.5 text-[12.5px] sm:text-[13px] leading-relaxed">
-          <div className="font-bold text-black mb-1">Technical Skills:</div>
-          <div className="space-y-1">
+        <section className={`${sectionMarginClass} text-[12.5px] sm:text-[13px] leading-relaxed`}>
+          <div className="font-bold text-black mb-0.5">Technical Skills:</div>
+          <div className="space-y-0.5">
             {data.technicalSkills.map((cat, idx) => (
               <div key={idx}>
                 <span className="font-bold text-black">{cat.category}: </span>
@@ -205,8 +506,8 @@ export default function ATSResumeView({
 
         {/* ================= EXPERIENCE (Optional) ================= */}
         {data.experience && data.experience.enabled && (
-          <section className="mb-3.5 text-[12.5px] sm:text-[13px] leading-relaxed">
-            <div className="font-bold text-black text-[14px] sm:text-[15px] mb-1">
+          <section className={`${sectionMarginClass} text-[12.5px] sm:text-[13px] leading-relaxed`}>
+            <div className="font-bold text-black text-[14px] sm:text-[15px] mb-0.5">
               Experience:
             </div>
             <div className="font-bold text-black">
@@ -219,13 +520,13 @@ export default function ATSResumeView({
         )}
 
         {/* ================= PROJECTS SECTION ================= */}
-        <section className="mb-3.5">
+        <section className={sectionMarginClass}>
           <div className="flex items-center justify-between">
             <h2 className="text-[16px] sm:text-[17px] font-bold text-black">Projects</h2>
           </div>
-          <hr className="border-t border-[#4b5563] mt-1 mb-2.5" />
+          <hr className="border-t border-[#4b5563] mt-0.5 mb-2" />
 
-          <div className="space-y-3.5">
+          <div className={projectSpacingClass}>
             {data.projects.map((proj, pIdx) => {
               return (
                 <div key={pIdx} className="text-[12.5px] sm:text-[13px] leading-snug">
@@ -281,7 +582,7 @@ export default function ATSResumeView({
                   </div>
 
                   {/* Bullet Points */}
-                  <ul className="list-disc pl-5 mt-1 space-y-1 text-black">
+                  <ul className="list-disc pl-5 mt-0.5 space-y-0.5 text-black">
                     {proj.bullets.map((bullet, bIdx) => (
                       <li key={bIdx} className="leading-relaxed pl-0.5">
                         {bullet}
@@ -295,7 +596,7 @@ export default function ATSResumeView({
         </section>
 
         {/* ================= EDUCATION SECTION ================= */}
-        <section className="mb-3 text-[12.5px] sm:text-[13px]">
+        <section className="mb-2 text-[12.5px] sm:text-[13px]">
           <div className="font-bold text-black text-[14px] sm:text-[15px] mb-0.5">
             Education
           </div>
