@@ -7,10 +7,11 @@ import {
 } from "@/app/lib/resumeTemplates";
 
 const GEMINI_MODELS = [
-  "gemini-2.5-flash",
-  "gemini-2.0-flash",
-  "gemini-1.5-flash",
-  "gemini-1.5-pro",
+  "gemini-3.5-flash",
+  "gemini-flash-latest",
+  "gemini-3.8-flash",
+  "gemini-3.1-flash-lite",
+  "gemini-3.7-flash",
 ];
 
 export async function POST(req: NextRequest) {
@@ -171,16 +172,19 @@ ${jobDescription.trim()}
 \"\"\"
 
 STRICT RULES FOR OUTPUT:
-1. TARGET TITLE: Set an accurate, professional title matching the JD (e.g. "Full-Stack Developer", "Front-End Developer", "React/Next.js Engineer", "Executive, Front End", or "Wix Developer").
-2. CAREER OBJECTIVE: Write exactly 2-3 sentences. Mention the role and core technologies required by the JD. Emphasize transforming complex requirements into scalable, high-performance applications.
-3. TECHNICAL SKILLS: Return exactly 3 rows/categories.
-   - For Full-Stack / MERN: Row 1: "Front-End", Row 2: "Back-End", Row 3: "Tools & Platforms".
-   - For Wix / Front-End: Row 1: "Wix Development" (or "Front-End"), Row 2: "Back-End", Row 3: "Tools & Platforms".
-   - Front-load technologies that match the Job Description. DO NOT invent languages he doesn't know, but highlight overlapping tech (e.g., React, Next.js, TypeScript, JavaScript, Node.js, Express, PostgreSQL, NestJS, Tailwind CSS, REST APIs, Git, etc.).
-4. PROJECT SELECTION: Select the 2 (or max 3) most relevant projects from the candidate's available projects.
-   - Project Title: Keep original title, optionally add " — [Subtitle]" (e.g., "Property Management System — Next.js Full-Stack Application" or "Linda's Cakes & Catering — E-Commerce & Booking Platform").
-   - Technologies: Comma-separated list tailored to the stack of the project and keywords in the JD.
-   - Bullets: Provide exactly 3 bullet points per project.
+1. TARGET TITLE: Set an accurate, professional title matching the JD (e.g. "Full-Stack Developer", "Senior Full-Stack Engineer", "Next.js & Full-Stack Developer", or "Wix Developer" only if the JD is explicitly about Wix). NEVER default to "Executive, Front End" or "Wix Developer" when the job is for Full-Stack, React, Next.js, Python, Node, etc.
+2. CAREER OBJECTIVE: Write exactly 2-3 sentences. Mention the exact role and core technologies from the JD (e.g. Next.js, React, TypeScript, PostgreSQL, APIs). Emphasize transforming complex requirements into scalable, high-performance applications.
+3. TECHNICAL SKILLS: Return exactly 3 rows/categories:
+   - For Full-Stack / Software Engineer: Row 1: "Front-End", Row 2: "Back-End", Row 3: "Tools & Platforms".
+   - (Only for Wix-specific roles: Row 1: "Wix Development", Row 2: "Back-End", Row 3: "Tools & Platforms").
+   - Front-load technologies that match the Job Description (e.g., React.js, Next.js (App Router), TypeScript, JavaScript (ES6+), HTML5, CSS3, Tailwind CSS, Python/FastAPI integration, PostgreSQL, MongoDB, RESTful APIs, Docker, Git, etc.).
+4. PROJECT SELECTION:
+   - CRITICAL: If the JD is for Full-Stack, React, Next.js, Python, Backend, or Frontend, you MUST SELECT FULL-STACK WEB PROJECTS (such as "Property Management System — Next.js Full-Stack Application", "Enterprise Distribution & Inventory ERP System (Full-Stack)"). DO NOT SELECT WIX PROJECTS!
+   - Only select Wix projects if the JD explicitly asks for Wix/Velo.
+   - For each project:
+     * Project Title: Keep original title with subtitle.
+     * Technologies: Comma-separated list tailored to the stack of the project and keywords in the JD.
+     * Bullets: Provide exactly 3 bullet points per project.
      * Each bullet MUST begin with a strong past-tense action verb (Built, Engineered, Developed, Implemented, Designed, Automated, Optimized, Scaled).
      * Quantify impact wherever possible (~40%, 99.9%, real-time, 100+).
      * Incorporate key terminology from the Job Description.
