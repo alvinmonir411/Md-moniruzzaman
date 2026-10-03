@@ -1,6 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import sql from "@/app/lib/db";
 
+// Country code to friendly name mapper
+const COUNTRY_MAP: Record<string, string> = {
+  BD: "Bangladesh",
+  US: "United States",
+  USA: "United States",
+  GB: "United Kingdom",
+  UK: "United Kingdom",
+  IN: "India",
+  DE: "Germany",
+  CA: "Canada",
+  AU: "Australia",
+  FR: "France",
+  NL: "Netherlands",
+  SG: "Singapore",
+  AE: "United Arab Emirates",
+  SA: "Saudi Arabia",
+  PK: "Pakistan",
+  MY: "Malaysia",
+  PH: "Philippines",
+  JP: "Japan",
+  BR: "Brazil",
+};
+
+function formatCountry(raw?: string | null): string {
+  if (!raw || raw === "Unknown") return "Bangladesh";
+  const upper = raw.trim().toUpperCase();
+  if (COUNTRY_MAP[upper]) return COUNTRY_MAP[upper];
+  return raw;
+}
+
 // Helper to categorize traffic source accurately
 function parseTrafficSource(referrerUrl: string, searchStr?: string): string {
   if (searchStr) {
@@ -26,8 +56,15 @@ function parseTrafficSource(referrerUrl: string, searchStr?: string): string {
   }
 
   const lower = referrerUrl.toLowerCase();
-  // Self domain counts as internal / direct navigation
-  if (lower.includes("moniruzzaman-dev.vercel.app") || lower.includes("localhost")) {
+
+  // Self domain / preview domains / internal navigation count as Direct
+  if (
+    lower.includes("moniruzzaman") ||
+    lower.includes("pexelneststudio") ||
+    lower.includes("localhost") ||
+    lower.includes("127.0.0.1") ||
+    lower.includes("alvinmonir411s-projects.vercel.app")
+  ) {
     return "Direct";
   }
 
@@ -58,9 +95,13 @@ function parseTrafficSource(referrerUrl: string, searchStr?: string): string {
 
   try {
     const parsed = new URL(referrerUrl);
-    return parsed.hostname.replace(/^www\./, "");
+    const host = parsed.hostname.replace(/^www\./, "");
+    if (host.includes("moniruzzaman") || host.includes("vercel.app") && host.includes("alvinmonir")) {
+      return "Direct";
+    }
+    return host;
   } catch {
-    return "Other";
+    return "Direct";
   }
 }
 
@@ -239,11 +280,13 @@ export async function POST(request: NextRequest) {
     // 3. Fallback to HTTP headers
     const headerReferrer = request.headers.get("referer") || "";
     const userAgent = request.headers.get("user-agent") || "";
-    const country =
+    const rawCountry =
       request.headers.get("x-vercel-ip-country") ||
       request.headers.get("cf-ipcountry") ||
-      "Bangladesh"; // Default reasonable fallback
-    const city = request.headers.get("x-vercel-ip-city") || "";
+      "Bangladesh";
+    const country = formatCountry(rawCountry);
+    const rawCity = request.headers.get("x-vercel-ip-city") || "";
+    const city = rawCity ? decodeURIComponent(rawCity) : "";
 
     const finalReferrer = bodyReferrer || headerReferrer;
     const source = parseTrafficSource(finalReferrer, bodySearch);

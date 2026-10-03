@@ -5,6 +5,7 @@ import { Providers } from "./Provider";
 
 import ConditionalNavbar from "./Components/ConditionalNavbar";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 import ConditionalFooter from "./Components/ConditionalFooter";
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://pexelneststudio.vercel.app"),
+  metadataBase: new URL("https://moniruzzaman-dev.vercel.app"),
   title: "Moniruzzaman | Web & Software Development Portfolio",
   description: "Moniruzzaman — High-performance web applications, full-stack digital products, and modern UI/UX.",
   icons: {
@@ -26,12 +27,12 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
   alternates: {
-    canonical: "https://pexelneststudio.vercel.app",
+    canonical: "https://moniruzzaman-dev.vercel.app",
   },
   openGraph: {
     title: "Moniruzzaman | Web & Software Development Portfolio",
     description: "Moniruzzaman — High-performance web applications, full-stack digital products, and modern UI/UX.",
-    url: "https://pexelneststudio.vercel.app",
+    url: "https://moniruzzaman-dev.vercel.app",
     siteName: "Moniruzzaman",
     images: [{ url: "/logo.png" }],
     type: "website",
@@ -58,6 +59,7 @@ export default function RootLayout({
       >
         <Providers>
           <SpeedInsights />
+          <Analytics />
           <ConditionalNavbar />
           {children}
           {modal}

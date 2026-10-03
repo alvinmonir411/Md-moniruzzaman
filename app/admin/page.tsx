@@ -255,7 +255,7 @@ export default function AdminDashboard() {
                 skills: skillsList.length,
                 messages: messageList.length,
                 unreadMessages: unreadCount,
-                views: typeof viewsData?.views === "number" ? viewsData.views : 16,
+                views: typeof viewsData?.views === "number" ? viewsData.views : 0,
             });
 
             if (viewsData) {
