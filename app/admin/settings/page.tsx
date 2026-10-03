@@ -42,8 +42,15 @@ export default function SettingsPage() {
   const [cvUploading, setCvUploading] = useState(false);
   const [cvStatus, setCvStatus] = useState<"idle" | "success" | "error">("idle");
   const [cvStatusMessage, setCvStatusMessage] = useState("");
-  const [cvInfo, setCvInfo] = useState<{ exists: boolean; updatedAt?: string; size?: number }>({
+  const [cvInfo, setCvInfo] = useState<{
+    exists: boolean;
+    updatedAt?: string;
+    size?: number;
+    filename?: string;
+    url?: string;
+  }>({
     exists: false,
+    url: "/api/resume/download",
   });
 
   useEffect(() => {
@@ -480,7 +487,7 @@ export default function SettingsPage() {
 
             {cvInfo.exists && (
               <a
-                href="/resume.pdf"
+                href={cvInfo.url || "/api/resume/download"}
                 target="_blank"
                 rel="noreferrer"
                 className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20 transition"
@@ -554,7 +561,10 @@ export default function SettingsPage() {
                 >
                   <div className="font-semibold text-indigo-400">Current CV Status:</div>
                   <div>
-                    Status: <span className="font-mono text-emerald-400">Active (/resume.pdf)</span>
+                    Status:{" "}
+                    <span className="font-mono text-emerald-400">
+                      Active ({cvInfo.filename || "resume.pdf"})
+                    </span>
                   </div>
                   {cvInfo.updatedAt && (
                     <div>

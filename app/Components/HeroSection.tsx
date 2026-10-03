@@ -174,8 +174,8 @@ const HeroSection: React.FC = () => {
             </a>
 
             <a
-              download={true}
-              href="/resume.pdf"
+              download="Md_Moniruzzaman_Resume.pdf"
+              href="/api/resume/download"
               className={`px-7 py-4 rounded-2xl font-bold text-base transition-all duration-300 border-2 hover:-translate-y-1 flex items-center gap-2.5 ${
                 isDark
                   ? "border-slate-700 hover:border-indigo-500 hover:bg-slate-900 text-slate-100 shadow-md"

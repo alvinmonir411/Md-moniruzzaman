@@ -139,6 +139,18 @@ export async function initDatabase() {
       );
     `;
 
+    // CV & Resume PDF binary storage (Neon PostgreSQL)
+    await sql`
+      CREATE TABLE IF NOT EXISTS cv_storage (
+        id INT PRIMARY KEY DEFAULT 1,
+        filename VARCHAR(255) DEFAULT 'Moniruzzaman_Resume.pdf',
+        mime_type VARCHAR(100) DEFAULT 'application/pdf',
+        file_data TEXT NOT NULL,
+        file_size INT,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+
     console.log("✅ Neon DB tables initialized successfully.");
   } catch (error) {
     console.error("❌ Neon DB init error:", error);
