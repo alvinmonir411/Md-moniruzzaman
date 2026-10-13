@@ -206,9 +206,9 @@ export default function ResumeBuilderPage() {
   };
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-8 pb-12 print:space-y-0 print:p-0 print:m-0">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+      <div className="no-print flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
           <div className="flex items-center gap-2.5">
             <span className="p-2 rounded-xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
@@ -250,9 +250,9 @@ export default function ResumeBuilderPage() {
       </div>
 
       {/* Main Grid: Left Control Panel | Right Resume Preview */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start print:block print:w-full print:m-0 print:p-0">
         {/* ================= LEFT FORM PANEL (5 cols) ================= */}
-        <div className="xl:col-span-5 space-y-6">
+        <div className="no-print xl:col-span-5 space-y-6">
           <div
             className={`p-6 rounded-3xl border transition-all ${
               isDark
@@ -517,9 +517,9 @@ export default function ResumeBuilderPage() {
         </div>
 
         {/* ================= RIGHT PREVIEW & EDITOR PANEL (7 cols) ================= */}
-        <div className="xl:col-span-7 space-y-4">
+        <div className="xl:col-span-7 space-y-4 print:w-full print:space-y-0 print:m-0 print:p-0">
           {/* Tabs: Preview vs Quick Tweaker */}
-          <div className="flex items-center justify-between bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700/60 max-w-md">
+          <div className="no-print flex items-center justify-between bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700/60 max-w-md">
             <button
               onClick={() => setActiveTab("preview")}
               className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
@@ -546,7 +546,7 @@ export default function ResumeBuilderPage() {
 
           {/* VIEW: LIVE ATS PREVIEW */}
           {activeTab === "preview" && (
-            <div className="w-full flex justify-center">
+            <div className="w-full flex justify-center print:block print:w-full print:m-0 print:p-0">
               <ATSResumeView
                 data={resumeData}
                 pageTarget={pageTarget}

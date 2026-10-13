@@ -422,7 +422,7 @@ export default function ATSResumeView({
         }}
       >
         {/* ================= HEADER SECTION ================= */}
-        <header className="mb-3">
+        <div className="resume-header mb-3">
           <h1
             className="text-[26px] sm:text-[30px] font-bold tracking-tight text-black leading-tight"
             style={{ fontWeight: 700 }}
@@ -483,7 +483,7 @@ export default function ATSResumeView({
 
           {/* Header Divider Line */}
           <hr className="border-t border-[#4b5563] mt-2 mb-2.5" />
-        </header>
+        </div>
 
         {/* ================= CAREER OBJECTIVE ================= */}
         <section className={`${sectionMarginClass} text-[12.5px] sm:text-[13px] text-black leading-relaxed`}>
@@ -529,7 +529,7 @@ export default function ATSResumeView({
           <div className={projectSpacingClass}>
             {data.projects.map((proj, pIdx) => {
               return (
-                <div key={pIdx} className="text-[12.5px] sm:text-[13px] leading-snug">
+                <div key={pIdx} className="resume-project-item text-[12.5px] sm:text-[13px] leading-snug">
                   {/* Title & Links Row */}
                   <div className="flex flex-wrap items-baseline justify-between gap-1">
                     <span className="font-bold text-black">{proj.title}</span>
@@ -622,12 +622,12 @@ export default function ATSResumeView({
             margin: 0.3in 0.4in;
           }
 
-          /* Hide all admin navigation and non-print items completely from flow */
+          /* Hide all admin navigation, sidebars, headers, and non-print items */
           aside,
-          header,
           nav,
           footer,
-          .no-print {
+          .no-print,
+          header:not(#ats-resume-print-area *) {
             display: none !important;
             height: 0 !important;
             margin: 0 !important;
@@ -641,7 +641,6 @@ export default function ATSResumeView({
             padding: 0 !important;
             height: auto !important;
             min-height: 0 !important;
-            max-height: 100% !important;
             overflow: visible !important;
             background: #ffffff !important;
             color: #000000 !important;
@@ -657,32 +656,40 @@ export default function ATSResumeView({
             margin: 0 !important;
           }
 
-          /* Only show resume paper and its children */
-          body * {
-            visibility: hidden;
-          }
-
-          #ats-resume-print-area,
-          #ats-resume-print-area * {
-            visibility: visible;
-          }
-
+          /* Make resume paper and all its children visible and block-rendered */
           #ats-resume-print-area {
-            position: absolute !important;
+            display: block !important;
+            visibility: visible !important;
+            position: relative !important;
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
             max-width: 100% !important;
             margin: 0 !important;
-            padding: 0 !important; /* CRITICAL: Prevents margin-doubling which pushed content to page 2! */
+            padding: 0 !important;
             box-shadow: none !important;
             border: none !important;
             background: #ffffff !important;
             color: #000000 !important;
-            page-break-after: avoid !important;
-            page-break-inside: avoid !important;
-            break-after: avoid !important;
-            break-inside: avoid !important;
+          }
+
+          #ats-resume-print-area,
+          #ats-resume-print-area * {
+            visibility: visible !important;
+          }
+
+          /* Ensure resume header and items are always displayed */
+          #ats-resume-print-area .resume-header {
+            display: block !important;
+            visibility: visible !important;
+            margin-bottom: 0.75rem !important;
+          }
+
+          /* Prevent awkward page break cuts inside individual sections or projects */
+          #ats-resume-print-area section,
+          #ats-resume-print-area .resume-project-item {
+            break-inside: avoid;
+            page-break-inside: avoid;
           }
         }
       `}</style>

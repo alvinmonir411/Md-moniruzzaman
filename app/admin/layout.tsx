@@ -279,7 +279,7 @@ export default function AdminLayout({ children }: SidebarProps) {
         >
             {/* Mobile Header Bar */}
             <div
-                className={`lg:hidden fixed top-0 left-0 right-0 z-40 ${
+                className={`no-print lg:hidden fixed top-0 left-0 right-0 z-40 ${
                     isDark
                         ? "bg-[#0F172A] border-b border-slate-800 text-white"
                         : "bg-white border-b border-slate-200 text-slate-900"
@@ -328,14 +328,14 @@ export default function AdminLayout({ children }: SidebarProps) {
             {/* Mobile Backdrop */}
             {isSidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 lg:hidden"
+                    className="no-print fixed inset-0 bg-black/80 backdrop-blur-sm z-40 lg:hidden"
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}
 
             {/* Executive Sidebar */}
             <aside
-                className={`fixed top-0 left-0 h-full w-72 ${
+                className={`no-print fixed top-0 left-0 h-full w-72 ${
                     isDark
                         ? "bg-[#0C1222] border-r border-slate-800 text-white"
                         : "bg-white border-r border-slate-200 text-slate-900"
@@ -499,10 +499,10 @@ export default function AdminLayout({ children }: SidebarProps) {
             </aside>
 
             {/* Main Content Area */}
-            <div className="flex-1 lg:pl-72 flex flex-col min-w-0">
+            <div className="flex-1 lg:pl-72 flex flex-col min-w-0 print:pl-0 print:m-0">
                 {/* Desktop Top Header Bar */}
                 <header
-                    className={`hidden lg:flex items-center justify-between px-8 py-3.5 border-b ${
+                    className={`no-print hidden lg:flex items-center justify-between px-8 py-3.5 border-b ${
                         isDark
                             ? "bg-[#0C1222]/90 border-slate-800 text-white"
                             : "bg-white/90 border-slate-200 text-slate-900"
@@ -544,7 +544,7 @@ export default function AdminLayout({ children }: SidebarProps) {
                 </header>
 
                 {/* Page View Body */}
-                <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto mt-14 lg:mt-0">
+                <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto mt-14 lg:mt-0 print:p-0 print:m-0 print:max-w-none print:w-full">
                     {children}
                 </main>
             </div>
