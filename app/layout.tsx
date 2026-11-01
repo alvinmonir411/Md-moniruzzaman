@@ -7,6 +7,8 @@ import ConditionalNavbar from "./Components/ConditionalNavbar";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import ConditionalFooter from "./Components/ConditionalFooter";
+import SmoothScroll from "./Components/SmoothScroll";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -58,6 +60,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
+          <SmoothScroll />
           <SpeedInsights />
           <Analytics />
           <ConditionalNavbar />

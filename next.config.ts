@@ -18,6 +18,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/api/admin",
+        destination: "/admin",
+        permanent: false,
+      },
+    ];
+  },
   async headers() {
     return [
       {

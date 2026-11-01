@@ -8,7 +8,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../lib/store";
 import { toggleTheme } from "../lib/features/theme/themeSlice";
-import AdminModal from "./AdminModal";
 
 interface Particle {
   id: number;
@@ -20,7 +19,6 @@ interface Particle {
   color: string;
 }
 
-const ADMIN_SECRET_KEY = process.env.NEXT_PUBLIC_ADMIN_SECRET || "13663";
 
 const NavBar = () => {
   const pathname = usePathname();
@@ -29,7 +27,6 @@ const NavBar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isLogoAnimating, setIsLogoAnimating] = useState(false);
   const [particles, setParticles] = useState<Particle[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const logoRef = useRef<HTMLDivElement>(null);
 
   const isDark = useSelector((state: RootState) => state.theme.isDark);
@@ -72,7 +69,11 @@ const NavBar = () => {
     if (pathname === "/") {
       const element = document.getElementById(id);
       if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
+        if (typeof window !== "undefined" && (window as any).lenis) {
+          (window as any).lenis.scrollTo(element, { offset: -80, duration: 1.2 });
+        } else {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
       }
     } else {
       // From subpages like /projects, redirect to home with hash
@@ -114,27 +115,16 @@ const NavBar = () => {
 
     setTimeout(() => setIsLogoAnimating(false), 600);
 
-    // If already on homepage, open secret admin modal; otherwise go home
+    // If not on homepage, navigate to home; if already on home, scroll to top
     if (pathname !== "/") {
       router.push("/");
     } else {
-      setTimeout(() => {
-        setIsModalOpen(true);
-      }, 300);
+      if (typeof window !== "undefined" && (window as any).lenis) {
+        (window as any).lenis.scrollTo(0, { duration: 1.2 });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
     }
-  };
-
-  const handleModalSubmit = (key: string): boolean => {
-    if (key === ADMIN_SECRET_KEY) {
-      localStorage.setItem("pixelnest_admin_auth", "true");
-      document.cookie = "pixelnest_admin_auth=authorized; path=/; max-age=604800; SameSite=Lax";
-      setIsModalOpen(false);
-      setTimeout(() => {
-        window.location.href = "/admin";
-      }, 200);
-      return true;
-    }
-    return false;
   };
 
   const navLinks: NavLink[] = [
@@ -318,13 +308,6 @@ const NavBar = () => {
         </div>
       )}
 
-      {/* Admin Modal */}
-      <AdminModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleModalSubmit}
-        isDark={isDark}
-      />
     </nav>
   );
 };
