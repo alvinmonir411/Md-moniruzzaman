@@ -5,19 +5,19 @@
     scroll-behavior: smooth;
   }
   
-  /* Custom modern scrollbar */
+  /* Ultra-modern glassmorphic scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: transparent;
+    background: rgba(15, 23, 42, 0.4);
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(99, 102, 241, 0.3);
+    background: linear-gradient(180deg, rgba(99, 102, 241, 0.6), rgba(168, 85, 247, 0.6), rgba(236, 72, 153, 0.6));
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(99, 102, 241, 0.6);
+    background: linear-gradient(180deg, #6366f1, #a855f7, #ec4899);
   }
 }
 
