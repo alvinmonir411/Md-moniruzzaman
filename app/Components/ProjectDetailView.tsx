@@ -25,6 +25,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "../lib/store";
+import { getProjectNicheLabel } from "../lib/projectNiches";
 
 interface ProjectDetailViewProps {
   project: Project;
@@ -134,6 +135,8 @@ const ProjectDetailView = ({ project, isModal = false }: ProjectDetailViewProps)
     (project as any).estimate_time ||
     "Completed & Shipped";
 
+  const nicheTitle = getProjectNicheLabel(project);
+
   return (
     <div
       className={`w-full overflow-hidden transition-all duration-300 relative ${
@@ -170,7 +173,7 @@ const ProjectDetailView = ({ project, isModal = false }: ProjectDetailViewProps)
                 : "bg-indigo-500/10 border-indigo-500/20 text-indigo-400"
             }`}
           >
-            {project.category === "wix" ? "Wix Studio & No-Code" : "Custom Web Application"}
+            {project.category === "wix" ? "Wix Studio & No-Code" : nicheTitle}
           </span>
 
           {/* Featured Badge */}

@@ -19,6 +19,30 @@ export const NICHE_LIST: NicheInfo[] = [
 ];
 
 export const getProjectNicheId = (p: Project): string => {
+  const id = Number((p as any).id || p._id);
+
+  // 1. Explicit project ID mapping for 100% precision
+  if (id === 19) return "home-services"; // Straight Flush Plumbing -> strictly Home Services & Renovation
+  if (id === 18 || id === 16) return "home-services"; // Renovation Contractor SG -> Home Services & Renovation
+  if (id === 5) return "home-services"; // Cleaning Business -> Home Services & Renovation
+
+  if (id === 13) return "ecommerce"; // Bumblebee -> E-Commerce & Food
+  if (id === 9) return "ecommerce"; // Orderflow Bd -> E-Commerce & Order Automation
+
+  if (id === 12) return "salons"; // Mask Off Barbershop -> Grooming & Studios
+  if (id === 11) return "salons"; // Iliayes Ink -> Grooming & Studios
+
+  if (id === 14) return "healthcare"; // Dr. Dominik Rosenlechner -> Healthcare & Medical
+
+  if (id === 17 || id === 15) return "saas-tools"; // OmniTools -> Dev Tools & SaaS
+
+  if (id === 10) return "enterprise"; // Ava Law Practice -> Enterprise & Legal
+  if (id === 7) return "enterprise"; // ERP -> Enterprise & Legal
+  if (id === 4) return "enterprise"; // Murtec -> Enterprise & Legal
+
+  if (id === 6) return "creative"; // Space Story Script -> Creative & Media
+
+  // 2. Custom category/niche property check
   const customCat = `${p.category || ""} ${(p as any).niche || ""}`.toLowerCase();
 
   if (
@@ -30,17 +54,10 @@ export const getProjectNicheId = (p: Project): string => {
     return "home-services";
   }
   if (
-    customCat.includes("ecom") ||
-    customCat.includes("shop") ||
-    customCat.includes("food") ||
-    customCat.includes("order")
-  ) {
-    return "ecommerce";
-  }
-  if (
     customCat.includes("barber") ||
     customCat.includes("tattoo") ||
-    customCat.includes("salon")
+    customCat.includes("salon") ||
+    customCat.includes("ink")
   ) {
     return "salons";
   }
@@ -60,6 +77,14 @@ export const getProjectNicheId = (p: Project): string => {
     return "saas-tools";
   }
   if (
+    customCat.includes("ecom") ||
+    customCat.includes("shop") ||
+    customCat.includes("food") ||
+    customCat.includes("order")
+  ) {
+    return "ecommerce";
+  }
+  if (
     customCat.includes("law") ||
     customCat.includes("legal") ||
     customCat.includes("erp") ||
@@ -68,7 +93,7 @@ export const getProjectNicheId = (p: Project): string => {
     return "enterprise";
   }
 
-  // Automatic semantic detection based on project keywords
+  // 3. Fallback semantic detection based on keywords
   const text = `${p.title || ""} ${p.description || ""} ${p.desc || ""}`.toLowerCase();
 
   if (
@@ -78,43 +103,23 @@ export const getProjectNicheId = (p: Project): string => {
   ) {
     return "home-services";
   }
-  if (
-    /baby|food|e-commerce|ecommerce|shop|order|f-commerce|store|snack|cart|checkout/.test(
-      text
-    )
-  ) {
-    return "ecommerce";
-  }
-  if (
-    /barber|barbershop|tattoo|piercing|hair|fade|salon|studio|ink|grooming/.test(
-      text
-    )
-  ) {
+  if (/barber|barbershop|tattoo|piercing|hair|fade|salon|studio|ink|grooming/.test(text)) {
     return "salons";
   }
-  if (
-    /urolog|doctor|clinic|medical|patient|health|andrology|ordination|hospital/.test(
-      text
-    )
-  ) {
+  if (/urolog|doctor|clinic|medical|patient|health|andrology|ordination|hospital/.test(text)) {
     return "healthcare";
   }
-  if (
-    /tool|developer|utility|crypto|hash|uuid|privacy-first|encoding|web crypto|vitest/.test(
-      text
-    )
-  ) {
+  if (/tool|developer|utility|crypto|hash|uuid|privacy-first|encoding|web crypto|vitest/.test(text)) {
     return "saas-tools";
   }
-  if (
-    /erp|law|legal|corporate|enterprise|management|advocate|contract|traders|accounting/.test(
-      text
-    )
-  ) {
-    return "enterprise";
+  if (/baby|food|e-commerce|ecommerce|shop|order|f-commerce|store|snack|cart|checkout/.test(text)) {
+    return "ecommerce";
   }
   if (/story|script|creative|game|space story/.test(text)) {
     return "creative";
+  }
+  if (/erp|law|legal|corporate|enterprise|management|advocate|contract|traders|accounting/.test(text)) {
+    return "enterprise";
   }
 
   return "enterprise";
@@ -125,4 +130,3 @@ export const getProjectNicheLabel = (p: Project): string => {
   const found = NICHE_LIST.find((n) => n.id === id);
   return found ? found.label : "Web Application";
 };
-
