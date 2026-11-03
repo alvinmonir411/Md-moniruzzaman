@@ -6,7 +6,6 @@ import { RootState } from "../lib/store";
 import { Project } from "../types";
 import ProjectCard from "../Components/ProjectCard";
 import CanvasBackground from "../Components/CanvasBackground";
-import NavBar from "../Components/Navber";
 import {
   FolderGit2,
   Search,
@@ -17,8 +16,11 @@ import {
   Layers,
   Code2,
   Globe2,
+  Briefcase,
+  X,
 } from "lucide-react";
 import Link from "next/link";
+import { NICHE_LIST, getProjectNicheId } from "../lib/projectNiches";
 
 export default function AllProjectsPage() {
   const isDark = useSelector((state: RootState) => state.theme.isDark);
@@ -26,6 +28,7 @@ export default function AllProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<"all" | "pinned" | "custom" | "wix">("all");
+  const [selectedNiche, setSelectedNiche] = useState<string>("all");
 
   useEffect(() => {
     fetch("/api/projects")
@@ -47,8 +50,9 @@ export default function AllProjectsPage() {
   );
   const wixProjects = projects.filter((p) => p.category === "wix");
 
+  // Filter projects by Platform/Tab, Niche, and Search Term
   const filteredProjects = projects.filter((p) => {
-    // Tab filter
+    // 1. Primary Platform / Pinned Filter
     if (activeTab === "pinned" && !p.is_featured && !p.isFeatured && !p.isPinned) {
       return false;
     }
@@ -59,7 +63,15 @@ export default function AllProjectsPage() {
       return false;
     }
 
-    // Search query filter
+    // 2. Niche (Industry / Category) Filter
+    if (selectedNiche !== "all") {
+      const pNiche = getProjectNicheId(p);
+      if (pNiche !== selectedNiche) {
+        return false;
+      }
+    }
+
+    // 3. Search Query Filter
     if (!searchTerm.trim()) return true;
     const term = searchTerm.toLowerCase();
     const techString = Array.isArray(p.tech) ? p.tech.join(" ") : String(p.tech || "");
@@ -105,7 +117,7 @@ export default function AllProjectsPage() {
         </div>
 
         {/* Page Title Section */}
-        <div className="text-center max-w-3xl mx-auto mb-14 space-y-4">
+        <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
           <div
             className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${
               isDark
@@ -114,7 +126,7 @@ export default function AllProjectsPage() {
             }`}
           >
             <Layers size={14} />
-            Complete Showcase
+            Complete Portfolio Catalog
           </div>
 
           <h1
@@ -130,7 +142,7 @@ export default function AllProjectsPage() {
               isDark ? "text-slate-400" : "text-slate-600"
             }`}
           >
-            Explore my entire catalog of full-stack web applications, scalable client platforms, Wix solutions, and open-source contributions.
+            Explore production systems, custom full-stack engines, and high-converting client platforms. Hover over any card for a smooth vertical scroll of the full webpage.
           </p>
         </div>
 
@@ -146,29 +158,37 @@ export default function AllProjectsPage() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by name, technology (e.g. Next.js, MongoDB), or keyword..."
+              placeholder="Search by name, technology (e.g. Next.js, Neon DB), or niche..."
               className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border text-sm transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500/30 ${
                 isDark
                   ? "bg-slate-900/90 border-slate-800 text-white placeholder:text-slate-500 focus:border-indigo-500"
                   : "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-indigo-400 shadow-sm"
               }`}
             />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+              >
+                <X size={16} />
+              </button>
+            )}
           </div>
 
-          {/* Filter Pills */}
+          {/* Primary Platform & Pinned Tabs */}
           <div className="flex flex-wrap items-center justify-center gap-2.5">
             {[
-              { id: "all" as const, label: "All Projects", count: projects.length, icon: null },
+              { id: "all" as const, label: "All Works", count: projects.length, icon: null },
               { id: "pinned" as const, label: "Pinned on Home", count: pinnedProjects.length, icon: <Pin size={13} className="fill-amber-400 text-amber-400" /> },
               { id: "custom" as const, label: "Full-Stack & Custom", count: customProjects.length, icon: <Code2 size={13} /> },
-              { id: "wix" as const, label: "Wix / No-Code", count: wixProjects.length, icon: <Globe2 size={13} /> },
+              { id: "wix" as const, label: "Wix & No-Code", count: wixProjects.length, icon: <Globe2 size={13} /> },
             ].map((tab) => {
               const isActive = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                     isActive
                       ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/30 scale-105"
                       : isDark
@@ -192,6 +212,52 @@ export default function AllProjectsPage() {
                 </button>
               );
             })}
+          </div>
+
+          {/* Niche (Industry / Category) Selector Pills */}
+          <div className="pt-2">
+            <div className="flex items-center justify-center gap-1.5 mb-3 text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold">
+              <Briefcase size={13} className="text-indigo-400" />
+              <span>Filter By Niche / Industry:</span>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-2 max-w-5xl mx-auto">
+              {NICHE_LIST.map((niche) => {
+                const isSelected = selectedNiche === niche.id;
+                // Calculate count for this niche
+                const count =
+                  niche.id === "all"
+                    ? projects.length
+                    : projects.filter((p) => getProjectNicheId(p) === niche.id).length;
+
+                return (
+                  <button
+                    key={niche.id}
+                    onClick={() => setSelectedNiche(niche.id)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer border ${
+                      isSelected
+                        ? "bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/30 scale-105"
+                        : isDark
+                        ? "bg-slate-900/70 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700"
+                        : "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 shadow-xs"
+                    }`}
+                  >
+                    <span>{niche.label}</span>
+                    <span
+                      className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono ${
+                        isSelected
+                          ? "bg-white/20 text-white"
+                          : isDark
+                          ? "bg-slate-800 text-slate-500"
+                          : "bg-slate-100 text-slate-500"
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -221,17 +287,30 @@ export default function AllProjectsPage() {
             </h3>
             <p className="text-sm">
               {searchTerm
-                ? `No projects matched "${searchTerm}". Try a different keyword or category.`
-                : "No projects in this category."}
+                ? `No projects matched "${searchTerm}".`
+                : "No projects match the selected category & niche filters."}
             </p>
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm("")}
-                className="mt-4 px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-500 transition"
-              >
-                Clear Search
-              </button>
-            )}
+            <div className="flex justify-center gap-3 mt-4">
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-500 transition cursor-pointer"
+                >
+                  Clear Search
+                </button>
+              )}
+              {(activeTab !== "all" || selectedNiche !== "all") && (
+                <button
+                  onClick={() => {
+                    setActiveTab("all");
+                    setSelectedNiche("all");
+                  }}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-700 hover:bg-slate-800 text-slate-300 transition cursor-pointer"
+                >
+                  Reset Filters
+                </button>
+              )}
+            </div>
           </div>
         )}
       </main>

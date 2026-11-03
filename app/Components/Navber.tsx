@@ -19,7 +19,6 @@ interface Particle {
   color: string;
 }
 
-
 const NavBar = () => {
   const pathname = usePathname();
   const router = useRouter();
@@ -65,6 +64,12 @@ const NavBar = () => {
 
   const handleNavigation = (id: string) => {
     setIsMenuOpen(false);
+
+    // If projects is clicked, navigate directly to /projects page
+    if (id === "projects") {
+      router.push("/projects");
+      return;
+    }
 
     if (pathname === "/") {
       const element = document.getElementById(id);
@@ -231,18 +236,43 @@ const NavBar = () => {
           {/* Desktop Nav */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-center space-x-8">
-              {navLinks.map((link) => (
-                <button
-                  key={link.name}
-                  onClick={() => handleNavigation(link.id)}
-                  className={`relative group px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
-                    isDark ? "text-slate-300 hover:text-white" : "text-slate-600 hover:text-indigo-600"
-                  }`}
-                >
-                  {link.name}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span>
-                </button>
-              ))}
+              {navLinks.map((link) => {
+                if (link.id === "projects") {
+                  return (
+                    <Link
+                      key={link.name}
+                      href="/projects"
+                      className={`relative group px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
+                        pathname === "/projects"
+                          ? "text-indigo-400 font-bold"
+                          : isDark
+                          ? "text-slate-300 hover:text-white"
+                          : "text-slate-600 hover:text-indigo-600"
+                      }`}
+                    >
+                      {link.name}
+                      <span
+                        className={`absolute bottom-0 left-0 h-0.5 bg-indigo-500 transition-all duration-300 ${
+                          pathname === "/projects" ? "w-full" : "w-0 group-hover:w-full"
+                        }`}
+                      ></span>
+                    </Link>
+                  );
+                }
+
+                return (
+                  <button
+                    key={link.name}
+                    onClick={() => handleNavigation(link.id)}
+                    className={`relative group px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
+                      isDark ? "text-slate-300 hover:text-white" : "text-slate-600 hover:text-indigo-600"
+                    }`}
+                  >
+                    {link.name}
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span>
+                  </button>
+                );
+              })}
 
               <div className={`h-6 w-px ${isDark ? "bg-slate-700" : "bg-slate-300"}`} />
 
@@ -291,23 +321,43 @@ const NavBar = () => {
           }`}
         >
           <div className="px-4 pt-4 pb-6 space-y-2">
-            {navLinks.map((link) => (
-              <button
-                key={link.name}
-                onClick={() => handleNavigation(link.id)}
-                className={`block w-full text-left px-4 py-3 rounded-xl text-base font-medium transition-all ${
-                  isDark
-                    ? "text-slate-300 hover:text-indigo-500 hover:bg-indigo-500/10"
-                    : "text-slate-600 hover:text-indigo-500 hover:bg-indigo-50"
-                }`}
-              >
-                {link.name}
-              </button>
-            ))}
+            {navLinks.map((link) => {
+              if (link.id === "projects") {
+                return (
+                  <Link
+                    key={link.name}
+                    href="/projects"
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`block w-full text-left px-4 py-3 rounded-xl text-base font-medium transition-all ${
+                      pathname === "/projects"
+                        ? "text-indigo-400 font-bold bg-indigo-500/10"
+                        : isDark
+                        ? "text-slate-300 hover:text-indigo-500 hover:bg-indigo-500/10"
+                        : "text-slate-600 hover:text-indigo-500 hover:bg-indigo-50"
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                );
+              }
+
+              return (
+                <button
+                  key={link.name}
+                  onClick={() => handleNavigation(link.id)}
+                  className={`block w-full text-left px-4 py-3 rounded-xl text-base font-medium transition-all ${
+                    isDark
+                      ? "text-slate-300 hover:text-indigo-500 hover:bg-indigo-500/10"
+                      : "text-slate-600 hover:text-indigo-500 hover:bg-indigo-50"
+                  }`}
+                >
+                  {link.name}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
-
     </nav>
   );
 };

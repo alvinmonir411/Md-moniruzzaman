@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { Project } from "../types";
 import {
@@ -20,6 +20,7 @@ import {
   Minimize2,
   Pin,
   ArrowLeft,
+  ChevronsUpDown,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
@@ -43,6 +44,33 @@ const ProjectDetailView = ({ project, isModal = false }: ProjectDetailViewProps)
     project.img,
     ...(Array.isArray(project.images) ? project.images : []),
   ].filter(Boolean) as string[];
+
+  // Scroll preview state for full-page screenshots
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+  const previewImgRef = useRef<HTMLImageElement>(null);
+  const [isPreviewHovered, setIsPreviewHovered] = useState(false);
+  const [previewScrollDist, setPreviewScrollDist] = useState(0);
+  const [previewDuration, setPreviewDuration] = useState(4);
+
+  const calculatePreviewScroll = useCallback(() => {
+    if (previewImgRef.current && previewContainerRef.current) {
+      const cHeight = previewContainerRef.current.clientHeight;
+      const iHeight = previewImgRef.current.clientHeight;
+      const diff = iHeight - cHeight;
+      if (diff > 15) {
+        setPreviewScrollDist(diff);
+        setPreviewDuration(Math.min(Math.max(diff / 170, 2.5), 14));
+      } else {
+        setPreviewScrollDist(0);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    calculatePreviewScroll();
+    window.addEventListener("resize", calculatePreviewScroll);
+    return () => window.removeEventListener("resize", calculatePreviewScroll);
+  }, [calculatePreviewScroll, currentImgIndex, allImages]);
 
   // Keyboard navigation for image slider
   useEffect(() => {
@@ -226,22 +254,46 @@ const ProjectDetailView = ({ project, isModal = false }: ProjectDetailViewProps)
           {/* Left Column: Interactive Image Gallery (7 cols) */}
           <div className="lg:col-span-7 space-y-4">
             <div
+              ref={previewContainerRef}
+              onMouseEnter={() => {
+                setIsPreviewHovered(true);
+                calculatePreviewScroll();
+              }}
+              onMouseLeave={() => setIsPreviewHovered(false)}
               className={`relative aspect-video rounded-2xl overflow-hidden border group shadow-lg ${
                 isDark ? "bg-slate-900 border-slate-800" : "bg-slate-100 border-slate-200"
               }`}
             >
               {allImages.length > 0 ? (
-                <div className="relative w-full h-full">
-                  <Image
+                <div className="relative w-full h-full overflow-hidden">
+                  <img
+                    ref={previewImgRef}
                     src={allImages[currentImgIndex]}
                     alt={`${project.title} preview`}
-                    fill
-                    className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                    priority
-                    unoptimized
+                    onLoad={calculatePreviewScroll}
+                    className="w-full h-auto min-h-full object-cover object-top absolute top-0 left-0"
+                    style={{
+                      transform:
+                        isPreviewHovered && previewScrollDist > 0
+                          ? `translateY(-${previewScrollDist}px)`
+                          : "translateY(0px)",
+                      transition:
+                        isPreviewHovered && previewScrollDist > 0
+                          ? `transform ${previewDuration}s cubic-bezier(0.45, 0.05, 0.55, 0.95)`
+                          : "transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)",
+                      willChange: "transform",
+                    }}
                   />
                   {/* Gradient Overlay on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-30 group-hover:opacity-10 transition-opacity pointer-events-none" />
+
+                  {/* Hint pill when image is tall screenshot */}
+                  {previewScrollDist > 0 && (
+                    <div className="absolute bottom-3 left-3 z-10 pointer-events-none flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-black/60 backdrop-blur-md text-slate-300 border border-white/10 opacity-70 group-hover:opacity-0 transition-opacity duration-300">
+                      <ChevronsUpDown size={12} className="text-indigo-400" />
+                      <span>Hover to scroll</span>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-slate-500 space-y-2">
@@ -255,14 +307,14 @@ const ProjectDetailView = ({ project, isModal = false }: ProjectDetailViewProps)
                 <>
                   <button
                     onClick={prevImage}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 hover:bg-indigo-600 text-white backdrop-blur-md transition-all shadow-lg hover:scale-110 active:scale-95 cursor-pointer opacity-80 hover:opacity-100"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 hover:bg-indigo-600 text-white backdrop-blur-md transition-all shadow-lg hover:scale-110 active:scale-95 cursor-pointer opacity-80 hover:opacity-100 z-20"
                     aria-label="Previous image"
                   >
                     <ChevronLeft size={18} />
                   </button>
                   <button
                     onClick={nextImage}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 hover:bg-indigo-600 text-white backdrop-blur-md transition-all shadow-lg hover:scale-110 active:scale-95 cursor-pointer opacity-80 hover:opacity-100"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 hover:bg-indigo-600 text-white backdrop-blur-md transition-all shadow-lg hover:scale-110 active:scale-95 cursor-pointer opacity-80 hover:opacity-100 z-20"
                     aria-label="Next image"
                   >
                     <ChevronRight size={18} />
@@ -272,7 +324,7 @@ const ProjectDetailView = ({ project, isModal = false }: ProjectDetailViewProps)
 
               {/* Image Counter Badge */}
               {allImages.length > 0 && (
-                <div className="absolute bottom-3 right-3 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-black/70 text-white backdrop-blur-md border border-white/20">
+                <div className="absolute bottom-3 right-3 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-black/70 text-white backdrop-blur-md border border-white/20 z-10 pointer-events-none">
                   {currentImgIndex + 1} / {allImages.length}
                 </div>
               )}

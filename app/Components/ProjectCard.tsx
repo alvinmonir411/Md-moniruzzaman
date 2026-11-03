@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../lib/store";
 import { Project } from "../types";
-import { ExternalLink, Github, ArrowUpRight } from "lucide-react";
+import { ExternalLink, Github, ArrowUpRight, ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
+import { getProjectNicheLabel } from "../lib/projectNiches";
 
 interface ProjectCardProps {
   project: Project;
@@ -14,8 +15,43 @@ interface ProjectCardProps {
 const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   const isDark = useSelector((state: RootState) => state.theme.isDark);
   const cardRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
+  const [isImgHovered, setIsImgHovered] = useState(false);
+  const [scrollDistance, setScrollDistance] = useState(0);
+  const [scrollDuration, setScrollDuration] = useState(4);
+
+  const calculateScroll = useCallback(() => {
+    if (imgRef.current && containerRef.current) {
+      const cHeight = containerRef.current.clientHeight;
+      const cWidth = containerRef.current.clientWidth;
+      const img = imgRef.current;
+
+      // Exact rendered height calculation using raw natural aspect ratio
+      let renderedHeight = img.clientHeight;
+      if (img.naturalWidth && img.naturalHeight && cWidth > 0) {
+        renderedHeight = (img.naturalHeight / img.naturalWidth) * cWidth;
+      }
+
+      const diff = Math.max(0, Math.round(renderedHeight - cHeight));
+      if (diff > 15) {
+        setScrollDistance(diff);
+        // Smooth dynamic scrolling duration based on scroll length (~160px/sec, between 2.5s and 14s)
+        setScrollDuration(Math.min(Math.max(diff / 160, 2.5), 14));
+      } else {
+        setScrollDistance(0);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    calculateScroll();
+    window.addEventListener("resize", calculateScroll);
+    return () => window.removeEventListener("resize", calculateScroll);
+  }, [calculateScroll, project.img]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -26,12 +62,25 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
     });
   };
 
+  const handleMouseEnterCard = () => {
+    setIsHovered(true);
+    calculateScroll();
+  };
+
+  const handleMouseLeaveCard = () => {
+    setIsHovered(false);
+    setIsImgHovered(false);
+  };
+
+  const isScrollingActive = isHovered || isImgHovered;
+  const nicheLabel = getProjectNicheLabel(project);
+
   return (
     <div
       ref={cardRef}
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnterCard}
+      onMouseLeave={handleMouseLeaveCard}
       className={`rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 border relative group overflow-hidden ${
         isDark
           ? "bg-slate-900/80 border-slate-800 hover:border-indigo-500/50 shadow-2xl hover:shadow-[0_0_30px_rgba(99,102,241,0.2)]"
@@ -49,38 +98,75 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
       )}
 
       <div>
-        {/* Project Thumbnail with Zoom & Badges */}
+        {/* Project Thumbnail with Luxury Scroll on Hover */}
         <Link
           href={`/projects/${project._id}`}
           scroll={false}
+          onMouseEnter={() => {
+            setIsImgHovered(true);
+            calculateScroll();
+          }}
+          onMouseLeave={() => setIsImgHovered(false)}
           className="block relative mb-5 rounded-2xl overflow-hidden group/img cursor-pointer"
         >
-          <div className="relative aspect-video w-full overflow-hidden bg-slate-950">
+          <div
+            ref={containerRef}
+            className="relative aspect-[16/10] w-full overflow-hidden bg-slate-950 rounded-2xl"
+          >
+            {/* The Full Website Screenshot */}
             <img
+              ref={imgRef}
               src={project.img}
               alt={project.title}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-105"
+              onLoad={calculateScroll}
+              className="w-full h-auto min-h-full max-h-none object-cover object-top absolute top-0 left-0"
+              style={{
+                transform:
+                  isScrollingActive && scrollDistance > 0
+                    ? `translateY(-${scrollDistance}px)`
+                    : "translateY(0px)",
+                transition:
+                  isScrollingActive && scrollDistance > 0
+                    ? `transform ${scrollDuration}s cubic-bezier(0.45, 0.05, 0.55, 0.95)`
+                    : "transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)",
+                willChange: "transform",
+              }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-60 group-hover/img:opacity-40 transition-opacity" />
-            
-            {/* Category tag */}
-            <div className="absolute top-3 left-3">
-              <span className="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-slate-900/85 backdrop-blur-md text-indigo-300 border border-indigo-500/30 shadow-md">
+
+            {/* Ambient Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-60 group-hover/img:opacity-10 transition-opacity pointer-events-none" />
+
+            {/* Badges: Category & Niche */}
+            <div className="absolute top-3 left-3 z-10 pointer-events-none flex flex-wrap gap-1.5 transition-opacity duration-300 group-hover/img:opacity-85">
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-slate-900/90 backdrop-blur-md text-indigo-300 border border-indigo-500/30 shadow-md">
                 {project.category === "wix" ? "Wix / No-Code" : "Custom Web App"}
               </span>
+              {nicheLabel && (
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-medium bg-slate-950/80 backdrop-blur-md text-slate-200 border border-slate-700/80 shadow-md hidden sm:inline-block">
+                  {nicheLabel}
+                </span>
+              )}
             </div>
 
             {/* Pinned / Featured tag */}
             {(project.is_featured || project.isFeatured) && (
-              <div className="absolute top-3 right-3">
+              <div className="absolute top-3 right-3 z-10 pointer-events-none transition-opacity duration-300 group-hover/img:opacity-85">
                 <span className="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-amber-500/20 backdrop-blur-md text-amber-300 border border-amber-500/40 shadow-md flex items-center gap-1">
                   <span>📌</span> Featured
                 </span>
               </div>
             )}
 
+            {/* Hover to scroll indicator */}
+            {scrollDistance > 0 && (
+              <div className="absolute bottom-3 left-3 z-10 pointer-events-none flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-black/60 backdrop-blur-md text-slate-300 border border-white/10 opacity-70 group-hover/img:opacity-0 transition-opacity duration-300">
+                <ChevronsUpDown size={12} className="text-indigo-400" />
+                <span>Hover to scroll</span>
+              </div>
+            )}
+
             {/* Quick View Icon */}
-            <div className="absolute bottom-3 right-3 w-9 h-9 rounded-xl bg-indigo-600/90 text-white flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-all duration-300 translate-y-2 group-hover/img:translate-y-0 shadow-lg">
+            <div className="absolute bottom-3 right-3 z-10 w-9 h-9 rounded-xl bg-indigo-600/90 text-white flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-all duration-300 translate-y-2 group-hover/img:translate-y-0 shadow-lg">
               <ArrowUpRight size={18} />
             </div>
           </div>

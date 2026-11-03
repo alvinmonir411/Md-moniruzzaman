@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import {
   Github,
   Linkedin,
@@ -165,13 +166,13 @@ const HeroSection: React.FC = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-4 pt-2">
-            <a
-              href="#projects"
-              className="px-7 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-base transition-all duration-300 shadow-[0_0_25px_rgba(99,102,241,0.45)] hover:shadow-[0_0_35px_rgba(99,102,241,0.7)] hover:-translate-y-1 flex items-center gap-2.5 group"
+            <Link
+              href="/projects"
+              className="px-7 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-base transition-all duration-300 shadow-[0_0_25px_rgba(99,102,241,0.45)] hover:shadow-[0_0_35px_rgba(99,102,241,0.7)] hover:-translate-y-1 flex items-center gap-2.5 group cursor-pointer"
             >
               Explore Projects
               <ArrowRight size={18} className="transition-transform duration-300 group-hover:translate-x-1" />
-            </a>
+            </Link>
 
             <a
               download="Md_Moniruzzaman_Resume.pdf"
