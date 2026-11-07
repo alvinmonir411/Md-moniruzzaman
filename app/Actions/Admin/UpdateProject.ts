@@ -42,9 +42,9 @@ export async function updateProject(formData: FormData) {
 
     const finalImages = [...existingImages, ...newUploadedImages];
 
-    const title = formData.get("title") as string;
-    const desc = formData.get("desc") as string;
-    const tech = formData.get("tech") as string;
+    const title = (formData.get("title") as string) || "";
+    const desc = (formData.get("desc") as string) || "";
+    const tech = (formData.get("tech") as string) || "";
     const liveUrl = (formData.get("live") as string) || "";
     const githubUrl = (formData.get("github") as string) || "";
     const category = (formData.get("category") as string) || "custom";
@@ -88,8 +88,8 @@ export async function updateProject(formData: FormData) {
     revalidatePath("/");
 
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to update project in Neon DB:", error);
-    return { success: false, error: "Failed to update project" };
+    return { success: false, error: error?.message || "Failed to update project" };
   }
 }

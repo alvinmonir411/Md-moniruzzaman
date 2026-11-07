@@ -13,9 +13,20 @@ export async function addProject(formData: FormData) {
       imageUrl = await getcloudinaryImageurl(file);
     }
 
-    // Handle multiple images
+    // Handle existing images if any
+    const existingImagesJson = formData.get("existingImages") as string;
+    let existingImages: string[] = [];
+    if (existingImagesJson) {
+      try {
+        existingImages = JSON.parse(existingImagesJson);
+      } catch (e) {
+        console.error("Failed to parse existing images", e);
+      }
+    }
+
+    // Handle multiple uploaded gallery images
     const imageFiles = formData.getAll("images") as File[];
-    const uploadedImages: string[] = [];
+    const uploadedImages: string[] = [...existingImages];
 
     if (imageFiles && imageFiles.length > 0) {
       for (const imgFile of imageFiles) {
@@ -26,15 +37,15 @@ export async function addProject(formData: FormData) {
       }
     }
 
-    const title = formData.get("title") as string;
-    const desc = formData.get("desc") as string;
-    const tech = formData.get("tech") as string;
+    const title = (formData.get("title") as string) || "";
+    const desc = (formData.get("desc") as string) || "";
+    const tech = (formData.get("tech") as string) || "";
     const liveUrl = (formData.get("live") as string) || "";
     const githubUrl = (formData.get("github") as string) || "";
     const category = (formData.get("category") as string) || "custom";
     const isFeatured = formData.get("is_featured") === "true";
 
-    if (!title || !desc || !tech) {
+    if (!title.trim() || !desc.trim() || !tech.trim()) {
       return { success: false, error: "Missing required fields (Title, Description, or Tech Stack)" };
     }
 
@@ -51,13 +62,13 @@ export async function addProject(formData: FormData) {
         is_featured
       )
       VALUES (
-        ${title}, 
-        ${desc}, 
-        ${tech}, 
+        ${title.trim()}, 
+        ${desc.trim()}, 
+        ${tech.trim()}, 
         ${imageUrl}, 
         ${JSON.stringify(uploadedImages)}::jsonb, 
-        ${liveUrl}, 
-        ${githubUrl}, 
+        ${liveUrl.trim()}, 
+        ${githubUrl.trim()}, 
         ${category},
         ${isFeatured}
       )
@@ -77,8 +88,8 @@ export async function addProject(formData: FormData) {
         _id: String(created.id),
       },
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to add project to Neon DB:", error);
-    return { success: false, error: "Failed to add project" };
+    return { success: false, error: error?.message || "Failed to add project" };
   }
 }
