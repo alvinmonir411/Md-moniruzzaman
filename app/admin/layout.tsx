@@ -211,7 +211,7 @@ export default function AdminLayout({ children }: SidebarProps) {
                                         setPasscode(e.target.value);
                                         setAuthError("");
                                     }}
-                                    placeholder="Enter passcode (e.g. 13663)..."
+                                    placeholder="Enter passcode..."
                                     autoFocus
                                     className={`w-full pl-10 pr-10 py-3 text-sm rounded-xl border-2 transition-all outline-none ${
                                         authError
