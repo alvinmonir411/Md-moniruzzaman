@@ -24,9 +24,12 @@ export const metadata: Metadata = {
   title: "Moniruzzaman | Web & Software Development Portfolio",
   description: "Moniruzzaman — High-performance web applications, full-stack digital products, and modern UI/UX.",
   icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
   alternates: {
     canonical: "https://moniruzzaman-dev.vercel.app",
