@@ -12,7 +12,7 @@
 [![Google Gemini](https://img.shields.io/badge/Google_Gemini-3.6_Flash_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
 [![Vercel](https://img.shields.io/badge/Vercel-Deployed-black?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 
-[**Explore Live Demo**](https://pexelneststudio.vercel.app) • [**Report Bug**](https://github.com/alvinmonir411/Md-moniruzzaman/issues) • [**Request Feature**](https://github.com/alvinmonir411/Md-moniruzzaman/issues)
+[**Explore Live Demo**](https://moniruzzaman-dev.vercel.app) • [**Report Bug**](https://github.com/alvinmonir411/Md-moniruzzaman/issues) • [**Request Feature**](https://github.com/alvinmonir411/Md-moniruzzaman/issues)
 
 </div>
 
@@ -221,11 +221,9 @@ Deploy seamlessly to [Vercel](https://vercel.com/):
 **Moniruzzaman**  
 *Front-End & MERN Full-Stack Developer*
 
-- 🌐 **Portfolio:** [pexelneststudio.vercel.app](https://pexelneststudio.vercel.app)
+- 🌐 **Portfolio:** [moniruzzaman-dev.vercel.app](https://moniruzzaman-dev.vercel.app)
 - 💼 **LinkedIn:** [linkedin.com/in/moniruzzaman13663](https://www.linkedin.com/in/moniruzzaman13663/)
 - 🐙 **GitHub:** [github.com/alvinmonir411](https://github.com/alvinmonir411)
-- 📘 **Facebook:** [facebook.com/pexelneststudio](https://www.facebook.com/pexelneststudio/)
-- 📸 **Instagram:** [@pixelneststudio.official](https://www.instagram.com/pixelneststudio.official/)
 - 📧 **Email:** [alvinmonir411@gmail.com](mailto:alvinmonir411@gmail.com)
 - 📱 **WhatsApp / Call:** [+8801340571927](https://wa.me/8801340571927)
 

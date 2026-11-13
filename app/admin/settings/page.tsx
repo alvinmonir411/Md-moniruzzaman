@@ -351,7 +351,7 @@ export default function SettingsPage() {
                     type="url"
                     value={profileForm.facebook || ""}
                     onChange={(e) => setProfileForm({ ...profileForm, facebook: e.target.value })}
-                    placeholder="https://www.facebook.com/pexelneststudio/"
+                    placeholder="https://facebook.com/your-username"
                     className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-all ${
                       isDark
                         ? "bg-slate-800 border-slate-700 text-white focus:border-indigo-500"
@@ -372,7 +372,7 @@ export default function SettingsPage() {
                     type="url"
                     value={profileForm.instagram || ""}
                     onChange={(e) => setProfileForm({ ...profileForm, instagram: e.target.value })}
-                    placeholder="https://www.instagram.com/pixelneststudio.official/"
+                    placeholder="https://instagram.com/your-username"
                     className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-all ${
                       isDark
                         ? "bg-slate-800 border-slate-700 text-white focus:border-indigo-500"

@@ -63,8 +63,8 @@ export default function AdminLayout({ children }: SidebarProps) {
 
     // 1. Check existing authentication status on mount
     useEffect(() => {
-        const localAuth = localStorage.getItem("pixelnest_admin_auth");
-        const cookieAuth = document.cookie.includes("pixelnest_admin_auth=authorized");
+        const localAuth = localStorage.getItem("portfolio_admin_auth");
+        const cookieAuth = document.cookie.includes("portfolio_admin_auth=authorized");
 
         if (localAuth === "true" || cookieAuth) {
             setIsAuthenticated(true);
@@ -122,8 +122,8 @@ export default function AdminLayout({ children }: SidebarProps) {
             const data = await res.json();
 
             if (res.ok && data.success) {
-                localStorage.setItem("pixelnest_admin_auth", "true");
-                document.cookie = "pixelnest_admin_auth=authorized; path=/; max-age=604800; SameSite=Lax";
+                localStorage.setItem("portfolio_admin_auth", "true");
+                document.cookie = "portfolio_admin_auth=authorized; path=/; max-age=604800; SameSite=Lax";
                 setIsAuthenticated(true);
             } else {
                 setAuthError(data.error || "Invalid secret passcode. Access denied.");
@@ -139,8 +139,8 @@ export default function AdminLayout({ children }: SidebarProps) {
     };
 
     const handleLogout = async () => {
-        localStorage.removeItem("pixelnest_admin_auth");
-        document.cookie = "pixelnest_admin_auth=; path=/; max-age=0";
+        localStorage.removeItem("portfolio_admin_auth");
+        document.cookie = "portfolio_admin_auth=; path=/; max-age=0";
         await fetch("/api/admin/auth", { method: "DELETE" }).catch(() => {});
         setIsAuthenticated(false);
         router.push("/");
@@ -400,7 +400,7 @@ export default function AdminLayout({ children }: SidebarProps) {
                     {/* Navigation Items */}
                     <div className="p-4 space-y-1.5">
                         <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 font-mono">
-                            Management Studio
+                            Management Portal
                         </p>
                         {navItems.map((item) => {
                             const Icon = item.icon;

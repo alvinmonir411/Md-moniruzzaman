@@ -218,18 +218,22 @@ const HeroSection: React.FC = () => {
                 label="LinkedIn Profile"
                 isDark={isDark}
               />
-              <SocialLink
-                href={profile.facebook || "https://www.facebook.com/pexelneststudio/"}
-                icon={Facebook}
-                label="Facebook Page"
-                isDark={isDark}
-              />
-              <SocialLink
-                href={profile.instagram || "https://www.instagram.com/pixelneststudio.official/"}
-                icon={Instagram}
-                label="Instagram Profile"
-                isDark={isDark}
-              />
+              {profile.facebook ? (
+                <SocialLink
+                  href={profile.facebook}
+                  icon={Facebook}
+                  label="Facebook Page"
+                  isDark={isDark}
+                />
+              ) : null}
+              {profile.instagram ? (
+                <SocialLink
+                  href={profile.instagram}
+                  icon={Instagram}
+                  label="Instagram Profile"
+                  isDark={isDark}
+                />
+              ) : null}
               <SocialLink
                 href={`mailto:${profile.email || "alvinmonir411@gmail.com"}`}
                 icon={Mail}

@@ -157,8 +157,6 @@ const TerminalSection: React.FC = () => {
             <p>📞 Phone/WhatsApp: <a href="https://wa.me/8801340571927" target="_blank" rel="noreferrer" className="text-emerald-400 underline">+8801340571927</a></p>
             <p>🐙 GitHub: <a href="https://github.com/alvinmonir411" target="_blank" rel="noreferrer" className="text-purple-400 underline">github.com/alvinmonir411</a></p>
             <p>💼 LinkedIn: <a href="https://www.linkedin.com/in/moniruzzaman13663/" target="_blank" rel="noreferrer" className="text-blue-400 underline">linkedin.com/in/moniruzzaman13663</a></p>
-            <p>🌐 Facebook: <a href="https://www.facebook.com/pexelneststudio/" target="_blank" rel="noreferrer" className="text-indigo-400 underline">facebook.com/pexelneststudio</a></p>
-            <p>📸 Instagram: <a href="https://www.instagram.com/pixelneststudio.official/" target="_blank" rel="noreferrer" className="text-pink-400 underline">@pixelneststudio.official</a></p>
           </div>
         );
         break;

@@ -901,9 +901,9 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
-                {/* RIGHT COLUMN: Quick Studio Actions & Recent Inquiries (4 cols) */}
+                {/* RIGHT COLUMN: Quick Actions & Recent Inquiries (4 cols) */}
                 <div className="lg:col-span-4 space-y-8">
-                    {/* Quick Studio Actions */}
+                    {/* Quick Actions */}
                     <div
                         className={`rounded-3xl p-6 border ${
                             isDark ? "bg-[#0F172A] border-slate-800 text-white" : "bg-white border-slate-200 text-slate-900"

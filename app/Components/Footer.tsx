@@ -179,33 +179,37 @@ const Footer: React.FC = () => {
                 <Linkedin size={18} />
               </a>
 
-              <a
-                href={profile.facebook || "https://www.facebook.com/pexelneststudio/"}
-                target="_blank"
-                rel="noreferrer"
-                className={`p-2.5 rounded-xl border transition-all duration-200 hover:scale-110 ${
-                  isDark
-                    ? "border-slate-800 bg-slate-900 text-slate-300 hover:text-indigo-400 hover:border-indigo-500/50"
-                    : "border-slate-200 bg-white text-slate-700 hover:text-indigo-600 hover:border-indigo-300 shadow-sm"
-                }`}
-                aria-label="Facebook Page"
-              >
-                <Facebook size={18} />
-              </a>
+              {profile.facebook ? (
+                <a
+                  href={profile.facebook}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`p-2.5 rounded-xl border transition-all duration-200 hover:scale-110 ${
+                    isDark
+                      ? "border-slate-800 bg-slate-900 text-slate-300 hover:text-indigo-400 hover:border-indigo-500/50"
+                      : "border-slate-200 bg-white text-slate-700 hover:text-indigo-600 hover:border-indigo-300 shadow-sm"
+                  }`}
+                  aria-label="Facebook Page"
+                >
+                  <Facebook size={18} />
+                </a>
+              ) : null}
 
-              <a
-                href={profile.instagram || "https://www.instagram.com/pixelneststudio.official/"}
-                target="_blank"
-                rel="noreferrer"
-                className={`p-2.5 rounded-xl border transition-all duration-200 hover:scale-110 ${
-                  isDark
-                    ? "border-slate-800 bg-slate-900 text-slate-300 hover:text-pink-400 hover:border-pink-500/50"
-                    : "border-slate-200 bg-white text-slate-700 hover:text-pink-600 hover:border-pink-300 shadow-sm"
-                }`}
-                aria-label="Instagram Profile"
-              >
-                <Instagram size={18} />
-              </a>
+              {profile.instagram ? (
+                <a
+                  href={profile.instagram}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`p-2.5 rounded-xl border transition-all duration-200 hover:scale-110 ${
+                    isDark
+                      ? "border-slate-800 bg-slate-900 text-slate-300 hover:text-pink-400 hover:border-pink-500/50"
+                      : "border-slate-200 bg-white text-slate-700 hover:text-pink-600 hover:border-pink-300 shadow-sm"
+                  }`}
+                  aria-label="Instagram Profile"
+                >
+                  <Instagram size={18} />
+                </a>
+              ) : null}
 
               <a
                 href={`https://wa.me/${whatsappClean}`}

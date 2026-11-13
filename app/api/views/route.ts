@@ -60,7 +60,6 @@ function parseTrafficSource(referrerUrl: string, searchStr?: string): string {
   // Self domain / preview domains / internal navigation count as Direct
   if (
     lower.includes("moniruzzaman") ||
-    lower.includes("pexelneststudio") ||
     lower.includes("localhost") ||
     lower.includes("127.0.0.1") ||
     lower.includes("alvinmonir411s-projects.vercel.app")

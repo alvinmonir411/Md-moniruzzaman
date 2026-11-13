@@ -262,33 +262,37 @@ const ContactSection: React.FC = () => {
                     <span className="text-xs font-medium">LinkedIn</span>
                   </a>
 
-                  <a
-                    href={profile.facebook || "https://www.facebook.com/pexelneststudio/"}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all duration-200 hover:-translate-y-1 ${
-                      isDark
-                        ? "bg-slate-800/60 border-slate-700 hover:bg-slate-800 text-slate-200 hover:text-white hover:border-indigo-500/50"
-                        : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700 hover:border-indigo-300"
-                    }`}
-                  >
-                    <Facebook size={20} className="text-indigo-400" />
-                    <span className="text-xs font-medium">Facebook</span>
-                  </a>
+                  {profile.facebook ? (
+                    <a
+                      href={profile.facebook}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all duration-200 hover:-translate-y-1 ${
+                        isDark
+                          ? "bg-slate-800/60 border-slate-700 hover:bg-slate-800 text-slate-200 hover:text-white hover:border-indigo-500/50"
+                          : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700 hover:border-indigo-300"
+                      }`}
+                    >
+                      <Facebook size={20} className="text-indigo-400" />
+                      <span className="text-xs font-medium">Facebook</span>
+                    </a>
+                  ) : null}
 
-                  <a
-                    href={profile.instagram || "https://www.instagram.com/pixelneststudio.official/"}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all duration-200 hover:-translate-y-1 ${
-                      isDark
-                        ? "bg-slate-800/60 border-slate-700 hover:bg-slate-800 text-slate-200 hover:text-white hover:border-pink-500/50"
-                        : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700 hover:border-pink-300"
-                    }`}
-                  >
-                    <Instagram size={20} className="text-pink-400" />
-                    <span className="text-xs font-medium">Instagram</span>
-                  </a>
+                  {profile.instagram ? (
+                    <a
+                      href={profile.instagram}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all duration-200 hover:-translate-y-1 ${
+                        isDark
+                          ? "bg-slate-800/60 border-slate-700 hover:bg-slate-800 text-slate-200 hover:text-white hover:border-pink-500/50"
+                          : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700 hover:border-pink-300"
+                      }`}
+                    >
+                      <Instagram size={20} className="text-pink-400" />
+                      <span className="text-xs font-medium">Instagram</span>
+                    </a>
+                  ) : null}
 
                   <a
                     href={`https://wa.me/${whatsappClean}`}

@@ -157,8 +157,6 @@ Moniruzzaman's Profile:
   * Portfolio / Live Site: https://moniruzzaman-dev.vercel.app
   * Email: alvinmonir411@gmail.com
   * WhatsApp / Phone Call: +8801340571927 (https://wa.me/8801340571927)
-  * Facebook: https://www.facebook.com/pexelneststudio/
-  * Instagram: https://www.instagram.com/pixelneststudio.official/ (@pixelneststudio.official)
   * GitHub: https://github.com/alvinmonir411
   * LinkedIn: https://www.linkedin.com/in/moniruzzaman13663/
   * Location: Dhaka & Rangpur, Bangladesh
@@ -335,7 +333,7 @@ STRICT TOPIC RESTRICTION & GUARDRAILS (MANDATORY POLICY):
       lower.includes("ফোন") ||
       lower.includes("ইমেইল")
     ) {
-      reply = "📬 **Moniruzzaman is actively open for Full-Time Front-End & Full-Stack roles, contracts, and freelance projects!**\n\n• 📧 **Email:** [alvinmonir411@gmail.com](mailto:alvinmonir411@gmail.com)\n• 📱 **WhatsApp / Call:** [+8801340571927](https://wa.me/8801340571927)\n• 💼 **LinkedIn:** [linkedin.com/in/moniruzzaman13663](https://www.linkedin.com/in/moniruzzaman13663/)\n• 🐙 **GitHub:** [github.com/alvinmonir411](https://github.com/alvinmonir411)\n• 🌐 **Facebook:** [facebook.com/pexelneststudio](https://www.facebook.com/pexelneststudio/)";
+      reply = "📬 **Moniruzzaman is actively open for Full-Time Front-End & Full-Stack roles, contracts, and freelance projects!**\n\n• 📧 **Email:** [alvinmonir411@gmail.com](mailto:alvinmonir411@gmail.com)\n• 📱 **WhatsApp / Call:** [+8801340571927](https://wa.me/8801340571927)\n• 💼 **LinkedIn:** [linkedin.com/in/moniruzzaman13663](https://www.linkedin.com/in/moniruzzaman13663/)\n• 🐙 **GitHub:** [github.com/alvinmonir411](https://github.com/alvinmonir411)";
     }
     // G. Greetings
     else if (

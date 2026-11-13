@@ -111,8 +111,8 @@ export async function initDatabase() {
         whatsapp VARCHAR(100) DEFAULT '+8801340571927',
         github VARCHAR(255) DEFAULT 'https://github.com/alvinmonir411',
         linkedin VARCHAR(255) DEFAULT 'https://www.linkedin.com/in/moniruzzaman13663/',
-        facebook VARCHAR(255) DEFAULT 'https://www.facebook.com/pexelneststudio/',
-        instagram VARCHAR(255) DEFAULT 'https://www.instagram.com/pixelneststudio.official/',
+        facebook VARCHAR(255) DEFAULT '',
+        instagram VARCHAR(255) DEFAULT '',
         location VARCHAR(255) DEFAULT 'Dhaka & Rangpur, Bangladesh (UTC+6)',
         bio TEXT DEFAULT 'Engineering high-performance, scalable web apps with Next.js, React, and TypeScript.',
         title VARCHAR(255) DEFAULT 'Front-End & MERN Full-Stack Developer',
@@ -122,8 +122,8 @@ export async function initDatabase() {
 
     // Profile Settings table column migrations
     await sql`
-      ALTER TABLE profile_settings ADD COLUMN IF NOT EXISTS facebook VARCHAR(255) DEFAULT 'https://www.facebook.com/pexelneststudio/';
-      ALTER TABLE profile_settings ADD COLUMN IF NOT EXISTS instagram VARCHAR(255) DEFAULT 'https://www.instagram.com/pixelneststudio.official/';
+      ALTER TABLE profile_settings ADD COLUMN IF NOT EXISTS facebook VARCHAR(255) DEFAULT '';
+      ALTER TABLE profile_settings ADD COLUMN IF NOT EXISTS instagram VARCHAR(255) DEFAULT '';
     `;
 
     // Saved ATS Resumes table

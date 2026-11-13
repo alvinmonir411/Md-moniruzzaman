@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Set auth cookie valid for 7 days
-      response.cookies.set("pixelnest_admin_auth", "authorized", {
+      response.cookies.set("portfolio_admin_auth", "authorized", {
         httpOnly: false, // Accessible to client-side auth guard check
         secure: process.env.NODE_ENV === "production",
         maxAge: 7 * 24 * 60 * 60, // 7 days
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const cookie = request.cookies.get("pixelnest_admin_auth");
+  const cookie = request.cookies.get("portfolio_admin_auth");
   const isAuthenticated = cookie?.value === "authorized";
 
   return NextResponse.json({
@@ -62,6 +62,6 @@ export async function DELETE() {
     message: "Logged out",
   });
 
-  response.cookies.delete("pixelnest_admin_auth");
+  response.cookies.delete("portfolio_admin_auth");
   return response;
 }
